@@ -752,13 +752,13 @@ export default function NewRequisitionPage() {
                   <span className="text-sm font-semibold text-[var(--d-text)]">{selectedProveedor.name}</span>
                   {(() => {
                     const m = (selectedProveedor.payment_method || formaPago || "").toUpperCase();
-                    let bg = "linear-gradient(180deg, #D97706 0%, #B45309 100%)"; // EFECTIVO ambar
+                    let bg = "#b85507"; // EFECTIVO ambar
                     let label: string = "EFECTIVO";
-                    if (m.includes("TRANSFER")) { bg = "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)"; label = "TRANSFERENCIA"; }
-                    else if (m.includes("CHEQUE")) { bg = "linear-gradient(180deg, #1F8A60 0%, #16704D 100%)"; label = "CHEQUE"; }
-                    else if (m.includes("CREDITO") || m.includes("CRÉDITO")) { bg = "linear-gradient(180deg, #7C3AED 0%, #5B21B6 100%)"; label = "CREDITO"; }
+                    if (m.includes("TRANSFER")) { bg = "#0060c7"; label = "TRANSFERENCIA"; }
+                    else if (m.includes("CHEQUE")) { bg = "#007f48"; label = "CHEQUE"; }
+                    else if (m.includes("CREDITO") || m.includes("CRÉDITO")) { bg = "#7e3bdd"; label = "CREDITO"; }
                     else if (m === "" || m === "EFECTIVO") { /* defaults */ }
-                    else { bg = "linear-gradient(180deg, #475569 0%, #334155 100%)"; label = m; }
+                    else { bg = "#475569"; label = m; }
                     return (
                       <span
                         className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide text-[var(--d-text)] shadow-[inset_0_1px_0_rgba(220,235,255,0.15),0_2px_4px_rgba(0,0,0,0.30)] border border-[rgba(140,178,228,0.25)]"
@@ -836,7 +836,7 @@ export default function NewRequisitionPage() {
           )}
           <div className="md:hidden mt-5 grid grid-cols-[auto_1fr] gap-2">
             <button type="button" onClick={() => setPasoM(1)} className="rounded-2xl bg-[var(--d-card-2)] px-5 py-3.5 text-sm font-semibold text-[var(--d-text-2)]">Atrás</button>
-            <button type="button" onClick={() => { if (!selectedCostCenterId) { setErrorMsg("Elige la obra."); return; } if (!requiredDate) { setErrorMsg("Elige para cuándo."); return; } setErrorMsg(null); setPasoM(3); try { window.scrollTo({ top: 0 }); } catch { /* */ } }} className="rounded-2xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3.5 text-[15px] font-bold text-white">Siguiente →</button>
+            <button type="button" onClick={() => { if (!selectedCostCenterId) { setErrorMsg("Elige la obra."); return; } if (!requiredDate) { setErrorMsg("Elige para cuándo."); return; } setErrorMsg(null); setPasoM(3); try { window.scrollTo({ top: 0 }); } catch { /* */ } }} className="rounded-2xl bg-[#0073ea] py-3.5 text-[15px] font-bold text-white">Siguiente →</button>
           </div>
         </section>
 

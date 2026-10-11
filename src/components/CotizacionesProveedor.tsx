@@ -51,9 +51,9 @@ export default function CotizacionesProveedor({ reqId, puedePedir }: { reqId: st
               <button onClick={() => setNuevo(null)} className="mt-2 text-[12px] text-[var(--d-muted)] underline">Pedir a otro proveedor</button>
             </div>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input value={prov} onChange={e => setProv(e.target.value)} placeholder="Nombre del proveedor" className="flex-1 min-w-0 rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm text-[var(--d-text)]" />
-              <button onClick={crear} disabled={busy} className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-[#0073ea] px-3 py-2 text-[13px] font-bold text-white disabled:opacity-50">{busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}Pedir cotización</button>
+              <button onClick={crear} disabled={busy} className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0073ea] px-3 py-2.5 text-[13px] font-bold text-white disabled:opacity-50">{busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}Pedir cotización</button>
             </div>)}
           {err && <div className="mt-1 text-[12px] text-[var(--d-danger)]">{err}</div>}
           <div className="mt-1.5 text-[11px] text-[var(--d-faint)]">El proveedor abre el link sin cuenta, ve el material y sube su cotización. Vence en 7 días.</div>

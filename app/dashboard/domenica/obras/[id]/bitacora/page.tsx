@@ -91,7 +91,7 @@ export default function BitacoraPage() {
             </Seccion>}
             {b.fotos.length > 0 && <div className="mt-4">
               <div className="mb-2 flex items-center gap-2 text-[15px] font-bold text-[var(--d-text)]"><Camera className="w-5 h-5 text-[var(--c-morado)]" />Fotos ({b.fotos.length})</div>
-              <div className="grid grid-cols-3 gap-2">{b.fotos.map((f, i) => <button key={i} onClick={() => setFoto(f.url)} className="relative aspect-square rounded-2xl overflow-hidden bg-[var(--d-card-2)]"><img src={f.url} alt={f.de} className="w-full h-full object-cover" loading="lazy" /><span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1 text-[11px] text-white truncate text-left">{f.de}</span></button>)}</div>
+              <div className="grid grid-cols-3 gap-2">{b.fotos.map((f, i) => <button key={i} onClick={() => setFoto(f.url)} className="relative aspect-square rounded-2xl overflow-hidden bg-[var(--d-card-2)]"><img src={f.url} alt={f.de} className="w-full h-full object-cover" loading="lazy" /><span className="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1 text-[11px] text-white truncate text-left">{f.de}</span></button>)}</div>
             </div>}
             {b.entregas.length > 0 && <Seccion icono={<Package className="w-5 h-5 text-[var(--c-ambar)]" />} titulo={`Entregas (${b.entregas.length})`}>
               {b.entregas.map((e, i) => <li key={i} className="px-4 py-3 text-[14px] text-[var(--d-text)]">{e.proveedor || "Proveedor"}{e.recibio ? <span className="text-[var(--d-muted)]"> · recibió {e.recibio}</span> : null}</li>)}

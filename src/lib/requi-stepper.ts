@@ -45,6 +45,7 @@ export function buildStepper(r: RequiLike): Paso[] {
   const rk = rank(st);
 
   const pasos: Paso[] = [];
+  if (st === "AUTORIZADA_HISTORICO") return [{ key: "creada", label: "Solicitada", estado: "hecho", fecha: r.created_at, quien: r.created_by }, { key: "historico", label: "Cerrada (histórico)", estado: "hecho", fecha: r.authorized_at, quien: r.authorized_by }];
   pasos.push({ key: "creada", label: "Solicitada", estado: "hecho", fecha: r.created_at, quien: r.created_by });
 
   // Responsable de obra
@@ -67,7 +68,7 @@ export function buildStepper(r: RequiLike): Paso[] {
   // OC (solo materiales a credito/transferencia)
   if (!esDestajo && !esEfectivo) {
     const hecho = !!r.tiene_oc || rk >= rank("OC_GENERADA");
-    pasos.push({ key: "oc", label: "Orden de compra", estado: hecho ? "hecho" : (st === "APROBADA" ? "actual" : "pendiente") });
+    pasos.push({ key: "oc", label: "OC", estado: hecho ? "hecho" : (st === "APROBADA" ? "actual" : "pendiente") });
   }
 
   // Pago

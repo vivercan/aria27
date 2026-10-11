@@ -908,7 +908,7 @@ ${avisarPago.clabe_interbancaria || avisarPago.numero_cuenta || ""}`}</pre>
                   } catch (e) { alert("Error de red: " + (e as Error).message); }
                   finally { setEnviandoPago(false); }
                 }}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold ${(!pagoPhone && !pagoEmail) ? "bg-[var(--d-card)] text-[var(--d-faint)] cursor-not-allowed" : "bg-gradient-to-br from-amber-400 to-amber-600 text-black"}`}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold ${(!pagoPhone && !pagoEmail) ? "bg-[var(--d-card)] text-[var(--d-faint)] cursor-not-allowed" : "bg-[#b85507] text-white"}`}
               >
                 {enviandoPago ? "Enviando..." : "Enviar aviso"}
               </button>
