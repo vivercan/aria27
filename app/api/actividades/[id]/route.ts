@@ -95,11 +95,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const obraTxt = nueva.obra ? ` (${nueva.obra})` : "";
     if (colDespues !== colAntes && !esAsignador) {
       const asignador = await personaPorEmail(db, t.asignado_por_email || t.asignado_por);
-      if (colDespues === "TERMINADA") await avisarWA(asignador, `${quien} terminó la actividad "${nueva.titulo}"${obraTxt}.`, "actividad-terminada", me);
-      else if (colDespues === "BLOQUEADA") await avisarWA(asignador, `La actividad "${nueva.titulo}"${obraTxt} está atorada: ${nueva.motivo_bloqueo}. Avisó ${quien}.`, "actividad-atorada", me);
+      if (colDespues === "TERMINADA") await avisarWA(asignador, `${quien} terminó la actividad "${nueva.titulo}"${obraTxt}.`, "actividad-terminada", me, { title: "✅ Actividad terminada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
+      else if (colDespues === "BLOQUEADA") await avisarWA(asignador, `La actividad "${nueva.titulo}"${obraTxt} está atorada: ${nueva.motivo_bloqueo}. Avisó ${quien}.`, "actividad-atorada", me, { title: "⚠️ Actividad atorada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
     }
     if (nuevoAsignado && nuevoAsignado.email !== me) {
-      await avisarWA(nuevoAsignado, `${quien} te pasó la actividad "${nueva.titulo}"${obraTxt}. Entrega: ${fechaCorta(nueva.fecha_compromiso) || "sin fecha"}. Contesta LISTO, AVANCE 50 o BLOQUEADO y el motivo.`, "actividad-reasignada", me);
+      await avisarWA(nuevoAsignado, `${quien} te pasó la actividad "${nueva.titulo}"${obraTxt}. Entrega: ${fechaCorta(nueva.fecha_compromiso) || "sin fecha"}. Contesta LISTO, AVANCE 50 o BLOQUEADO y el motivo.`, "actividad-reasignada", me, { title: "📋 Te pasaron una actividad", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
     }
     return NextResponse.json({ ok: true, tarea: nueva });
   } catch (e: unknown) {

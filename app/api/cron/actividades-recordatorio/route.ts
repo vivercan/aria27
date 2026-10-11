@@ -55,14 +55,14 @@ export async function GET(req: NextRequest) {
       return `${i + 1}) ${a.titulo.slice(0, 60)} - ${d > 0 ? `atrasada ${d} día${d === 1 ? "" : "s"}` : f === H ? "vence HOY" : "vence mañana"}`;
     });
     const msg = `Tus actividades: ${partes.join(" | ")}${list.length > 6 ? ` y ${list.length - 6} más` : ""}. Contesta 1 LISTO o 1 AVANCE 50 para actualizar.`;
-    if (!dry && await avisarWA(p, msg, "actividades-recordatorio", "cron")) enviados.push(`persona:${p?.nombre}`);
+    if (!dry && await avisarWA(p, msg, "actividades-recordatorio", "cron", { title: "⏰ Tus actividades de hoy", url: "/dashboard/actividades?vista=mi", tag: "recordatorio" })) enviados.push(`persona:${p?.nombre}`);
     else if (dry) enviados.push(`DRY persona:${p?.nombre} -> ${msg}`);
   }
   for (const [email, list] of atrasadasPorAsignador) {
     const p = await personaPorEmail(db, email);
     const partes = list.slice(0, 6).map(a => `${a.titulo.slice(0, 50)} (${(a.asignado_nombre || "").split(" ")[0]}, ${diasAtraso(a, hoy)}d, entrega ${fechaCorta(a.fecha_compromiso)})`);
     const msg = `${list.length} actividad${list.length === 1 ? "" : "es"} que asignaste va${list.length === 1 ? "" : "n"} atrasada${list.length === 1 ? "" : "s"}: ${partes.join(" | ")}. Revisa el tablero en ARIA27 › Actividades.`;
-    if (!dry && await avisarWA(p, msg, "actividades-atrasadas-asignador", "cron")) enviados.push(`asignador:${p?.nombre}`);
+    if (!dry && await avisarWA(p, msg, "actividades-atrasadas-asignador", "cron", { title: "🔴 Actividades atrasadas", url: "/dashboard/actividades?vista=mi&ambito=asigne", tag: "atrasadas" })) enviados.push(`asignador:${p?.nombre}`);
     else if (dry) enviados.push(`DRY asignador:${p?.nombre} -> ${msg}`);
   }
   return NextResponse.json({ ok: true, hoy: H, personas: porPersona.size, asignadores: atrasadasPorAsignador.size, enviados });

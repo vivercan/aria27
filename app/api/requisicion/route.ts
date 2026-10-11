@@ -369,6 +369,7 @@ export async function POST(request: NextRequest) {
 
     // ── F2: espera responsable → WA al responsable y fin (Compras/Dirección se avisan al autorizar) ──
     if (esperaResponsable) {
+      try { const { pushAEmail } = await import("@/lib/push"); await pushAEmail(responsableEmail, { title: `🖊️ Autoriza ${folio}`, body: `${displayName} pide ${String(materialesResumen || body.motivo_solicitud || "materiales").slice(0, 90)} para ${obra}`, url: `/dashboard/requisiciones/requisiciones/estatus?open=${req.id}`, tag: `req-${req.id}` }); } catch { /* push best effort */ }
       const respPhone = (responsableUser?.phone as string | undefined) || null;
       if (respPhone) {
         const respNombre = String(responsableUser?.display_name || responsableUser?.name || "Responsable").slice(0, 60);

@@ -5,6 +5,7 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { pushAEmail } from "@/lib/push";
 
 export type Persona = { nombre: string; email: string | null; phone: string | null };
 
@@ -33,7 +34,9 @@ export async function personaPorEmpleado(db: SupabaseClient, empleadoId?: string
   return { nombre: ee.full_name || "", email: (ee.usuario_email || ee.email || null)?.toLowerCase() || null, phone: ee.whatsapp || null };
 }
 
-export async function avisarWA(p: Persona | null, mensaje: string, origen: string, enviadoPor: string): Promise<boolean> {
+export async function avisarWA(p: Persona | null, mensaje: string, origen: string, enviadoPor: string, push?: { title: string; url: string; tag?: string }): Promise<boolean> {
+  // 10-Oct-2026: ademas del WhatsApp, notificacion en el telefono si la persona la activo
+  if (p?.email && push) { try { await pushAEmail(p.email, { title: push.title, body: limpiar(mensaje).slice(0, 220), url: push.url, tag: push.tag }); } catch { /* push best effort */ } }
   if (!p?.phone) return false;
   const nombre = limpiar(p.nombre).split(" ")[0] || "Hola";
   const r = await sendWhatsAppLogged("aria_tarea_status", [nombre, "0", limpiar(mensaje).slice(0, 700)], p.phone, { origen, enviadoPor });

@@ -6,6 +6,7 @@
  * Fuente: tareas_asignadas (la misma que contesta el bot de WhatsApp). Cambios por /api/actividades (historial + avisos WA).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { celebrar } from "@/lib/celebrar";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
@@ -14,22 +15,43 @@ import {
 } from "@/lib/actividades";
 import {
   Plus, X, Search, LayoutGrid, List, Sun, Camera, Send, Trash2, CheckSquare, Square, MessageSquare, CalendarDays, Loader2,
-  ChevronDown, ChevronRight, AlertTriangle, Flag, MapPin, Paperclip, User as UserIcon,
+  ChevronDown, ChevronRight, AlertTriangle, Flag, MapPin, Paperclip, User as UserIcon, GanttChart,
 } from "lucide-react";
 
 type Emp = { id: string; full_name: string; whatsapp?: string | null };
 type Obra = { id: string; nombre: string };
 type Chk = { id: string; tarea_id: string; texto: string; hecho: boolean; orden: number };
 type Upd = { id: string; tarea_id: string; autor_email?: string | null; autor_nombre?: string | null; tipo: string; texto?: string | null; foto_url?: string | null; archivo_url?: string | null; archivo_nombre?: string | null; created_at: string };
-type Vista = "mi" | "tablero" | "lista";
+type Vista = "mi" | "tablero" | "lista" | "linea";
 type Ambito = "mias" | "asigne" | "todas";
 
 const SUPER = ["admin", "administrador", "rh", "direccion", "validador"];
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
+// ── Cola sin señal (10-Oct-2026): si no hay conexión, el cambio se guarda en el teléfono y se envía al volver la señal ──
+const COLA = "aria:cola-actividades";
+type Pendiente = { url: string; method: string; body?: unknown; t: number };
+const leerCola = (): Pendiente[] => { try { return JSON.parse(localStorage.getItem(COLA) || "[]") as Pendiente[]; } catch { return []; } };
+const guardarCola = (c: Pendiente[]) => { try { localStorage.setItem(COLA, JSON.stringify(c.slice(-200))); } catch { /* sin espacio */ } };
+async function enviarCola(): Promise<number> {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return 0;
+  const cola = leerCola(); if (!cola.length) return 0;
+  const resto: Pendiente[] = []; let enviados = 0;
+  for (const p of cola) {
+    try {
+      const r = await fetch(p.url, { method: p.method, credentials: "include", headers: { "Content-Type": "application/json" }, body: p.body ? JSON.stringify(p.body) : undefined });
+      if (r.ok || (r.status >= 400 && r.status < 500 && r.status !== 401)) enviados++; else resto.push(p);
+    } catch { resto.push(p); }
+  }
+  guardarCola(resto); return enviados;
+}
 async function api<T = Record<string, unknown>>(url: string, method: string, body?: unknown): Promise<T> {
-  const r = await fetch(url, { method, credentials: "include", headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+  const encolar = () => { guardarCola([...leerCola(), { url, method, body, t: Date.now() }]); return { encolado: true } as unknown as T; };
+  if (method !== "GET" && typeof navigator !== "undefined" && navigator.onLine === false) return encolar();
+  let r: Response;
+  try { r = await fetch(url, { method, credentials: "include", headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); }
+  catch (e) { if (method !== "GET") return encolar(); throw e; }
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error((j as { error?: string }).error || `Error ${r.status}`);
   return j as T;
@@ -90,6 +112,9 @@ export default function ActividadesPage() {
   const [motivoTxt, setMotivoTxt] = useState("");
   const [colapsados, setColapsados] = useState<Record<string, boolean>>({});
   const [verFiltros, setVerFiltros] = useState(false);
+  // Deslizar tarjeta (vista Mi trabajo): derecha = terminar, izquierda = atorada
+  const swipe = useRef<{ id: string; x0: number; y0: number; dx: number; el: HTMLElement | null; lock: boolean | null } | null>(null);
+  const suprimirClick = useRef(false);
 
   const flash = (t: "ok" | "err", m: string) => { setToast({ t, m }); setTimeout(() => setToast(null), 3200); };
 
@@ -130,9 +155,12 @@ export default function ActividadesPage() {
       } finally { if (alive) setLoading(false); }
     })();
     const onFocus = () => { cargar(); };
+    const onOnline = async () => { const n = await enviarCola(); if (n) { flash("ok", `Se enviaron ${n} cambio${n === 1 ? "" : "s"} guardados sin señal`); } cargar(); };
     window.addEventListener("focus", onFocus);
+    window.addEventListener("online", onOnline);
+    enviarCola().then(n => { if (n) cargar(); });
     const iv = setInterval(() => { if (document.visibilityState === "visible") cargar(); }, 60000);
-    return () => { alive = false; window.removeEventListener("focus", onFocus); clearInterval(iv); };
+    return () => { alive = false; window.removeEventListener("focus", onFocus); window.removeEventListener("online", onOnline); clearInterval(iv); };
   }, [cargar, router]);
 
   const esSuper = !!me && SUPER.includes(me.role);
@@ -159,7 +187,8 @@ export default function ActividadesPage() {
     const antes = acts;
     if (optimista) setActs(prev => prev.map(a => a.id === id ? { ...a, ...optimista } : a));
     try {
-      const r = await api<{ tarea?: Actividad }>(`/api/actividades/${id}`, "PATCH", body);
+      const r = await api<{ tarea?: Actividad; encolado?: boolean }>(`/api/actividades/${id}`, "PATCH", body);
+      if (r.encolado) { flash("ok", "Sin señal: se guardó en tu teléfono y se enviará solo"); return true; }
       if (r.tarea) setActs(prev => prev.map(a => a.id === id ? r.tarea as Actividad : a));
       setUpdCount(c => ({ ...c, [id]: (c[id] || 0) + 1 }));
       return true;
@@ -170,6 +199,7 @@ export default function ActividadesPage() {
     const a = acts.find(x => x.id === id); if (!a || columnaDe(a) === col) return;
     if (col === "BLOQUEADA" && !motivo) { setMotivoPara({ id }); setMotivoTxt(""); return; }
     const opt: Partial<Actividad> = col === "TERMINADA" ? { estatus: "COMPLETADA", avance: 100, motivo_bloqueo: null } : col === "BLOQUEADA" ? { estatus: "EN_PROGRESO", motivo_bloqueo: motivo } : col === "EN_PROCESO" ? { estatus: "EN_PROGRESO", motivo_bloqueo: null } : { estatus: "PENDIENTE", motivo_bloqueo: null };
+    if (col === "TERMINADA") celebrar();
     const ok = await patch(id, { columna: col, motivo }, opt);
     if (ok) flash("ok", col === "TERMINADA" ? "¡Terminada! Se avisó a quien la asignó" : col === "BLOQUEADA" ? "Marcada como atorada; se avisó" : `Movida a ${COLUMNAS.find(c => c.id === col)?.label}`);
   };
@@ -193,7 +223,7 @@ export default function ActividadesPage() {
     const col = columnaDe(a); const cl = chkDe(a.id); const hechos = cl.filter(c => c.hecho).length; const nUpd = updCount[a.id] || 0;
     const prio = PRIORIDADES.find(p => p.id === prioridadDe(a.prioridad));
     return (
-      <button key={a.id} type="button" draggable onDragStart={() => setDragId(a.id)} onDragEnd={() => setDragId(null)} onClick={() => setAbierta(a.id)}
+      <button key={a.id} data-card type="button" draggable={vista === "tablero"} onDragStart={() => setDragId(a.id)} onDragEnd={() => setDragId(null)} onClick={() => { if (suprimirClick.current) { suprimirClick.current = false; return; } setAbierta(a.id); }}
         className={`group w-full text-left rounded-xl border border-white/[0.08] bg-[#0f1f3a] hover:bg-[#13274a] hover:border-white/[0.16] active:scale-[0.99] transition shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden ${dragId === a.id ? "opacity-40" : ""}`}>
         <div className="flex">
           <span className="w-1 shrink-0" style={{ background: COLUMNAS.find(c => c.id === col)!.color }} />
@@ -228,6 +258,84 @@ export default function ActividadesPage() {
     );
   };
 
+  const deslizable = (a: Actividad) => (
+    <div key={a.id} className="relative rounded-xl overflow-hidden touch-pan-y select-none"
+      onPointerDown={e => { if (e.pointerType === "mouse") return; swipe.current = { id: a.id, x0: e.clientX, y0: e.clientY, dx: 0, el: (e.currentTarget as HTMLElement).querySelector("[data-card]"), lock: null }; }}
+      onPointerMove={e => {
+        const sw = swipe.current; if (!sw || sw.id !== a.id || !sw.el) return;
+        const dx = e.clientX - sw.x0, dy = e.clientY - sw.y0;
+        if (sw.lock === null) { if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) sw.lock = true; else if (Math.abs(dy) > 12) { sw.lock = false; } }
+        if (sw.lock) { sw.dx = dx; sw.el.style.transition = "none"; sw.el.style.transform = `translateX(${Math.max(-140, Math.min(140, dx))}px)`; }
+      }}
+      onPointerUp={() => {
+        const sw = swipe.current; swipe.current = null; if (!sw || !sw.el) return;
+        sw.el.style.transition = "transform .22s ease"; sw.el.style.transform = "translateX(0)";
+        if (sw.lock) { suprimirClick.current = true; setTimeout(() => { suprimirClick.current = false; }, 350);
+          if (sw.dx > 90) mover(a.id, "TERMINADA"); else if (sw.dx < -90) mover(a.id, "BLOQUEADA"); }
+      }}
+      onPointerCancel={() => { const sw = swipe.current; swipe.current = null; if (sw?.el) { sw.el.style.transition = "transform .22s ease"; sw.el.style.transform = "translateX(0)"; } }}>
+      <div className="absolute inset-0 flex items-center justify-between px-4 text-sm font-bold">
+        <span className="text-[#06281a] bg-[#00c875] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4">✓ Terminar</span>
+        <span className="text-white bg-[#e2445c] absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-4">Atorada ⚠</span>
+      </div>
+      <div className="relative">{tarjeta(a)}</div>
+    </div>
+  );
+
+  // ── Línea de tiempo (Gantt) por obra ──
+  const lineaDeTiempo = () => {
+    const items = terminadasOcultas(visibles).filter(a => a.fecha_compromiso || a.fecha_inicio);
+    if (!items.length) return <div className="mt-10 text-center text-[#7f93b0]">Ponle fecha de entrega a las actividades para verlas en la línea de tiempo.</div>;
+    const DAY = 86400000; const dia = (iso: string) => new Date(iso.slice(0, 10) + "T12:00:00").getTime();
+    const hoyT = dia(ymd(new Date()));
+    const ini = (a: Actividad) => dia(String(a.fecha_inicio || a.fecha_compromiso));
+    const fin = (a: Actividad) => Math.max(ini(a), dia(String(a.fecha_compromiso || a.fecha_inicio)));
+    let min = Math.min(hoyT - 3 * DAY, ...items.map(ini)); let max = Math.max(hoyT + 14 * DAY, ...items.map(fin));
+    min = Math.max(min, hoyT - 45 * DAY); max = Math.min(max, hoyT + 120 * DAY);
+    const nDias = Math.round((max - min) / DAY) + 1;
+    const W = typeof window !== "undefined" && window.innerWidth < 768 ? 26 : 34; const LBL = typeof window !== "undefined" && window.innerWidth < 768 ? 132 : 220;
+    const x = (t: number) => Math.round((Math.max(min, Math.min(max, t)) - min) / DAY) * W;
+    const grupos = new Map<string, Actividad[]>();
+    for (const a of items.sort((p, q) => ini(p) - ini(q))) { const k = a.obra || "Oficina"; grupos.set(k, [...(grupos.get(k) || []), a]); }
+    const dias = Array.from({ length: nDias }, (_, i) => new Date(min + i * DAY));
+    return (
+      <div className="mt-5 rounded-2xl border border-white/[0.08] overflow-hidden">
+        <div className="overflow-x-auto">
+          <div style={{ width: LBL + nDias * W }} className="relative">
+            <div className="flex sticky top-0 z-10 bg-[#0b1830] border-b border-white/[0.08]">
+              <div style={{ width: LBL }} className="shrink-0 sticky left-0 z-20 bg-[#0b1830] px-3 py-2 text-[11px] font-semibold text-[#7f93b0]">Actividad</div>
+              {dias.map((d, i) => { const fin_ = d.getDay() === 0 || d.getDay() === 6; const esHoy = Math.round((d.getTime() - hoyT) / DAY) === 0; return (
+                <div key={i} style={{ width: W }} className={`shrink-0 text-center py-1 border-l border-white/[0.04] ${fin_ ? "bg-white/[0.02]" : ""}`}>
+                  {(d.getDate() === 1 || i === 0) && <div className="text-[9px] uppercase text-[#579bfc] font-bold leading-none">{d.toLocaleDateString("es-MX", { month: "short" })}</div>}
+                  <div className={`text-[10.5px] leading-tight ${esHoy ? "text-white font-bold" : "text-[#7f93b0]"}`}>{d.getDate()}</div>
+                </div>); })}
+            </div>
+            <div className="absolute top-0 bottom-0 w-0.5 bg-[#579bfc] z-[5] pointer-events-none" style={{ left: LBL + x(hoyT) + W / 2 }} />
+            {[...grupos.entries()].map(([obra, list]) => (
+              <div key={obra}>
+                <div className="flex items-center gap-1.5 sticky left-0 px-3 py-1.5 text-[11.5px] font-bold text-[#9cc3ff] bg-white/[0.03] border-y border-white/[0.05]" style={{ width: LBL + nDias * W }}><MapPin className="w-3 h-3" />{obra}<span className="text-[#5f7390] font-normal">· {list.length}</span></div>
+                {list.map(a => { const col = columnaDe(a); const c = COLUMNAS.find(k => k.id === col)!; const l = x(ini(a)); const w = Math.max(W, x(fin(a)) - l + W); const atr = diasAtraso(a) > 0;
+                  return (
+                    <div key={a.id} className="flex items-center h-11 border-b border-white/[0.03] hover:bg-white/[0.02]">
+                      <button onClick={() => setAbierta(a.id)} style={{ width: LBL }} className="shrink-0 sticky left-0 z-[6] bg-[#0a1628] h-full flex items-center gap-2 px-3 text-left border-r border-white/[0.06]">
+                        <Avatar nombre={a.asignado_nombre} size={20} /><span className={`text-[12px] truncate ${col === "TERMINADA" ? "text-[#7f93b0] line-through" : "text-white"}`}>{a.titulo}</span>
+                      </button>
+                      <div className="relative h-full" style={{ width: nDias * W }}>
+                        {atr && col !== "TERMINADA" && <div className="absolute top-3 h-5 rounded-r-md" style={{ left: l + w - 2, width: Math.max(0, x(hoyT) - (l + w) + W), background: "repeating-linear-gradient(45deg, rgba(226,68,92,.55) 0 6px, rgba(226,68,92,.25) 6px 12px)" }} />}
+                        <button onClick={() => setAbierta(a.id)} title={`${a.titulo} · ${fechaCorta(a.fecha_inicio || a.fecha_compromiso)} → ${fechaCorta(a.fecha_compromiso)}`}
+                          className="absolute top-2.5 h-6 rounded-md overflow-hidden text-left shadow" style={{ left: l + 2, width: w - 4, background: c.soft, border: `1px solid ${c.color}` }}>
+                          <div className="h-full" style={{ width: `${Number(a.avance) || 0}%`, background: c.color, opacity: 0.85 }} />
+                          <span className="absolute inset-0 flex items-center px-2 text-[10.5px] font-semibold text-white truncate">{Number(a.avance) || 0}%</span>
+                        </button>
+                      </div>
+                    </div>); })}
+              </div>))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const kpiBtn = (label: string, n: number, color: string, onClick?: () => void) => (
     <button key={label} onClick={onClick} className="flex-1 min-w-[96px] rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-left hover:bg-white/[0.06] transition">
       <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[#7f93b0]"><span className="w-2 h-2 rounded-full" style={{ background: color }} />{label}</div>
@@ -243,7 +351,7 @@ export default function ActividadesPage() {
           {col ? <ChevronRight className="w-4 h-4" style={{ color }} /> : <ChevronDown className="w-4 h-4" style={{ color }} />}
           <span className="text-sm font-bold" style={{ color }}>{titulo}</span><span className="text-xs text-[#7f93b0]">{list.length}</span>
         </button>
-        {!col && <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{list.map(a => tarjeta(a))}</div>}
+        {!col && <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{list.map(a => deslizable(a))}</div>}
       </section>
     );
   };
@@ -273,7 +381,7 @@ export default function ActividadesPage() {
         {/* Vistas + filtros */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <div className="inline-flex rounded-xl bg-white/[0.05] p-1 border border-white/[0.06]">
-            {([["mi", "Mi trabajo", Sun], ["tablero", "Tablero", LayoutGrid], ["lista", "Lista", List]] as const).map(([v, l, I]) => (
+            {([["mi", "Mi trabajo", Sun], ["tablero", "Tablero", LayoutGrid], ["lista", "Lista", List], ["linea", "Línea", GanttChart]] as const).map(([v, l, I]) => (
               <button key={v} onClick={() => setVista(v)} className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-white text-[#0a1628] shadow" : "text-[#c9d8ed] hover:text-white"}`}><I className="w-3.5 h-3.5" />{l}</button>
             ))}
           </div>
@@ -293,7 +401,7 @@ export default function ActividadesPage() {
           </div>
         </div>
 
-        {!loading && visibles.length > 0 && <p className="mt-3 text-[11.5px] text-[#7f93b0]">Toca el círculo para terminarla · toca la tarjeta para ver, comentar o subir foto{vista === "tablero" ? " · en computadora puedes arrastrarla de columna" : ""}.</p>}
+        {!loading && visibles.length > 0 && <p className="mt-3 text-[11.5px] text-[#7f93b0]">{vista === "mi" ? "Desliza a la derecha para terminar, a la izquierda si está atorada · toca para ver, comentar o subir foto." : vista === "tablero" ? "Toca el círculo para terminarla · en computadora arrastra la tarjeta de columna." : vista === "linea" ? "Cada barra va del inicio a la entrega · la línea azul es hoy." : "Toca una fila para abrirla."}</p>}
 
         {loading ? (
           <div className="flex items-center justify-center py-24"><Loader2 className="w-7 h-7 animate-spin text-[#579bfc]" /></div>
@@ -312,6 +420,8 @@ export default function ActividadesPage() {
             {grupo("sf", "Sin fecha", "#7f93b0", gruposMi.sinFecha)}
             {gruposMi.atrasadas.length + gruposMi.hoy.length + gruposMi.semana.length + gruposMi.despues.length + gruposMi.sinFecha.length === 0 && <div className="text-center text-[#7f93b0] py-10">Todo terminado 🎉</div>}
           </div>
+        ) : vista === "linea" ? (
+          lineaDeTiempo()
         ) : vista === "tablero" ? (
           <div className="mt-5 -mx-4 md:mx-0 px-4 md:px-0 flex md:grid md:grid-cols-4 gap-3 overflow-x-auto snap-x snap-mandatory pb-4">
             {COLUMNAS.map(c => { const list = porColumna(c.id); return (
@@ -404,7 +514,8 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
     if (!txt.trim() && !fotoUrl && !archivo) return;
     setEnviando(true);
     try {
-      await api(`/api/actividades/${a.id}/actualizacion`, "POST", { texto: txt.trim(), foto_url: fotoUrl, archivo_url: archivo?.url, archivo_nombre: archivo?.nombre });
+      const r = await api<{ encolado?: boolean }>(`/api/actividades/${a.id}/actualizacion`, "POST", { texto: txt.trim(), foto_url: fotoUrl, archivo_url: archivo?.url, archivo_nombre: archivo?.nombre });
+      if (r.encolado) { setUpds(p => [{ id: "local-" + Date.now(), tarea_id: a.id, autor_nombre: me.name, tipo: "comentario", texto: `${txt.trim()} (se enviará al volver la señal)`, created_at: new Date().toISOString() }, ...p]); setTxt(""); return; }
       setTxt(""); onUpd(); await cargarUpds();
     } catch (e) { flash("err", (e as Error).message); } finally { setEnviando(false); }
   };
@@ -559,7 +670,8 @@ function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[];
     if (!f.asignado_id) { flash("err", "Elige quién la hace"); return; }
     setBusy(true);
     try {
-      const r = await api<{ id: string; notificado: boolean }>("/api/actividades", "POST", { ...f, checklist: f.pasos.split("\n").map(s => s.trim()).filter(Boolean) });
+      const r = await api<{ id: string; notificado: boolean; encolado?: boolean }>("/api/actividades", "POST", { ...f, checklist: f.pasos.split("\n").map(s => s.trim()).filter(Boolean) });
+      if (r.encolado) { flash("ok", "Sin señal: la actividad se creará sola al volver la conexión"); onClose(); return; }
       onCreated(r.id, r.notificado);
     } catch (e) { flash("err", (e as Error).message); setBusy(false); }
   };

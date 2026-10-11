@@ -17,6 +17,7 @@ import {
 import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
 import { isMobileDevice, DESKTOP_LANDINGS } from "@/lib/device";
+import { registrarSW } from "@/lib/push-client";
 
 const menuItems = [
   { name: "Inbox", icon: Bell, href: "/dashboard/inbox" },
@@ -183,6 +184,14 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [modoCampo, setModoCampo] = useState(false);
   useEffect(() => { try { setModoCampo(localStorage.getItem("aria:modo") === "campo"); } catch {} }, [pathname]);
   useEffect(() => { try { document.body.classList.toggle("aria-campo", modoCampo); } catch {} }, [modoCampo]);
+  // 10-Oct-2026: service worker (notificaciones del telefono + abrir sin senal) y aviso de "Sin senal"
+  const [sinSenal, setSinSenal] = useState(false);
+  useEffect(() => {
+    registrarSW();
+    const upd = () => setSinSenal(typeof navigator !== "undefined" && navigator.onLine === false);
+    upd(); window.addEventListener("online", upd); window.addEventListener("offline", upd);
+    return () => { window.removeEventListener("online", upd); window.removeEventListener("offline", upd); };
+  }, []);
   // 10-Oct-2026 (regla JJ): en celular no hay boton; el sistema detecta el dispositivo y entra solo a Campo.
   // Solo la PRIMERA llegada de la pestaña a una ruta de escritorio se redirige; deep links (estatus?open=, entrega/[id]) y el boton "Mas" no se tocan.
   useEffect(() => {
@@ -772,6 +781,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
+        {sinSenal && <div className="flex-none bg-[#fdab3d] text-[#2a1a00] text-[12.5px] font-semibold text-center py-1.5 px-3">📶 Sin señal · ves lo último que se cargó. En Actividades tus cambios se envían solos al volver la señal.</div>}
         <div className={`flex-1 overflow-hidden aria-shell-scroll ${modoCampo ? "pb-14 md:pb-0" : ""}`}>{children}</div>
         {modoCampo && <CampoNav />}
       </main>

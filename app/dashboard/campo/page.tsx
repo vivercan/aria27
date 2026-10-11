@@ -7,7 +7,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PlusCircle, ClipboardCheck, PackageCheck, CalendarDays, FileText, ChevronRight, Loader2, X, Share, ListTodo } from "lucide-react";
+import { PlusCircle, ClipboardCheck, PackageCheck, CalendarDays, FileText, ChevronRight, Loader2, X, Share, ListTodo, BellRing } from "lucide-react";
+import { estadoPush, activarPush } from "@/lib/push-client";
 import { supabase } from "@/lib/supabase";
 import { accionPara, statusLabel } from "@/lib/requi-stepper";
 import { columnaDe, diasAtraso, venceHoy, esMia, fechaCorta, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
@@ -23,6 +24,9 @@ export default function CampoHome() {
   const [loading, setLoading] = useState(true);
   const [saludo, setSaludo] = useState("Hola"); const [hoyTxt, setHoyTxt] = useState("");
   const [isIos, setIsIos] = useState(false); const [verInstalar, setVerInstalar] = useState(false);
+  const [push, setPush] = useState<string>(""); const [pushBusy, setPushBusy] = useState(false); const [pushMsg, setPushMsg] = useState("");
+  useEffect(() => { estadoPush().then(setPush).catch(() => setPush("no-soportado")); }, []);
+  const onActivarPush = async () => { setPushBusy(true); setPushMsg(""); const r = await activarPush(); setPushBusy(false); if (r.ok) { setPush("activo"); setPushMsg("¡Listo! Te mandamos una notificación de prueba."); } else setPushMsg(r.error || "No se pudo activar"); };
 
   useEffect(() => {
     const ua = navigator.userAgent; setIsIos(/iPhone|iPad|iPod/i.test(ua));
@@ -97,6 +101,20 @@ export default function CampoHome() {
             {me && <span className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/30" style={{ background: colorPersona(me.name) }}>{iniciales(me.name)}</span>}
           </div>
         </div>
+
+        {/* Notificaciones del telefono */}
+        {(push === "pendiente" || push === "instalar-primero" || push === "bloqueado" || pushMsg) && (
+          <div className="mt-3 rounded-2xl border border-[#a25ddc]/40 bg-gradient-to-r from-[#a25ddc]/20 to-[#579bfc]/15 p-4">
+            <div className="flex items-center gap-3">
+              <span className="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><BellRing className="w-5 h-5 text-white" /></span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-bold text-white">{push === "activo" ? "Notificaciones activas" : "Que te avise el teléfono"}</div>
+                <div className="text-[12px] text-[#d6e2f5]">{pushMsg || (push === "instalar-primero" ? "En iPhone: primero agrega ARIA27 a tu pantalla de inicio (abajo te decimos cómo) y ábrela desde ese ícono." : push === "bloqueado" ? "Las bloqueaste antes. Actívalas en Ajustes del navegador › Notificaciones." : "Te avisamos al momento cuando te asignen algo, te autoricen o algo se atore.")}</div>
+              </div>
+              {push === "pendiente" && <button onClick={onActivarPush} disabled={pushBusy} className="shrink-0 rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#3b1d6e] active:scale-95 disabled:opacity-60">{pushBusy ? "…" : "Activar"}</button>}
+            </div>
+          </div>
+        )}
 
         {/* 3 numeros */}
         <div className="mt-3 grid grid-cols-3 gap-2">

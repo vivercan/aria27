@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
     if (action === "RECHAZAR") {
       await db.from("requisitions").update({ status: "RECHAZADA_RESPONSABLE", responsable_comentario: comentario, responsable_autorizo_at: new Date().toISOString(), responsable_autorizo_by: me }).eq("id", id);
       const cu = creadorU as U | null;
+      try { const { pushAEmail } = await import("@/lib/push"); await pushAEmail(creadorEmail, { title: `❌ ${folio} rechazada`, body: `${obra}: ${comentario}`, url: `/dashboard/requisiciones/requisiciones/estatus?open=${id}`, tag: `req-${id}` }); } catch { /* push best effort */ }
       if (cu?.phone) {
         const nom = (cu.display_name || cu.name || creador || "Equipo").slice(0, 60);
         await sendWhatsAppTemplateOrFallback(
@@ -111,6 +112,7 @@ export async function POST(req: NextRequest) {
     void notifyOps({ evento: "REQUISICION_CREADA", resumen: `${folio} ${obra} - ${creador} (autorizó ${me})`, detalle: `Folio: ${folio}\nObra: ${obra}\nSolicitante: ${creador}\nFlujo: ${flujo}\nUrgencia: ${urg}`, actor: me, metadata: { folio, obra, flujo, urgency: urg, nivel1: true } }).catch(() => {});
     // Creador: WA de avance
     const cu = creadorU as U | null;
+    if (creadorEmail && creadorEmail.toLowerCase() !== me) { try { const { pushAEmail } = await import("@/lib/push"); await pushAEmail(creadorEmail, { title: `✅ ${folio} autorizada en obra`, body: `${obra} · sigue ${flujo === "direccion" ? "Dirección" : "Compras"}`, url: `/dashboard/requisiciones/requisiciones/estatus?open=${id}`, tag: `req-${id}` }); } catch { /* push best effort */ } }
     if (cu?.phone && cu.email.toLowerCase() !== me) {
       const nom = (cu.display_name || cu.name || creador || "Equipo").slice(0, 60);
       await sendWhatsAppTemplateOrFallback(

@@ -35,7 +35,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
   let notificado = false;
   if (destino && (destino.email || "") !== me) {
     const que = texto ? `"${texto.slice(0, 200)}"` : foto ? "una foto" : "un archivo";
-    notificado = await avisarWA(destino, `${yo?.nombre || me} comentó en "${t.titulo}": ${que}${foto && texto ? " (con foto)" : ""}. Revísalo en ARIA27 › Actividades.`, "actividad-comentario", me);
+    notificado = await avisarWA(destino, `${yo?.nombre || me} comentó en "${t.titulo}": ${que}${foto && texto ? " (con foto)" : ""}. Revísalo en ARIA27 › Actividades.`, "actividad-comentario", me, { title: `💬 ${yo?.nombre || "Comentario"} · ${t.titulo.slice(0, 40)}`, url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
   }
   return NextResponse.json({ ok: true, notificado });
 }

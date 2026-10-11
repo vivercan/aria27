@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppTemplateOrFallback } from "@/lib/whatsapp";
 import { personaPorEmail, personaPorEmpleado, registrarActualizacion } from "@/lib/actividades-server";
+import { pushAEmail } from "@/lib/push";
 import { fechaCorta } from "@/lib/actividades";
 import { logger } from "@/lib/logger";
 
@@ -55,6 +56,9 @@ export async function POST(req: NextRequest) {
     await registrarActualizacion(db, { tarea_id: id, autor_email: auth.email, autor_nombre: yo?.nombre, tipo: "sistema", texto: `Creó la actividad y se la asignó a ${asignado.nombre}` });
 
     let notificado = false;
+    if ((asignado.email || "") !== auth.email.toLowerCase()) {
+      try { await pushAEmail(asignado.email, { title: "📋 Nueva actividad", body: `${yo?.nombre || auth.email}: ${titulo}${obra ? ` · ${obra}` : ""} · entrega ${fechaCorta(fechaCompromiso)}`, url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` }); } catch { /* push best effort */ }
+    }
     if (asignado.phone && (asignado.email || "") !== auth.email.toLowerCase()) {
       const nombre = (asignado.nombre || "").split(" ")[0] || "Hola";
       const fecha = fechaCorta(fechaCompromiso);
