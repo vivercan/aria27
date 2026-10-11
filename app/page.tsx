@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [hDisp, setHDisp] = useState(false)
   const [hAct, setHAct] = useState(false)
   const [ofrecer, setOfrecer] = useState(false)
+  const [verForm, setVerForm] = useState(false)
   useEffect(() => { huellaDisponible().then(d => { setHDisp(d); setHAct(d && huellaActivada()) }) }, [])
   useEffect(() => { try { const m = isMobileDevice(); setTel(m); if (m) { localStorage.setItem('aria:modo', 'campo'); setRememberMe(true) } } catch { /* */ } }, [])
   const router = useRouter()
@@ -252,7 +253,8 @@ export default function LoginPage() {
           <button type="button" onClick={conHuella} disabled={loading} className="mt-8 w-full flex items-center justify-center gap-3 rounded-3xl bg-[#0073ea] py-4 text-white text-[17px] font-bold shadow-[0_10px_30px_-16px_rgba(0,115,234,.8)] disabled:opacity-70">
             <Fingerprint size={26} strokeWidth={2} />{loading ? 'Verificando…' : 'Entrar con huella o rostro'}</button>
         )}
-        <form onSubmit={handleLogin} className={`${hAct ? 'mt-4' : 'mt-8'} rounded-3xl bg-white p-5 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] space-y-3`}>
+        {hAct && !verForm && error && <div className="mt-3 rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
+        {hAct && !verForm ? <button type="button" onClick={() => setVerForm(true)} className="mt-3 w-full py-3 text-[15px] font-semibold text-slate-700">Usar mi contraseña</button> : <form onSubmit={handleLogin} className={`${hAct ? 'mt-4' : 'mt-8'} rounded-3xl bg-white p-5 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] space-y-3`}>
           <label className="block"><span className="text-[13px] font-semibold text-slate-600">Correo</span>
             <input type="email" inputMode="email" autoComplete="username" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} disabled={loading} required placeholder="usuario@gcuavante.com"
               className="mt-1 w-full h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[16px] outline-none focus:border-[#0073ea] focus:bg-white" /></label>
@@ -265,7 +267,7 @@ export default function LoginPage() {
           <label className="flex items-center gap-2.5 py-2.5 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[14px] text-slate-700">Mantener sesión iniciada</span></label>
           {error && <div className="rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
           <button type="submit" disabled={loading} className={`w-full h-13 py-3.5 rounded-2xl text-[17px] font-bold disabled:opacity-70 ${hAct ? 'bg-slate-100 text-slate-800' : 'bg-[#0073ea] text-white'}`}>{loading ? 'Entrando…' : hAct ? 'Entrar con contraseña' : 'Entrar'}</button>
-        </form>
+        </form>}
         <a href="https://104.248.119.60.nip.io/checador.html" target="_blank" rel="noopener noreferrer" className="mt-4 flex items-center gap-3 rounded-2xl bg-white px-4 py-3.5 shadow-[0_10px_30px_-20px_rgba(15,23,42,.5)]">
           <span className="w-11 h-11 rounded-xl bg-[#0060c7] flex items-center justify-center"><ScanFace size={24} color="#fff" strokeWidth={2.2} /></span>
           <span className="flex-1"><span className="block text-[15px] font-bold text-slate-900">ARIA27 FaceID</span><span className="block text-[12.5px] text-slate-500">Checar asistencia con tu cara</span></span>
