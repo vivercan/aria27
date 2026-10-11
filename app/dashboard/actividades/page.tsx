@@ -18,6 +18,7 @@ import {
   ChevronDown, ChevronRight, AlertTriangle, Flag, MapPin, Paperclip, User as UserIcon, GanttChart, Hourglass,
 } from "lucide-react";
 import { mencionesEnTexto } from "@/lib/plantillas";
+import { parecido, type VozActividad } from "@/lib/voz";
 import { rutaCritica } from "@/lib/dependencias";
 import LinkEvidencia from "@/components/domenica/LinkEvidencia";
 
@@ -729,6 +730,20 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
   const [f, setF] = useState(() => { let obra = ""; try { obra = new URLSearchParams(window.location.search).get("obra") || ""; } catch { /* */ } return { titulo: "", asignado_id: "", fecha_compromiso: dia(1), obra_id: obra, prioridad: "MEDIA", descripcion: "", pasos: "" }; });
   const [busy, setBusy] = useState(false);
   const [buscaP, setBuscaP] = useState("");
+  const [deVoz, setDeVoz] = useState(false);
+  // Borrador que viene de una nota de voz (botón + › Dictar)
+  useEffect(() => {
+    if (!emps.length) return;
+    let raw: string | null = null; try { raw = sessionStorage.getItem("dom:voz"); } catch { /* */ }
+    if (!raw) return;
+    try {
+      const v = JSON.parse(raw) as VozActividad; sessionStorage.removeItem("dom:voz");
+      const per = parecido(v.persona, emps.map(e => ({ ...e, nombre: e.full_name })));
+      const ob = parecido(v.obra, obras);
+      setF(x => ({ ...x, titulo: v.titulo || x.titulo, descripcion: v.descripcion || "", asignado_id: per?.id || x.asignado_id, obra_id: ob?.id || x.obra_id, fecha_compromiso: v.fecha || x.fecha_compromiso, prioridad: v.prioridad || x.prioridad, pasos: (v.pasos || []).join("\n") }));
+      setDeVoz(true);
+    } catch { /* */ }
+  }, [emps, obras]);
   const personas = useMemo(() => { const n = norm(buscaP); return emps.filter(e => !n || norm(e.full_name).includes(n)); }, [emps, buscaP]);
   const crear = async () => {
     if (!f.titulo.trim()) { flash("err", "Escribe qué hay que hacer"); return; }
@@ -746,6 +761,7 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
         <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
         <div className="flex items-center justify-between px-5 pt-3 md:pt-5"><h2 className="text-lg font-bold text-[var(--d-text)]">Nueva actividad</h2><button onClick={onClose} className="p-2 rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-text-2)]" aria-label="Cerrar"><X className="w-5 h-5" /></button></div>
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          {deVoz && <div className="rounded-xl bg-[#a25ddc]/12 border border-[#a25ddc]/30 px-3 py-2 text-[12.5px] font-semibold text-[var(--d-purple)]">🎤 Lo llenamos con tu nota de voz. Revisa y toca Crear.</div>}
           <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace? <span className="normal-case tracking-normal font-normal">· el número es cuántas tiene abiertas</span></div>

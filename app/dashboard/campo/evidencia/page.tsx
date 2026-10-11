@@ -7,7 +7,6 @@ import { Camera, Loader2, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { accionPara, statusLabel } from "@/lib/requi-stepper";
 import AriaBackButton from "@/components/AriaBackButton";
-import CampoNav from "@/components/campo/CampoNav";
 import { useListFilter } from "@/hooks/useListFilter";
 import ListToolbar from "@/components/ListToolbar";
 
@@ -31,7 +30,6 @@ export default function EvidenciaPage() {
       {loading ? <div className="py-12 text-center"><Loader2 className="w-7 h-7 animate-spin text-aria-accent mx-auto" /></div> : lf.filtered.length === 0 ? <div className="py-12 text-center text-sm text-[var(--d-muted)]">No tienes requisiciones por entregar.</div> : (
         <ul className="mt-3 space-y-2">{lf.filtered.map(r => (<li key={r.id}><Link href={`/dashboard/requisiciones/requisiciones/entrega/${r.id}`} className="flex items-center gap-3 rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] p-3 active:bg-[var(--d-hover)]"><Camera className="w-5 h-5 text-aria-accent shrink-0" /><div className="flex-1 min-w-0"><div className="text-sm text-[var(--d-text)] font-medium">{r.folio} <span className="text-[var(--d-muted)] font-normal">· {r.cost_center_name}</span></div><div className="text-[11px] text-[var(--d-muted)] truncate">{statusLabel(r.status)}{r.proveedor ? ` · ${r.proveedor}` : ""}</div></div><ChevronRight className="w-4 h-4 text-[var(--d-muted)]" /></Link></li>))}</ul>
       )}
-      <CampoNav />
     </div></div>
   );
 }

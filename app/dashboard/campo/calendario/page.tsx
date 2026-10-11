@@ -9,7 +9,6 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, ClipboardList, FileText, Package } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import AriaBackButton from "@/components/AriaBackButton";
-import CampoNav from "@/components/campo/CampoNav";
 
 type Ev = { kind: "tarea" | "requi" | "entrega"; date: string; title: string; sub?: string; href: string; done?: boolean; urgent?: boolean };
 const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
@@ -81,7 +80,6 @@ export default function CalendarioPage() {
           <ul className="space-y-2">{list.map((e, i) => (<li key={i}><Link href={e.href} className={`flex items-center gap-3 rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] p-3 ${e.done ? "opacity-60" : ""}`}><Icon k={e.kind} /><div className="flex-1 min-w-0"><div className={`text-sm text-[var(--d-text)] ${e.done ? "line-through" : ""}`}>{e.title}</div><div className="text-[11px] text-[var(--d-muted)] truncate">{e.sub}</div></div></Link></li>))}</ul>
         )}
       </section>
-      <CampoNav />
     </div></div>
   );
 }

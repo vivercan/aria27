@@ -526,7 +526,6 @@ export default function RequisicionesStatusPage() {
             {listaMovil.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({listaMovil.length - nMovil})</button>}
             {listaMovil.length === 0 && <div className="py-12 text-center text-sm text-[var(--d-muted)]">{tabActiva === "toca" ? "No tienes nada pendiente 🎉" : tabActiva === "mias" ? "No has pedido nada todavía." : "Nada coincide con tu búsqueda."}</div>}
           </div>
-          <Link href="/dashboard/requisiciones/requisiciones/nuevo" className="fixed right-4 z-30 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0073ea] to-[#579bfc] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_28px_-10px_#0073ea]" style={{ bottom: "calc(76px + env(safe-area-inset-bottom))" }}>＋ Pedir material</Link>
         </div>
         <div className="hidden md:flex rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] overflow-hidden flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>
           <div className="overflow-auto flex-1">

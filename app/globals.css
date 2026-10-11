@@ -1357,3 +1357,7 @@ body.dom-ruta { background: var(--d-bg); }
 @keyframes domIn { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
 .dom-in { animation: domIn .42s cubic-bezier(.2,.8,.2,1) both; }
 @media (prefers-reduced-motion: reduce) { .dom-in { animation: none; } }
+/* Doménica 27 · brillo de carga para esqueletos */
+@keyframes domShimmer { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
+.dom-shimmer { background: linear-gradient(90deg, var(--d-card-2) 0px, var(--d-hover) 40px, var(--d-card-2) 80px); background-size: 200px 100%; animation: domShimmer 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .dom-shimmer { animation: none; } }

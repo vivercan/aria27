@@ -7,9 +7,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PlusCircle, ClipboardCheck, PackageCheck, CalendarDays, FileText, ChevronRight, Loader2, X, Share, ListTodo, BellRing } from "lucide-react";
+import { PackageCheck, CalendarDays, FileText, ChevronRight, X, Share, ListTodo, BellRing, Building2 } from "lucide-react";
 import { estadoPush, activarPush } from "@/lib/push-client";
 import { Contador } from "@/components/domenica/ui";
+import { Esqueleto } from "@/components/domenica/Esqueleto";
+import { Vacio } from "@/components/domenica/Vacio";
 import { supabase } from "@/lib/supabase";
 import { accionPara, statusLabel } from "@/lib/requi-stepper";
 import { columnaDe, diasAtraso, venceHoy, esMia, fechaCorta, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
@@ -81,12 +83,6 @@ export default function CampoHome() {
   }, [pendReq, acts, me]);
 
   const nombre = (me?.name || "").split(" ")[0];
-  const acciones = [
-    { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", d: "Materiales, destajo", icon: PlusCircle, from: "#0073ea", to: "#579bfc" },
-    { href: "/dashboard/actividades?nueva=1", t: "Nueva actividad", d: "Asignar a alguien", icon: ClipboardCheck, from: "#7e3bdd", to: "#a25ddc" },
-    { href: "/dashboard/campo/evidencia", t: "Registrar entrega", d: `${porEntregar.length} por recibir`, icon: PackageCheck, from: "#00a35c", to: "#00c875" },
-    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Qué viene", icon: CalendarDays, from: "#e8760a", to: "#fdab3d" },
-  ];
 
   return (
     <div className="dom-page h-full overflow-y-auto">
@@ -104,21 +100,6 @@ export default function CampoHome() {
           </div>
         </div>
 
-        {/* Notificaciones del telefono */}
-        {(push === "pendiente" || ((push === "instalar-primero" || push === "bloqueado") && !pushOculto) || pushMsg) && (
-          <div className="dom-in mt-3 rounded-2xl bg-gradient-to-r from-[#a25ddc] to-[#579bfc] shadow-[0_8px_24px_rgba(162,93,220,0.3)] p-4">
-            <div className="flex items-center gap-3">
-              <span className="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><BellRing className="w-5 h-5 text-white" /></span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-white">{push === "activo" ? "Notificaciones activas" : "Que te avise el teléfono"}</div>
-                <div className="text-[12px] text-white/85">{pushMsg || (push === "instalar-primero" ? "En iPhone: primero agrega Doménica 27 a tu pantalla de inicio (abajo te decimos cómo) y ábrela desde ese ícono." : push === "bloqueado" ? "Las bloqueaste antes. Actívalas en Ajustes del navegador › Notificaciones." : "Te avisamos al momento cuando te asignen algo, te autoricen o algo se atore.")}</div>
-              </div>
-              {(push === "bloqueado" || push === "instalar-primero") && <button onClick={() => { setPushOculto(true); try { localStorage.setItem("dom:push-oculto", String(Date.now())); } catch { /* */ } }} className="shrink-0 self-start -m-1 p-1.5 rounded-lg text-white/80" aria-label="Ocultar aviso"><X className="w-4 h-4" /></button>}
-              {push === "pendiente" && <button onClick={onActivarPush} disabled={pushBusy} className="shrink-0 rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#3b1d6e] active:scale-95 disabled:opacity-60">{pushBusy ? "…" : "Activar"}</button>}
-            </div>
-          </div>
-        )}
-
         {/* 3 numeros */}
         <div className="mt-3 grid grid-cols-3 gap-2">
           {[
@@ -133,33 +114,34 @@ export default function CampoHome() {
           ))}
         </div>
 
-        {/* Acciones grandes */}
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {acciones.map(({ href, t, d, icon: Icon, from, to }, ai) => (
-            <Link key={href} href={href} className="dom-in relative overflow-hidden rounded-2xl p-4 min-h-[118px] flex flex-col justify-between active:scale-[0.97] transition" style={{ animationDelay: `${260 + ai * 70}ms`, background: `linear-gradient(135deg, ${from}, ${to})`, boxShadow: `inset 0 1px 0 rgba(255,255,255,.28), 0 12px 24px -12px ${from}` }}>
-              <span aria-hidden className="pointer-events-none absolute -right-8 -bottom-10 w-28 h-28 rounded-full bg-white/[0.12]" />
-              <span className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center"><Icon className="w-6 h-6 text-white" /></span>
-              <div><div className="text-[15px] font-bold text-white">{t}</div><div className="text-[11.5px] text-white/80">{d}</div></div>
-            </Link>
-          ))}
-        </div>
 
-        {/* Lo que te toca */}
-        <section className="mt-6">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[15px] font-bold text-[var(--d-text)]">Lo que te toca</h2>
-            {loading && <Loader2 className="w-4 h-4 animate-spin text-[#579bfc]" />}
-          </div>
-          {!loading && items.length === 0 && (
-            <div className="rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-5 text-center">
-              <div className="text-3xl">✅</div>
-              <div className="mt-1 text-sm text-[var(--d-text)] font-semibold">Nada pendiente de tu parte</div>
-              <div className="text-xs text-[var(--d-muted)]">{enCurso} solicitud{enCurso === 1 ? "" : "es"} tuya{enCurso === 1 ? "" : "s"} en camino</div>
-            </div>
-          )}
-          <ul className="space-y-2">
-            {items.slice(0, 12).map((it, ii) => (
-              <li key={it.key} className="dom-in" style={{ animationDelay: `${420 + ii * 45}ms` }}>
+        {/* AHORA: una sola cosa grande (enfoque) */}
+        <section className="mt-5">
+          <h2 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">Ahora</h2>
+          {loading ? <Esqueleto filas={1} alto={132} /> : items.length === 0 ? (
+            <div className="dom-card rounded-3xl"><Vacio dibujo="listo" titulo="¡Todo al día!" texto={enCurso ? `No te toca nada. Tienes ${enCurso} solicitud${enCurso === 1 ? "" : "es"} en camino.` : "No te toca nada por ahora. Usa el botón + para pedir o asignar algo."} /></div>
+          ) : (() => { const it = items[0]; return (
+            <Link href={it.href} className="dom-in block rounded-3xl p-5 active:scale-[0.99] transition relative overflow-hidden" style={{ background: "var(--d-card)", boxShadow: "var(--d-shadow)", border: `2px solid ${it.color}` }}>
+              <span aria-hidden className="absolute -right-6 -top-6 w-24 h-24 rounded-full" style={{ background: `${it.color}1f` }} />
+              <div className="relative flex items-start gap-3">
+                <span className="shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: `${it.color}26` }}>{it.icon === "req" ? <FileText className="w-6 h-6" style={{ color: it.color }} /> : <ListTodo className="w-6 h-6" style={{ color: it.color }} />}</span>
+                <div className="flex-1 min-w-0"><div className="text-[18px] font-bold leading-snug text-[var(--d-text)] line-clamp-2">{it.titulo}</div><div className="mt-0.5 text-[13px] text-[var(--d-muted)] line-clamp-2">{it.sub}</div></div>
+              </div>
+              <div className="relative mt-4 flex items-center justify-between">
+                <span className="text-[12px] text-[var(--d-faint)]">{items.length > 1 ? `y ${items.length - 1} más después` : "Es lo único pendiente"}</span>
+                <span className="rounded-2xl px-5 py-2.5 text-[15px] font-bold shadow" style={{ background: it.color, color: it.color === "#ffcb00" || it.color === "#fdab3d" ? "#2a1a00" : "#fff" }}>{it.boton} →</span>
+              </div>
+            </Link>); })()}
+        </section>
+
+        {/* DESPUÉS: máximo 3, sin saturar */}
+        {!loading && items.length > 1 && (
+          <section className="mt-5">
+            <div className="mb-2 flex items-center justify-between"><h2 className="text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">Después</h2>
+              {items.length > 4 && <Link href="/dashboard/actividades?vista=mi" className="inline-flex items-center gap-0.5 text-[13px] font-semibold text-[var(--d-link)]">Ver las {items.length} <ChevronRight className="w-4 h-4" /></Link>}</div>
+            <ul className="space-y-2">
+              {items.slice(1, 4).map((it, ii) => (
+              <li key={it.key} className="dom-in" style={{ animationDelay: `${120 + ii * 60}ms` }}>
                 <Link href={it.href} className="dom-card flex items-center gap-3 rounded-2xl p-3 active:scale-[0.99] transition">
                   <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${it.color}26` }}>
                     {it.icon === "req" ? <FileText className="w-5 h-5" style={{ color: it.color }} /> : <ListTodo className="w-5 h-5" style={{ color: it.color }} />}
@@ -171,23 +153,37 @@ export default function CampoHome() {
                   <span className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold" style={{ background: it.color, color: it.color === "#ffcb00" || it.color === "#fdab3d" ? "#2a1a00" : "#fff" }}>{it.boton}</span>
                 </Link>
               </li>
-            ))}
-          </ul>
-          {items.length > 12 && <Link href="/dashboard/actividades?vista=mi" className="mt-2 flex items-center justify-center gap-1 text-sm text-[var(--d-link)]">Ver todo <ChevronRight className="w-4 h-4" /></Link>}
-        </section>
+              ))}
+            </ul>
+          </section>
+        )}
 
-        {/* Accesos secundarios */}
-        <div className="mt-6 rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] divide-y divide-[var(--d-border)]">
+        {/* Atajos discretos (lo demás está en el botón +) */}
+        <div className="mt-6 grid grid-cols-3 gap-2">
           {[
-            { href: "/dashboard/requisiciones/requisiciones/estatus", t: "Mis solicitudes", d: `${reqs.length} en total` },
-            { href: "/dashboard/actividades?vista=tablero", t: "Tablero de actividades", d: "Por hacer · En proceso · Atoradas · Terminadas" },
+            { href: "/dashboard/campo/calendario", t: "Calendario", icon: CalendarDays, c: "var(--c-ambar)" },
+            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: Building2, c: "var(--c-naranja)" },
+            { href: "/dashboard/campo/evidencia", t: porEntregar.length ? `Por recibir (${porEntregar.length})` : "Entregas", icon: PackageCheck, c: "var(--c-verde)" },
           ].map(x => (
-            <Link key={x.href} href={x.href} className="flex items-center gap-3 px-4 py-3.5">
-              <div className="flex-1 min-w-0"><div className="text-sm text-[var(--d-text)] font-medium">{x.t}</div><div className="text-[11px] text-[var(--d-muted)] truncate">{x.d}</div></div>
-              <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />
-            </Link>
-          ))}
+            <Link key={x.href} href={x.href} className="dom-card rounded-2xl py-3 flex flex-col items-center gap-1.5 active:scale-[0.97] transition">
+              <x.icon className="w-6 h-6" style={{ color: x.c }} /><span className="text-[12px] font-semibold text-[var(--d-text-2)] text-center leading-tight">{x.t}</span>
+            </Link>))}
         </div>
+
+        {/* Notificaciones del telefono */}
+        {(push === "pendiente" || ((push === "instalar-primero" || push === "bloqueado") && !pushOculto) || pushMsg) && (
+          <div className="dom-in mt-5 rounded-2xl bg-gradient-to-r from-[#a25ddc] to-[#579bfc] shadow-[0_8px_24px_rgba(162,93,220,0.3)] p-4">
+            <div className="flex items-center gap-3">
+              <span className="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><BellRing className="w-5 h-5 text-white" /></span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-bold text-white">{push === "activo" ? "Notificaciones activas" : "Que te avise el teléfono"}</div>
+                <div className="text-[12px] text-white/85">{pushMsg || (push === "instalar-primero" ? "En iPhone: primero agrega Doménica 27 a tu pantalla de inicio (abajo te decimos cómo) y ábrela desde ese ícono." : push === "bloqueado" ? "Las bloqueaste antes. Actívalas en Ajustes del navegador › Notificaciones." : "Te avisamos al momento cuando te asignen algo, te autoricen o algo se atore.")}</div>
+              </div>
+              {(push === "bloqueado" || push === "instalar-primero") && <button onClick={() => { setPushOculto(true); try { localStorage.setItem("dom:push-oculto", String(Date.now())); } catch { /* */ } }} className="shrink-0 self-start -m-1 p-1.5 rounded-lg text-white/80" aria-label="Ocultar aviso"><X className="w-4 h-4" /></button>}
+              {push === "pendiente" && <button onClick={onActivarPush} disabled={pushBusy} className="shrink-0 rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#3b1d6e] active:scale-95 disabled:opacity-60">{pushBusy ? "…" : "Activar"}</button>}
+            </div>
+          </div>
+        )}
 
         {verInstalar && (
           <div className="mt-5 relative rounded-2xl border border-[#579bfc]/30 bg-[#579bfc]/10 p-4 pr-10 text-[13px] text-[var(--d-text-2)]">
