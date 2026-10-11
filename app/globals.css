@@ -1316,7 +1316,7 @@ body {
 }
 body.dom-ruta:not(.dom-oscuro) {
   --d-bg: #f6f7fa; --d-surface: #ffffff; --d-card: #ffffff; --d-card-2: #edf0f5; --d-hover: #f3f5f9;
-  --d-border: rgba(15,23,42,.09); --d-text: #0f172a; --d-text-2: #334155; --d-muted: #55657c; --d-faint: #6b7a90;
+  --d-border: rgba(15,23,42,.09); --d-text: #0f172a; --d-text-2: #334155; --d-muted: #55657c; --d-faint: #5b6a80;
   --d-link: #0060d0; --d-ok: #037f4c; --d-warn: #b45309; --d-danger: #d0213d; --d-purple: #6d28d9;
   --c-naranja: #c2410c; --c-amarillo: #a16207; --c-azul: #1d4ed8; --c-morado: #7e22ce; --c-verde: #047857; --c-rojo: #c2182b; --c-ambar: #b45309;
   --d-shadow: 0 1px 2px rgba(15,23,42,.05), 0 8px 22px -10px rgba(15,23,42,.18); --d-field: #ffffff; --d-input: #ffffff; --d-sunken: #f1f4f8; --d-nav: rgba(255,255,255,.97);
