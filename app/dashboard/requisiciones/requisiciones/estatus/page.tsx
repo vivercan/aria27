@@ -14,6 +14,8 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import CotizacionesProveedor from "@/components/CotizacionesProveedor";
+import { Esqueleto } from "@/components/domenica/Esqueleto";
+import { Vacio } from "@/components/domenica/Vacio";
 import { fmtMoney, fmtDate } from "@/lib/formatters";
 
 interface Requisition {
@@ -496,9 +498,9 @@ export default function RequisicionesStatusPage() {
       )}
 
       {loading ? (
-        <div className="text-center py-10">
+        <><div className="md:hidden"><Esqueleto filas={5} alto={92} /></div><div className="hidden md:block text-center py-10">
           <Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" />
-        </div>
+        </div></>
       ) : (
         <>
         {/* Celular: 3 pestañas claras (Doménica 27) */}
@@ -524,7 +526,9 @@ export default function RequisicionesStatusPage() {
                 </div>
               </button>); })}
             {listaMovil.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({listaMovil.length - nMovil})</button>}
-            {listaMovil.length === 0 && <div className="py-12 text-center text-sm text-[var(--d-muted)]">{tabActiva === "toca" ? "No tienes nada pendiente 🎉" : tabActiva === "mias" ? "No has pedido nada todavía." : "Nada coincide con tu búsqueda."}</div>}
+            {listaMovil.length === 0 && (qMovil ? <Vacio dibujo="buscar" titulo="No encontramos nada" texto={`Nada coincide con “${qMovil}”.`} accion={{ label: "Borrar búsqueda", onClick: () => setQMovil("") }} />
+              : tabActiva === "toca" ? <Vacio dibujo="listo" titulo="Nada te toca" texto="Cuando algo necesite tu autorización o pago, aparece aquí." />
+              : <Vacio dibujo="caja" titulo="Aún no pides nada" texto="Usa el botón + de abajo para pedir material." />)}
           </div>
         </div>
         <div className="hidden md:flex rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] overflow-hidden flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>

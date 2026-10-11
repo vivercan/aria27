@@ -84,6 +84,9 @@ export default function NewRequisitionPage() {
   const [motivoSolicitud, setMotivoSolicitud] = useState<string>("");
   // 11-Oct-2026 Doménica 27: en celular solo lo esencial; lo de pago/proveedor/IVA va en "Más detalles" (Compras lo completa)
   const [masDetalles, setMasDetalles] = useState(false);
+  // Celular: 3 pasos (1 Qué · 2 Dónde y cuándo · 3 Lista). En computadora se ve todo junto, como antes.
+  const [pasoM, setPasoM] = useState(1);
+  const vis = (n: number) => (pasoM === n ? "" : "hidden md:block");
   const avz = masDetalles ? "" : "hidden md:block";
   // 30-Abr PR gastos: solicitante nombre completo + foto ticket
   const [solicitanteCompleto, setSolicitanteCompleto] = useState<string>("");
@@ -255,7 +258,7 @@ export default function NewRequisitionPage() {
     const comentariosParam = searchParams.get("comentarios");
     const matsParam = searchParams.get("mats");
     const tipoParam = searchParams.get("tipo");
-    if (tipoParam === "DESTAJO") setTipoSolicitud("DESTAJO"); else if (matsParam || tipoParam === "MATERIALES" || searchParams.get("obra")) setTipoSolicitud("MATERIALES");
+    if (tipoParam === "DESTAJO") { setTipoSolicitud("DESTAJO"); setPasoM(2); } else if (matsParam || tipoParam === "MATERIALES" || searchParams.get("obra")) { setTipoSolicitud("MATERIALES"); setPasoM(2); }
 
     if (obra) {
       const match = costCenters.find(c =>
@@ -521,7 +524,7 @@ export default function NewRequisitionPage() {
     <div className="aria-bg-canon flex flex-col gap-5 p-6 h-full overflow-y-auto pb-12">
       <div className="flex items-center gap-3">
         <AriaBackButton href="/dashboard/requisiciones" />
-        <h1 className="text-2xl font-bold">Nueva Requisición</h1>
+        <h1 className="text-2xl font-bold"><span className="md:hidden">Pedir material</span><span className="hidden md:inline">Nueva Requisición</span></h1>
         {solicitanteVisible ? (
           <div className="ml-auto inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-xs">
             <span className="text-emerald-300 font-semibold">Solicitante:</span>
@@ -530,7 +533,7 @@ export default function NewRequisitionPage() {
         ) : null}
       </div>
 
-      {errorMsg && <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">{errorMsg}</div>}
+      {errorMsg && <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200 max-md:fixed max-md:left-3 max-md:right-3 max-md:z-50 max-md:shadow-xl max-md:bg-[var(--d-surface)]" style={{ bottom: "calc(84px + env(safe-area-inset-bottom))" }}>{errorMsg}</div>}
       {message && <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">{message}</div>}
 
       {/* ── DUPLICATE WARNING ───────────────────────────────────────────────────── */}
@@ -579,9 +582,15 @@ export default function NewRequisitionPage() {
         </button>
       )}
 
+      {/* Celular: progreso de 3 pasos */}
+      <div className="md:hidden">
+        <div className="flex gap-1.5">{[1, 2, 3].map(n => <div key={n} className={`h-1.5 flex-1 rounded-full transition-all ${pasoM >= n ? "bg-[#0073ea]" : "bg-[var(--d-border)]"}`} />)}</div>
+        <div className="mt-1.5 flex justify-between text-[11.5px] font-semibold">{["1 · Qué", "2 · Dónde y cuándo", "3 · Tu lista"].map((t, i) => <span key={t} className={pasoM === i + 1 ? "text-[var(--d-link)]" : "text-[var(--d-faint)]"}>{t}</span>)}</div>
+      </div>
+
       <div className="grid gap-5 lg:grid-cols-1 xl:grid-cols-2">
         {/* ARIA27 Campo F1: ¿Qué vas a solicitar? */}
-        <section className="rounded-2xl bg-[var(--d-card)] p-4 shadow-lg backdrop-blur">
+        <section className={`rounded-2xl bg-[var(--d-card)] p-4 shadow-lg backdrop-blur ${vis(1)}`}>
           <h2 className="mb-3 text-lg font-semibold">¿Qué vas a solicitar?</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {([
@@ -592,7 +601,7 @@ export default function NewRequisitionPage() {
               const active = tipoSolicitud === k;
               return (
                 <button key={k} type="button"
-                  onClick={() => { if (k === "ACTIVIDAD") { router.push("/dashboard/actividades?nueva=1"); return; } setTipoSolicitud(k as TipoSolicitud); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
+                  onClick={() => { if (k === "ACTIVIDAD") { router.push("/dashboard/actividades?nueva=1"); return; } setTipoSolicitud(k as TipoSolicitud); setPasoM(2); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
                   className={`btn-flat text-left rounded-2xl border p-4 transition min-h-[88px] ${active ? "border-aria-accent bg-aria-accent/15 ring-2 ring-aria-accent/40" : "border-[var(--d-border)] bg-[var(--d-card)] hover:bg-[var(--d-hover)]"}`}
                   aria-pressed={active}>
                   <Icon className={`w-6 h-6 mb-2 ${active ? "text-[var(--d-text)]" : "text-aria-accent"}`} />
@@ -606,7 +615,7 @@ export default function NewRequisitionPage() {
 
         {tipoSolicitud && (<>
         {/* SECCION 1: CONFIGURACION */}
-        <section className="rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur">
+        <section className={`rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur ${vis(2)}`}>
           <h2 className="mb-4 text-lg font-semibold"><span className="md:hidden">1. ¿Para qué obra y para cuándo?</span><span className="hidden md:inline">1. CONFIGURACIÓN</span></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -824,11 +833,15 @@ export default function NewRequisitionPage() {
               {formMode === "libre" && <><Receipt className="w-3 h-3" /> Captura libre: descripción + monto</>}
             </div>
           )}
+          <div className="md:hidden mt-5 grid grid-cols-[auto_1fr] gap-2">
+            <button type="button" onClick={() => setPasoM(1)} className="rounded-2xl bg-[var(--d-card-2)] px-5 py-3.5 text-sm font-semibold text-[var(--d-text-2)]">Atrás</button>
+            <button type="button" onClick={() => { if (!selectedCostCenterId) { setErrorMsg("Elige la obra."); return; } if (!requiredDate) { setErrorMsg("Elige para cuándo."); return; } setErrorMsg(null); setPasoM(3); try { window.scrollTo({ top: 0 }); } catch { /* */ } }} className="rounded-2xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3.5 text-[15px] font-bold text-white shadow-[0_10px_22px_-10px_#0073ea]">Siguiente: qué necesitas →</button>
+          </div>
         </section>
 
         {/* ARIA27 Campo F1: DESTAJO — un solo pago por requi, con saldo del destajista */}
         {tipoSolicitud === "DESTAJO" && (
-          <section className="rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur">
+          <section className={`rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur ${vis(3)}`}>
             <h2 className="mb-1 text-lg font-semibold flex items-center gap-2"><Hammer className="w-5 h-5 text-aria-accent" /> 2. DESTAJO</h2>
             <p className="text-xs text-[var(--d-muted)] mb-4">Elige al destajista arriba en “Proveedor”. Aquí capturas qué se paga y cuánto.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -866,7 +879,7 @@ export default function NewRequisitionPage() {
         )}
 
         {/* SECCION 2: BUSQUEDA O CAPTURA */}
-        <section className={`rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur ${tipoSolicitud === "DESTAJO" ? "hidden" : ""}`}>
+        <section className={`rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur ${tipoSolicitud === "DESTAJO" ? "hidden" : vis(3)}`}>
           {formMode === "catalogo" && (
             <>
               <h2 className="mb-4 text-lg font-semibold"><span className="md:hidden">2. ¿Qué necesitas? Búscalo o escríbelo</span><span className="hidden md:inline">2. BUSCAR EN CATÁLOGO</span></h2>
@@ -1012,7 +1025,7 @@ export default function NewRequisitionPage() {
       </div>
 
       {/* SECCION 3: RESUMEN */}
-      {tipoSolicitud && (<section className="flex-1 rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur flex flex-col">
+      {tipoSolicitud && (<section className={`flex-1 rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur flex-col ${pasoM === 3 ? "flex" : "hidden md:flex"}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-aria-accent" />
@@ -1129,7 +1142,8 @@ export default function NewRequisitionPage() {
           )}
         </div>
 
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end gap-2">
+          <button type="button" onClick={() => setPasoM(2)} className="md:hidden rounded-full bg-[var(--d-card-2)] px-5 py-2.5 text-sm font-semibold text-[var(--d-text-2)]">Atrás</button>
           <button onClick={handleSubmit} disabled={sending || isEmpty}
             className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isEmpty ? "bg-gray-600 text-[var(--d-muted)] cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Generando...</> : <><Check className="h-4 w-4" /><span className="md:hidden">Enviar solicitud</span><span className="hidden md:inline">Generar Requisición</span></>}

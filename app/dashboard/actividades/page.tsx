@@ -21,6 +21,8 @@ import { mencionesEnTexto } from "@/lib/plantillas";
 import { parecido, type VozActividad } from "@/lib/voz";
 import { rutaCritica } from "@/lib/dependencias";
 import LinkEvidencia from "@/components/domenica/LinkEvidencia";
+import { Esqueleto } from "@/components/domenica/Esqueleto";
+import { Vacio } from "@/components/domenica/Vacio";
 
 type Emp = { id: string; full_name: string; whatsapp?: string | null };
 type Obra = { id: string; nombre: string };
@@ -441,13 +443,11 @@ export default function ActividadesPage() {
         {!loading && visibles.length > 0 && <p className="mt-3 text-[11.5px] text-[var(--d-muted)]">{vista === "mi" ? "Desliza a la derecha para terminar, a la izquierda si está atorada · toca para ver, comentar o subir foto." : vista === "tablero" ? "Toca el círculo para terminarla · en computadora arrastra la tarjeta de columna." : vista === "linea" ? "Cada barra va del inicio a la entrega · la línea azul es hoy." : "Toca una fila para abrirla."}</p>}
 
         {loading ? (
-          <div className="flex items-center justify-center py-24"><Loader2 className="w-7 h-7 animate-spin text-[#579bfc]" /></div>
+          <div className="mt-5"><Esqueleto filas={5} alto={96} /></div>
         ) : visibles.length === 0 ? (
-          <div className="mt-10 text-center rounded-2xl border border-dashed border-[var(--d-border)] p-10">
-            <div className="text-4xl">🎯</div>
-            <div className="mt-2 text-[var(--d-text)] font-semibold">{ambito === "mias" ? "No tienes actividades pendientes" : "No hay actividades con estos filtros"}</div>
-            <button onClick={() => setNueva(true)} className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#0073ea] px-4 py-2 text-sm font-semibold text-white"><Plus className="w-4 h-4" />Crear una actividad</button>
-          </div>
+          <div className="mt-6 dom-card rounded-3xl">{ambito === "mias" && !q && !fObra && !fPersona
+            ? <Vacio dibujo="listo" titulo="No tienes actividades pendientes" texto="Cuando alguien te asigne algo, aparece aquí y te avisamos." accion={{ label: "Crear una actividad", onClick: () => setNueva(true) }} />
+            : <Vacio dibujo="buscar" titulo="Nada con estos filtros" texto="Prueba quitar la obra, la persona o la búsqueda." accion={{ label: "Quitar filtros", onClick: () => { setQ(""); setFObra(""); setFPersona(""); } }} />}</div>
         ) : vista === "mi" ? (
           <div className="mt-5">
             {grupo("atr", "Atrasadas", "var(--c-naranja)", gruposMi.atrasadas)}
@@ -535,6 +535,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
   const [avance, setAvance] = useState(Number(a.avance) || 0);
   const [upds, setUpds] = useState<Upd[]>([]); const [txt, setTxt] = useState(""); const [enviando, setEnviando] = useState(false);
   const [nuevoChk, setNuevoChk] = useState("");
+  const [tabF, setTabF] = useState<"resumen" | "detalles" | "charla">("resumen");
   const [sugMencion, setSugMencion] = useState<{ q: string; desde: number } | null>(null);
   const txtRef = useRef<HTMLTextAreaElement>(null);
   const candidatos = useMemo(() => emps.map(e => ({ id: e.id, nombre: e.full_name })), [emps]);
@@ -619,6 +620,13 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+          <div className="md:hidden sticky -top-4 z-10 -mx-5 px-5 pb-2 pt-1 bg-[var(--d-surface)]">
+            <div className="grid grid-cols-3 gap-1 rounded-2xl bg-[var(--d-card-2)] p-1">
+              {([["resumen", "Estado"], ["detalles", "Detalles"], ["charla", `Conversación${upds.filter(u => u.tipo !== "estado" && u.tipo !== "sistema").length ? ` (${upds.filter(u => u.tipo !== "estado" && u.tipo !== "sistema").length})` : ""}`]] as const).map(([k, l]) => (
+                <button key={k} type="button" onClick={() => setTabF(k)} className={`rounded-xl py-2 text-[13px] font-bold transition ${tabF === k ? "bg-[var(--d-surface)] text-[var(--d-text)] shadow-[var(--d-shadow)]" : "text-[var(--d-muted)]"}`}>{l}</button>))}
+            </div>
+          </div>
+          <div className={tabF === "resumen" ? "space-y-5" : "hidden md:block space-y-5"}>
           {/* Estado */}
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">Estado</div>
@@ -639,6 +647,8 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
               <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#00c875] text-[#06281a]" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}>{p}%</button>))}</div>
           </div>
 
+          </div>
+          <div className={tabF === "detalles" ? "space-y-5" : "hidden md:block space-y-5"}>
           {/* Campos */}
           <div className="grid grid-cols-2 gap-3">
             <label className="col-span-2 block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] flex items-center gap-1"><UserIcon className="w-3 h-3" />Responsable</span>
@@ -682,6 +692,8 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
               <button onClick={addChk} className="rounded-xl bg-[var(--d-card-2)] px-3 text-[var(--d-text)]" aria-label="Agregar paso"><Plus className="w-4 h-4" /></button></div>
           </div>
 
+          </div>
+          <div className={tabF === "charla" ? "space-y-5" : "hidden md:block space-y-5"}>
           {/* Actualizaciones */}
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">Actualizaciones</div>
@@ -710,6 +722,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
                 </li>))}
               {upds.length === 0 && <li className="text-xs text-[var(--d-faint)]">Aún no hay actualizaciones.</li>}
             </ol>
+          </div>
           </div>
         </div>
 

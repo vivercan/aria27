@@ -5,6 +5,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { Repeat, Plus, Pencil, Trash2, Loader2, MapPin, User as UserIcon, CalendarClock } from "lucide-react";
+import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { DomHeader, Hoja, api, useAviso, useBase, etiqueta, campo, boton } from "@/components/domenica/ui";
 import { DIAS_SEMANA, describirRecurrencia, type Frecuencia, type Recurrente } from "@/lib/plantillas";
 import { fechaCorta, PRIORIDADES } from "@/lib/actividades";
@@ -45,7 +46,7 @@ export default function RecurrentesPage() {
         <DomHeader icon={Repeat} from="#579bfc" to="#a25ddc" titulo="Recurrentes" desc="Lo que se repite se crea solo: cada día, cada semana o cada mes, a las 6:00, y le avisa al responsable."
           accion={<button onClick={() => setForm(VACIO(base.miEmp))} className={boton}><Plus className="w-4 h-4" />Nueva</button>} />
 
-        {lista === null ? <div className="py-16 text-center"><Loader2 className="w-7 h-7 mx-auto animate-spin text-[var(--d-muted)]" /></div> : (
+        {lista === null ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (
           <>
             {lista.length === 0 && (
               <section className="mt-6">

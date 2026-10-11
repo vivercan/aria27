@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { LayoutTemplate, Plus, Play, Pencil, Trash2, Loader2, CalendarDays, Hourglass, ListChecks, X } from "lucide-react";
+import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { DomHeader, Hoja, api, useAviso, useBase, etiqueta, campo, boton, ymdLocal } from "@/components/domenica/ui";
 import { programar, type ItemPlantilla, type Plantilla } from "@/lib/plantillas";
 import { fechaCorta, PRIORIDADES } from "@/lib/actividades";
@@ -39,7 +40,7 @@ export default function PlantillasPage() {
         <DomHeader icon={LayoutTemplate} from="#a25ddc" to="#7e3bdd" titulo="Plantillas" desc="Arma una obra en un clic: cada plantilla crea sus actividades con fechas, responsables, pasos y el orden en que van."
           accion={<button onClick={() => setEditar({ nombre: "", descripcion: "", filas: [{ ...FILA_VACIA }] })} className={boton}><Plus className="w-4 h-4" />Nueva</button>} />
 
-        {lista === null ? <div className="py-16 text-center"><Loader2 className="w-7 h-7 mx-auto animate-spin text-[var(--d-muted)]" /></div> : (
+        {lista === null ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {lista.map((p, i) => (
               <div key={p.id} className="dom-card dom-in rounded-2xl p-4 flex flex-col gap-3" style={{ animationDelay: `${i * 60}ms` }}>

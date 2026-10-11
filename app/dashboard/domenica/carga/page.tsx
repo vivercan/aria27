@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Users, Loader2, ChevronRight, AlertTriangle } from "lucide-react";
+import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { DomHeader } from "@/components/domenica/ui";
 import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
@@ -50,7 +51,7 @@ export default function CargaPage() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-4xl mx-auto">
         <DomHeader icon={Users} from="#00c875" to="#00a35c" titulo="Carga de trabajo" desc="Quién está saturado y quién tiene espacio. Toca a una persona para ver sus actividades." />
-        {acts === null ? <div className="py-16 text-center"><Loader2 className="w-7 h-7 mx-auto animate-spin text-[var(--d-muted)]" /></div> : (
+        {acts === null ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (
           <>
             <div className="mt-5 grid grid-cols-3 gap-2">
               {[{ n: conTrabajo.length, l: "Con actividades", c: "var(--c-azul)" }, { n: saturados, l: "Saturados o muy atrasados", c: "var(--c-rojo)" }, { n: libres.length, l: "Sin actividades", c: "var(--d-muted)" }].map((k, i) => (

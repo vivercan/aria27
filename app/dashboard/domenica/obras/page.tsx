@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Building2, Loader2, ChevronRight, Search } from "lucide-react";
+import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { DomHeader } from "@/components/domenica/ui";
 import { supabase } from "@/lib/supabase";
 import type { Actividad } from "@/lib/actividades";
@@ -38,7 +39,7 @@ export default function ObrasDomPage() {
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <DomHeader icon={Building2} from="#ff642e" to="#fdab3d" titulo="Obras" desc="Todo de cada obra en un lugar: actividades, atrasos, avance y lo gastado contra el presupuesto." />
         <div className="mt-4 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--d-muted)]" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar obra o cliente…" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-field)] pl-9 pr-3 py-2.5 text-sm text-[var(--d-text)]" /></div>
-        {!datos ? <div className="py-16 text-center"><Loader2 className="w-7 h-7 mx-auto animate-spin text-[var(--d-muted)]" /></div> : (
+        {!datos ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {filas.map(({ o, x }, i) => { const s = semaforoObra(x); return (
               <Link key={o.id} href={`/dashboard/domenica/obras/${o.id}`} className="dom-card dom-in rounded-2xl p-4 block active:scale-[0.99] transition" style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}>

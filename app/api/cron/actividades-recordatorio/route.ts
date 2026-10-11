@@ -1,5 +1,5 @@
 /**
- * Cron diario 8:00 (Aguascalientes) · Actividades tipo Monday · 10-Oct-2026
+ * Cron diario 7:00 (Aguascalientes) · Resumen de la mañana (actividades + solicitudes que te tocan) · 10/11-Oct-2026
  * - A cada persona: lista de lo que vence hoy, manana y lo atrasado (una sola notificacion por persona).
  * - A quien asigno: resumen de sus actividades atrasadas (1 mensaje).
  * Plantilla aprobada aria_tarea_status (funciona fuera de la ventana de 24 h).
@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { avisarWA, personaPorEmail, personaPorEmpleado } from "@/lib/actividades-server";
 import { columnaDe, diasAtraso, fechaCorta, type Actividad } from "@/lib/actividades";
+import { meToca, accionPara, ACCION_TXT } from "@/lib/requi-stepper";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,6 +46,23 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // 11-Oct-2026 · Resumen de la mañana: además de actividades, las solicitudes que a cada quien le toca mover
+  const reqPorEmail = new Map<string, { n: number; que: Record<string, number> }>();
+  try {
+    const [{ data: us }, { data: rq }] = await Promise.all([
+      db.from("users").select("email, role, active"),
+      db.from("requisitions").select("id, status, purchase_status, user_email, responsable_email, tipo_solicitud").in("status", ["PENDIENTE_RESPONSABLE", "PENDIENTE", "EN_COTIZACION", "EN_AUTORIZACION", "APROBADA"]).limit(3000),
+    ]);
+    for (const u of (us || []) as { email: string; role: string; active: boolean | null }[]) {
+      if (u.active === false || !u.email) continue;
+      const em = u.email.toLowerCase(); const role = String(u.role || "").toLowerCase();
+      const que: Record<string, number> = {}; let n = 0;
+      for (const q of (rq || []) as Parameters<typeof meToca>[0][]) { if (!meToca(q, role, em)) continue; const a = accionPara(q, role, em) || ""; que[a] = (que[a] || 0) + 1; n++; }
+      if (n) reqPorEmail.set(em, { n, que });
+    }
+  } catch { /* si falla, sigue solo con actividades */ }
+  const textoReq = (x: { n: number; que: Record<string, number> }) => Object.entries(x.que).map(([a, k]) => `${k} por ${(ACCION_TXT[a] || "atender").toLowerCase()}`).join(", ");
+
   const enviados: string[] = [];
   for (const [k, list] of porPersona) {
     const p = list[0].asignado_id ? await personaPorEmpleado(db, list[0].asignado_id) : await personaPorEmail(db, k);
@@ -52,9 +70,17 @@ export async function GET(req: NextRequest) {
       const f = (a.fecha_compromiso || "").slice(0, 10); const d = diasAtraso(a, hoy);
       return `${i + 1}) ${a.titulo.slice(0, 60)} - ${d > 0 ? `atrasada ${d} día${d === 1 ? "" : "s"}` : f === H ? "vence HOY" : "vence mañana"}`;
     });
-    const msg = `Tus actividades: ${partes.join(" | ")}${list.length > 6 ? ` y ${list.length - 6} más` : ""}. Contesta 1 LISTO o 1 AVANCE 50 para actualizar.`;
+    const rq = p?.email ? reqPorEmail.get(p.email) : undefined; if (p?.email) reqPorEmail.delete(p.email);
+    const msg = `Buenos días. Tus actividades: ${partes.join(" | ")}${list.length > 6 ? ` y ${list.length - 6} más` : ""}.${rq ? ` Solicitudes: ${textoReq(rq)}.` : ""} Contesta 1 LISTO o 1 AVANCE 50 para actualizar.`;
     if (!dry && await avisarWA(p, msg, "actividades-recordatorio", "cron", { title: "⏰ Tus actividades de hoy", url: "/dashboard/actividades?vista=mi", tag: "recordatorio" })) enviados.push(`persona:${p?.nombre}`);
     else if (dry) enviados.push(`DRY persona:${p?.nombre} -> ${msg}`);
+  }
+  // Quien solo tiene solicitudes pendientes (sin actividades): un solo aviso
+  for (const [email, x] of reqPorEmail) {
+    const p = await personaPorEmail(db, email);
+    const msg = `Buenos días. Tienes ${x.n} solicitud${x.n === 1 ? "" : "es"} esperando: ${textoReq(x)}. Ábrelas en Doménica 27 › Solicitudes › Me toca.`;
+    if (!dry && await avisarWA(p, msg, "resumen-solicitudes", "cron", { title: `📋 ${x.n} solicitud${x.n === 1 ? "" : "es"} te esperan`, url: "/dashboard/requisiciones/requisiciones/estatus?tab=toca", tag: "resumen-req" })) enviados.push(`solicitudes:${p?.nombre}`);
+    else if (dry) enviados.push(`DRY solicitudes:${p?.nombre} -> ${msg}`);
   }
   for (const [email, list] of atrasadasPorAsignador) {
     const p = await personaPorEmail(db, email);
