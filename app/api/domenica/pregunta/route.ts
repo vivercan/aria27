@@ -54,7 +54,9 @@ export async function POST(req: NextRequest) {
       hoy, yo: { nombre: (u as { display_name?: string; name?: string } | null)?.display_name || (u as { name?: string } | null)?.name || me, rol: role, ve_todo: todo },
       obras: O_.map(o => ({ id: o.id, nombre: o.nombre })),
       actividades: A_.map(a => ({ id: a.id, t: a.titulo, obra: a.obra, quien: a.asignado_nombre, mia: (a.asignado_email || "").toLowerCase() === me, entrega: a.fecha_compromiso?.slice(0, 10) || null, dias_tarde: Math.max(0, atraso(a.fecha_compromiso)), estado: a.motivo_bloqueo ? `ATORADA: ${a.motivo_bloqueo}` : a.estatus, avance: a.avance || 0, prioridad: a.prioridad, espera_a: a.depende_de || undefined })),
-      solicitudes: R_.map(r => ({ id: r.id, folio: r.folio, obra: r.cost_center_name, estado: queSigue(r.status), pidio: r.solicitante_nombre_completo || r.created_by, mia: (r.user_email || "").toLowerCase() === me, total: Number(r.total) || Number(r.monto) || 0, dias: Math.floor((Date.now() - Date.parse(r.created_at)) / 864e5), para: r.required_date?.slice(0, 10) || null, que: (r.motivo_solicitud || "").slice(0, 80), proveedor: r.proveedor_nombre || r.proveedor || undefined, efectivo: r.purchase_status === "GASTO_EFECTIVO_PENDIENTE" || undefined })),
+      solicitudes: R_.map(r => ({ id: r.id, folio: r.folio, obra: r.cost_center_name, estado: queSigue(r.status), pidio: r.solicitante_nombre_completo || r.created_by, mia: (r.user_email || "").toLowerCase() === me, total: Number(r.total) || Number(r.monto) || 0, fecha: r.created_at.slice(0, 10), dias: Math.floor((Date.now() - Date.parse(r.created_at)) / 864e5), para: r.required_date?.slice(0, 10) || null, que: (r.motivo_solicitud || "").slice(0, 80), proveedor: r.proveedor_nombre || r.proveedor || undefined, efectivo: r.purchase_status === "GASTO_EFECTIVO_PENDIENTE" || undefined })),
+      // Gasto pedido por obra y mes (suma de solicitudes no rechazadas/canceladas, últimos 120 días) para contestar "¿cuánto se ha gastado…?"
+      gasto_por_obra_mes: (() => { const m: Record<string, Record<string, number>> = {}; for (const r of R_) { if (/RECHAZ|CANCEL/.test(r.status)) continue; const o = r.cost_center_name || "Sin obra"; const mes = r.created_at.slice(0, 7); (m[o] ||= {})[mes] = Math.round(((m[o] || {})[mes] || 0) + (Number(r.total) || Number(r.monto) || 0)); } return m; })(),
       por_autorizar: R_.filter(r => (r.status === "EN_AUTORIZACION" && (role === "direccion" || role === "admin")) || (r.status === "PENDIENTE_RESPONSABLE" && (role === "direccion" || role === "admin" || role === "validador" || (r.responsable_email || "").toLowerCase() === me))).length,
     };
 
@@ -65,6 +67,7 @@ Reglas:
 - Si mencionan una obra, busca el nombre parecido en "obras". Cantidades en pesos con formato $12,345.
 - "solicitudes" son pedidos de material/gastos; "actividades" son tareas. "dias_tarde" > 0 es atrasada. "estado" de solicitudes ya está en palabras.
 - Solo lees: si te piden crear o cambiar algo, explica que lo haga con el botón + o con el botón que le propones.
+- Para dinero usa "gasto_por_obra_mes" (lo PEDIDO en solicitudes por mes "AAAA-MM"; aclara que es lo pedido, no lo pagado). Nunca menciones pantallas, reportes o botones que no estén en tus acciones.
 Responde SOLO JSON: {"respuesta":"texto","acciones":[{"label":"máx 4 palabras","tipo":"actividad|solicitud|obra|autorizar|pantalla","id":"id exacto si aplica","ruta":"actividades|solicitudes|autorizar|obras|calendario|entregas|pedir (solo si tipo=pantalla)"}]} con 0 a 3 acciones útiles.`;
     const mensajes = [
       ...historial.flatMap((h: { q: string; a: string }) => [{ role: "user", content: h.q }, { role: "assistant", content: JSON.stringify({ respuesta: h.a, acciones: [] }) }]),
