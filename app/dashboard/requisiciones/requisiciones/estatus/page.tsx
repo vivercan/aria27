@@ -392,7 +392,7 @@ export default function RequisicionesStatusPage() {
     if (status?.includes("PENDIENTE")) return "aria-badge aria-badge-pendiente";
     if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "aria-badge aria-badge-rechazada";
     if (status?.includes("COTIZA")) return "aria-badge aria-badge-en-autorizacion";
-    return "bg-slate-500/20 text-[#7f93b0]";
+    return "bg-slate-500/20 text-[var(--d-muted)]";
   };
 
   async function resolverResponsable(action: "AUTORIZAR" | "RECHAZAR") {
@@ -421,8 +421,8 @@ export default function RequisicionesStatusPage() {
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
           <div>
-            <h1 className="text-2xl font-bold text-white">Estatus de Requisiciones</h1>
-            <p className="text-[#4a6080] text-sm">{lf.isActive ? `${visibles.length} de ${requisiciones.length}` : requisiciones.length} requisiciones</p>
+            <h1 className="text-2xl font-bold text-[var(--d-text)]">Estatus de Requisiciones</h1>
+            <p className="text-[var(--d-faint)] text-sm">{lf.isActive ? `${visibles.length} de ${requisiciones.length}` : requisiciones.length} requisiciones</p>
           </div>
         </div>
 
@@ -440,7 +440,7 @@ export default function RequisicionesStatusPage() {
 
       {/* Barra de selección — solo RH */}
       {canDelete && selectedIds.length > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08]">
+        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)]">
           <span className="text-sm text-red-300">{selectedIds.length} seleccionada{selectedIds.length > 1 ? "s" : ""}</span>
           <button
             onClick={() => openDeleteModal("selected")}
@@ -451,7 +451,7 @@ export default function RequisicionesStatusPage() {
           </button>
           <button
             onClick={() => setSelectedIds([])}
-            className="px-4 py-1.5 rounded-lg bg-white/[0.06] text-[#c9d8ed] text-sm hover:bg-white/[0.1] transition"
+            className="px-4 py-1.5 rounded-lg bg-[var(--d-sunken)] text-[var(--d-text-2)] text-sm hover:bg-[var(--d-hover)] transition"
           >
             Cancelar selección
           </button>
@@ -475,11 +475,11 @@ export default function RequisicionesStatusPage() {
           <Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" />
         </div>
       ) : (
-        <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] overflow-hidden flex flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>
+        <div className="rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] overflow-hidden flex flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>
           <div className="overflow-auto flex-1">
             <table className="w-full">
-              <thead className="bg-white/[0.04] sticky top-0">
-                <tr className="text-left text-[#7f93b0] text-xs">
+              <thead className="bg-[var(--d-card)] sticky top-0">
+                <tr className="text-left text-[var(--d-muted)] text-xs">
                   {canDelete && (
                     <th className="p-3 w-10">
                       <input
@@ -502,7 +502,7 @@ export default function RequisicionesStatusPage() {
               </thead>
               <tbody>
                 {visibles.map((req) => (
-                  <tr key={req.id} className="border-t border-white/[0.05] hover:bg-white/[0.04]">
+                  <tr key={req.id} className="border-t border-[var(--d-border)] hover:bg-[var(--d-hover)]">
                     {canDelete && (
                       <td className="p-3">
                         <input
@@ -516,10 +516,10 @@ export default function RequisicionesStatusPage() {
                     <td className="p-3">
                       <button onClick={() => openDetail(req)} className="font-mono text-aria-accent text-sm hover:text-aria-accent hover:underline transition">{req.folio}</button>
                     </td>
-                    <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
-                    <td className="p-3 text-[#c9d8ed] text-sm">{nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by}</td>
-                    <td className="p-3 text-[#c9d8ed] text-sm" title={req.proveedor || ""}>{req.proveedor ? <span className="block max-w-[220px] truncate">{req.proveedor}</span> : <span className="text-[#4a6080]">—</span>}</td>
-                    <td className="p-3 text-[#c9d8ed] text-sm">{formatDate(req.required_date)}</td>
+                    <td className="p-3 text-[var(--d-text)] text-sm">{req.cost_center_name}</td>
+                    <td className="p-3 text-[var(--d-text-2)] text-sm">{nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by}</td>
+                    <td className="p-3 text-[var(--d-text-2)] text-sm" title={req.proveedor || ""}>{req.proveedor ? <span className="block max-w-[220px] truncate">{req.proveedor}</span> : <span className="text-[var(--d-faint)]">—</span>}</td>
+                    <td className="p-3 text-[var(--d-text-2)] text-sm">{formatDate(req.required_date)}</td>
                     <td className="p-3 text-aria-accent text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>
@@ -542,7 +542,7 @@ export default function RequisicionesStatusPage() {
                         <button
                           onClick={() => handlePrintClick(req)}
                           disabled={loadingPrint === req.id}
-                          className="p-2 rounded-lg bg-white/[0.04] hover:bg-aria-accent-bg text-[#7f93b0] hover:text-aria-accent transition-all disabled:opacity-50"
+                          className="p-2 rounded-lg bg-[var(--d-card)] hover:bg-aria-accent-bg text-[var(--d-muted)] hover:text-aria-accent transition-all disabled:opacity-50"
                           title="Imprimir"
                         >
                           {loadingPrint === req.id ? (
@@ -564,7 +564,7 @@ export default function RequisicionesStatusPage() {
                         {(req.status === "APROBADA" || req.status === "OC_GENERADA" || req.status === "AUTORIZADA") && (
                           <button
                             onClick={() => setAvisarPago(req)}
-                            className="p-2 rounded-lg bg-white/[0.04] hover:bg-amber-500/20 text-[#7f93b0] hover:text-amber-300 transition-all"
+                            className="p-2 rounded-lg bg-[var(--d-card)] hover:bg-amber-500/20 text-[var(--d-muted)] hover:text-amber-300 transition-all"
                             title="Avisar pago"
                           >
                             <Send className="w-4 h-4" />
@@ -587,9 +587,9 @@ export default function RequisicionesStatusPage() {
               </tbody>
             </table>
             {visibles.length === 0 && (
-              <div className="py-12 text-center text-sm text-[#7f93b0]">
+              <div className="py-12 text-center text-sm text-[var(--d-muted)]">
                 {requisiciones.length === 0 ? "No hay requisiciones." : (
-                  <>Nada coincide{lf.search ? <> con <span className="text-white">“{lf.search}”</span></> : ""}. <button type="button" onClick={lf.clear} className="btn-flat aria-no-min-tap underline text-aria-accent hover:text-white">Limpiar filtros</button></>
+                  <>Nada coincide{lf.search ? <> con <span className="text-[var(--d-text)]">“{lf.search}”</span></> : ""}. <button type="button" onClick={lf.clear} className="btn-flat aria-no-min-tap underline text-aria-accent hover:text-[var(--d-text)]">Limpiar filtros</button></>
                 )}
               </div>
             )}
@@ -600,43 +600,43 @@ export default function RequisicionesStatusPage() {
       {/* Modal Detalle */}
       {detailReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setDetailReq(null)}>
-          <div className="bg-aria-bg rounded-2xl border border-white/[0.08] w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-5 border-b border-white/[0.08]">
+          <div className="bg-[var(--d-bg)] rounded-2xl border border-[var(--d-border)] w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-[var(--d-border)]">
               <div>
-                <h3 className="text-lg font-bold text-white">{detailReq.folio}</h3>
-                <p className="text-[#7f93b0] text-sm">{detailReq.cost_center_name}</p>
+                <h3 className="text-lg font-bold text-[var(--d-text)]">{detailReq.folio}</h3>
+                <p className="text-[var(--d-muted)] text-sm">{detailReq.cost_center_name}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(detailReq.status)}`}>{statusLabel(detailReq.status).toUpperCase()}</span>
-                <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition">✕</button>
+                <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-[var(--d-hover)] text-[var(--d-muted)] hover:text-[var(--d-text)] transition">✕</button>
               </div>
             </div>
             <div className="p-5 overflow-y-auto max-h-[calc(85vh-140px)] space-y-4">
-              <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] px-2 py-2"><RequiStepper req={detailReq} /></div>
+              <div className="rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-2 py-2"><RequiStepper req={detailReq} /></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Solicitante</p><p className="text-sm text-white">{nombresPorEmail[(detailReq.user_email || "").toLowerCase()] || detailReq.created_by}</p></div>
-                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>
-                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Creación</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>
-                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Total</p><p className="text-sm text-aria-accent font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Solicitante</p><p className="text-sm text-[var(--d-text)]">{nombresPorEmail[(detailReq.user_email || "").toLowerCase()] || detailReq.created_by}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Fecha Requerida</p><p className="text-sm text-[var(--d-text)]">{formatDate(detailReq.required_date)}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Fecha Creación</p><p className="text-sm text-[var(--d-text)]">{formatDate(detailReq.created_at)}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Total</p><p className="text-sm text-aria-accent font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
               </div>
               {detailReq.instructions && (
-                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Instrucciones</p><p className="text-sm text-[#c9d8ed]">{detailReq.instructions}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Instrucciones</p><p className="text-sm text-[var(--d-text-2)]">{detailReq.instructions}</p></div>
               )}
               <div>
-                <p className="text-xs font-medium text-[#7f93b0] mb-2">MATERIALES</p>
+                <p className="text-xs font-medium text-[var(--d-muted)] mb-2">MATERIALES</p>
                 {loadingDetail ? (
                   <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-aria-accent" /></div>
                 ) : (
-                  <div className="rounded-xl border border-white/[0.08] overflow-x-auto">
+                  <div className="rounded-xl border border-[var(--d-border)] overflow-x-auto">
                     <table className="w-full min-w-[460px]">
-                      <thead className="bg-white/[0.04]"><tr className="text-left text-[11px] text-[#4a6080]"><th className="p-2.5">Material</th><th className="p-2.5 w-20">Unidad</th><th className="p-2.5 w-16 text-center">Cant.</th><th className="p-2.5 w-24 text-right">P. Unit.</th><th className="p-2.5 w-24 text-right">Total</th></tr></thead>
+                      <thead className="bg-[var(--d-card)]"><tr className="text-left text-[11px] text-[var(--d-faint)]"><th className="p-2.5">Material</th><th className="p-2.5 w-20">Unidad</th><th className="p-2.5 w-16 text-center">Cant.</th><th className="p-2.5 w-24 text-right">P. Unit.</th><th className="p-2.5 w-24 text-right">Total</th></tr></thead>
                       <tbody>
                         {detailItems.map((item) => (
-                          <tr key={item.id} className="border-t border-white/[0.05] text-sm">
-                            <td className="p-2.5 text-white">{item.product_name}</td>
-                            <td className="p-2.5 text-[#7f93b0]">{item.unit}</td>
-                            <td className="p-2.5 text-center text-white">{item.quantity}</td>
-                            <td className="p-2.5 text-right text-[#7f93b0]">{formatCurrency(item.precio_unitario)}</td>
+                          <tr key={item.id} className="border-t border-[var(--d-border)] text-sm">
+                            <td className="p-2.5 text-[var(--d-text)]">{item.product_name}</td>
+                            <td className="p-2.5 text-[var(--d-muted)]">{item.unit}</td>
+                            <td className="p-2.5 text-center text-[var(--d-text)]">{item.quantity}</td>
+                            <td className="p-2.5 text-right text-[var(--d-muted)]">{formatCurrency(item.precio_unitario)}</td>
                             <td className="p-2.5 text-right text-aria-accent font-medium">{formatCurrency(item.precio_total)}</td>
                           </tr>
                         ))}
@@ -651,9 +651,9 @@ export default function RequisicionesStatusPage() {
                 <p className="text-xs text-amber-200 mb-2">Esta requisición espera tu autorización como responsable de la obra.</p>
                 {respAccion === "RECHAZAR" ? (
                   <div className="space-y-2 pb-3">
-                    <textarea value={respComentario} onChange={e => setRespComentario(e.target.value)} placeholder="Motivo del rechazo (obligatorio)" rows={2} className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-red-400" />
+                    <textarea value={respComentario} onChange={e => setRespComentario(e.target.value)} placeholder="Motivo del rechazo (obligatorio)" rows={2} className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-red-400" />
                     <div className="flex gap-2 justify-end">
-                      <button onClick={() => setRespAccion("")} className="btn-flat px-3 py-2 rounded-lg bg-white/[0.06] text-sm text-[#c9d8ed]">Cancelar</button>
+                      <button onClick={() => setRespAccion("")} className="btn-flat px-3 py-2 rounded-lg bg-[var(--d-sunken)] text-sm text-[var(--d-text-2)]">Cancelar</button>
                       <button disabled={respSaving || !respComentario.trim()} onClick={() => resolverResponsable("RECHAZAR")} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold disabled:opacity-50">{respSaving ? "Enviando…" : "Confirmar rechazo"}</button>
                     </div>
                   </div>
@@ -665,7 +665,7 @@ export default function RequisicionesStatusPage() {
                 )}
               </div>
             )}
-            <div className="p-4 border-t border-white/[0.08] flex justify-end gap-2 flex-wrap">
+            <div className="p-4 border-t border-[var(--d-border)] flex justify-end gap-2 flex-wrap">
               {accionPara(detailReq, userRole, userEmail) === "REGISTRAR_ENTREGA" && (
                 <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="px-4 py-2 rounded-lg bg-aria-accent/90 hover:bg-aria-accent text-slate-900 text-sm font-semibold transition flex items-center gap-2 shadow-md">📦 Registrar entrega</Link>
               )}
@@ -673,7 +673,7 @@ export default function RequisicionesStatusPage() {
                 <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-medium transition flex items-center gap-2 shadow-md shadow-amber-500/30 ring-1 ring-amber-300/30"><Pencil className="w-4 h-4" />Editar</button>
               )}
               <button onClick={() => { setDupModal(detailReq); setDetailReq(null); }} disabled={duplicando} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-indigo-500/30 ring-1 ring-indigo-300/30 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Duplicar</button>
-              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-black/20 ring-1 ring-white/10"><Printer className="w-4 h-4" />Imprimir</button>
+              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-black/20 ring-1 ring-[var(--d-border)]"><Printer className="w-4 h-4" />Imprimir</button>
               <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-emerald-500/30 ring-1 ring-emerald-300/30"><FileDown className="w-4 h-4" />PDF</button>
             </div>
           </div>
@@ -683,19 +683,19 @@ export default function RequisicionesStatusPage() {
       {/* Modal Duplicar — pregunta si avisar o no (23-Jul-2026) */}
       {dupModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => { if (!duplicando) setDupModal(null); }}>
-          <div className="bg-aria-bg rounded-2xl border border-white/[0.08] w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[var(--d-bg)] rounded-2xl border border-[var(--d-border)] w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 rounded-lg bg-indigo-500/20"><Copy className="w-5 h-5 text-indigo-300" /></div>
               <div>
-                <h3 className="text-lg font-bold text-white">Duplicar {dupModal.folio}</h3>
-                <p className="text-[#7f93b0] text-xs mt-0.5">Se crea una requisicion nueva con folio nuevo, en PENDIENTE, copiando obra, proveedor e items.</p>
+                <h3 className="text-lg font-bold text-[var(--d-text)]">Duplicar {dupModal.folio}</h3>
+                <p className="text-[var(--d-muted)] text-xs mt-0.5">Se crea una requisicion nueva con folio nuevo, en PENDIENTE, copiando obra, proveedor e items.</p>
               </div>
             </div>
-            <p className="text-sm text-[#c9d8ed] mb-4">Al crearla, ¿quieres avisar a Direccion y Compras (WhatsApp + correo)?</p>
+            <p className="text-sm text-[var(--d-text-2)] mb-4">Al crearla, ¿quieres avisar a Direccion y Compras (WhatsApp + correo)?</p>
             <div className="flex flex-col gap-2">
               <button disabled={duplicando} onClick={() => handleDuplicar(dupModal, true)} className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Duplicar y avisar</button>
-              <button disabled={duplicando} onClick={() => handleDuplicar(dupModal, false)} className="w-full py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Solo duplicar (sin avisar)</button>
-              <button disabled={duplicando} onClick={() => setDupModal(null)} className="w-full py-2 rounded-lg text-[#7f93b0] text-sm hover:text-white disabled:opacity-50">Cancelar</button>
+              <button disabled={duplicando} onClick={() => handleDuplicar(dupModal, false)} className="w-full py-2.5 rounded-lg bg-[var(--d-sunken)] hover:bg-[var(--d-hover)] text-[var(--d-text)] text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Solo duplicar (sin avisar)</button>
+              <button disabled={duplicando} onClick={() => setDupModal(null)} className="w-full py-2 rounded-lg text-[var(--d-muted)] text-sm hover:text-[var(--d-text)] disabled:opacity-50">Cancelar</button>
             </div>
           </div>
         </div>
@@ -713,20 +713,20 @@ export default function RequisicionesStatusPage() {
       {/* Modal Eliminar — confirmación con "Borrar" */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 ">
-          <div className="bg-aria-bg p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
+          <div className="bg-[var(--d-bg)] p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
             {/* Icono de advertencia */}
             <div className="flex items-center gap-3 mb-4">
               <div className="aria-btn aria-btn-danger">
                 <Trash2 className="w-6 h-6 text-red-400" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Eliminar Requisiciones</h3>
+                <h3 className="text-lg font-bold text-[var(--d-text)]">Eliminar Requisiciones</h3>
                 <p className="text-red-400 text-xs font-medium">Acción irreversible</p>
               </div>
             </div>
 
             {/* Advertencia */}
-            <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.08] mb-4">
+            <div className="p-3 rounded-lg bg-[var(--d-card)] border border-[var(--d-border)] mb-4">
               <p className="text-sm text-red-300 font-medium mb-1">
                 {deleteType === "single"
                   ? "Se eliminará 1 requisición"
@@ -740,18 +740,18 @@ export default function RequisicionesStatusPage() {
             </div>
 
             {/* Input de confirmación */}
-            <p className="text-[#7f93b0] text-sm mb-2">
-              Para confirmar, escribe <span className="text-white font-bold">Borrar</span> exactamente:
+            <p className="text-[var(--d-muted)] text-sm mb-2">
+              Para confirmar, escribe <span className="text-[var(--d-text)] font-bold">Borrar</span> exactamente:
             </p>
             <input
               type="text"
               value={deleteConfirmation}
               onChange={(e) => setDeleteConfirmation(e.target.value)}
               placeholder="Borrar"
-              className={`w-full px-4 py-2.5 rounded-lg border text-white text-center text-lg font-medium tracking-wider mb-4 focus:outline-none transition ${
+              className={`w-full px-4 py-2.5 rounded-lg border text-[var(--d-text)] text-center text-lg font-medium tracking-wider mb-4 focus:outline-none transition ${
                 deleteConfirmation === "Borrar"
                   ? "bg-red-500/10 border-red-500/50 focus:border-red-500"
-                  : "bg-white/[0.04] border-white/[0.08] focus:border-white/30"
+                  : "bg-[var(--d-card)] border-[var(--d-border)] focus:border-[var(--d-muted)]"
               }`}
               autoFocus
             />
@@ -760,7 +760,7 @@ export default function RequisicionesStatusPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowDeleteModal(false); setDeleteConfirmation(""); }}
-                className="flex-1 py-2.5 rounded-lg bg-white/[0.06] text-white text-sm font-medium hover:bg-white/[0.1] transition"
+                className="flex-1 py-2.5 rounded-lg bg-[var(--d-sunken)] text-[var(--d-text)] text-sm font-medium hover:bg-[var(--d-hover)] transition"
               >
                 Cancelar
               </button>
@@ -789,16 +789,16 @@ export default function RequisicionesStatusPage() {
       {/* Modal Avisar Pago */}
       {avisarPago && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setAvisarPago(null)}>
-          <div className="bg-[#0c1d38] border border-amber-400/40 rounded-2xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[var(--d-surface)] border border-amber-400/40 rounded-2xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-amber-300 text-xs font-bold tracking-wider uppercase">📤 Avisar pago a tesoreria</p>
-                <h3 className="text-white text-lg font-bold mt-1">{avisarPago.folio}</h3>
+                <h3 className="text-[var(--d-text)] text-lg font-bold mt-1">{avisarPago.folio}</h3>
               </div>
-              <button onClick={() => setAvisarPago(null)} className="p-2 rounded hover:bg-white/[0.06] text-[#7f93b0]">✕</button>
+              <button onClick={() => setAvisarPago(null)} className="p-2 rounded hover:bg-[var(--d-hover)] text-[var(--d-muted)]">✕</button>
             </div>
-            <div className="bg-black/30 border border-white/[0.08] rounded-lg p-3 mb-4">
-              <pre className="text-[#bbf7d0] text-xs font-mono whitespace-pre-wrap leading-relaxed">{`REQ ${avisarPago.folio} ${(avisarPago.motivo_solicitud || avisarPago.descripcion_compra || "").toUpperCase()} ${avisarPago.cost_center_name || ""}
+            <div className="bg-[var(--d-input)] border border-[var(--d-border)] rounded-lg p-3 mb-4">
+              <pre className="text-[var(--d-ok)] text-xs font-mono whitespace-pre-wrap leading-relaxed">{`REQ ${avisarPago.folio} ${(avisarPago.motivo_solicitud || avisarPago.descripcion_compra || "").toUpperCase()} ${avisarPago.cost_center_name || ""}
 ${avisarPago.proveedor || ""}
 $${(Number(avisarPago.monto || avisarPago.total || 0)).toLocaleString("es-MX", {minimumFractionDigits: 2})}
 ${avisarPago.banco || ""}
@@ -806,12 +806,12 @@ ${avisarPago.clabe_interbancaria || avisarPago.numero_cuenta || ""}`}</pre>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-[10px] text-[#7f93b0] uppercase tracking-wide font-semibold">WhatsApp destinatario (10 digitos)</label>
-                <input type="tel" placeholder="4951234567" value={pagoPhone} onChange={e => setPagoPhone(e.target.value)} className="w-full px-3 py-2 bg-black/30 border border-white/[0.08] rounded-lg text-white text-sm focus:border-amber-400 outline-none mt-1" />
+                <label className="text-[10px] text-[var(--d-muted)] uppercase tracking-wide font-semibold">WhatsApp destinatario (10 digitos)</label>
+                <input type="tel" placeholder="4951234567" value={pagoPhone} onChange={e => setPagoPhone(e.target.value)} className="w-full px-3 py-2 bg-[var(--d-input)] border border-[var(--d-border)] rounded-lg text-[var(--d-text)] text-sm focus:border-amber-400 outline-none mt-1" />
               </div>
               <div>
-                <label className="text-[10px] text-[#7f93b0] uppercase tracking-wide font-semibold">Email destinatario (opcional)</label>
-                <input type="email" placeholder="nandito@gcuavante.com" value={pagoEmail} onChange={e => setPagoEmail(e.target.value)} className="w-full px-3 py-2 bg-black/30 border border-white/[0.08] rounded-lg text-white text-sm focus:border-amber-400 outline-none mt-1" />
+                <label className="text-[10px] text-[var(--d-muted)] uppercase tracking-wide font-semibold">Email destinatario (opcional)</label>
+                <input type="email" placeholder="nandito@gcuavante.com" value={pagoEmail} onChange={e => setPagoEmail(e.target.value)} className="w-full px-3 py-2 bg-[var(--d-input)] border border-[var(--d-border)] rounded-lg text-[var(--d-text)] text-sm focus:border-amber-400 outline-none mt-1" />
               </div>
             </div>
             <div className="flex gap-2 mt-5">
@@ -835,11 +835,11 @@ ${avisarPago.clabe_interbancaria || avisarPago.numero_cuenta || ""}`}</pre>
                   } catch (e) { alert("Error de red: " + (e as Error).message); }
                   finally { setEnviandoPago(false); }
                 }}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold ${(!pagoPhone && !pagoEmail) ? "bg-white/[0.04] text-[#4a6080] cursor-not-allowed" : "bg-gradient-to-br from-amber-400 to-amber-600 text-black"}`}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold ${(!pagoPhone && !pagoEmail) ? "bg-[var(--d-card)] text-[var(--d-faint)] cursor-not-allowed" : "bg-gradient-to-br from-amber-400 to-amber-600 text-black"}`}
               >
                 {enviandoPago ? "Enviando..." : "Enviar aviso"}
               </button>
-              <button onClick={() => setAvisarPago(null)} className="px-4 py-2.5 rounded-lg bg-white/[0.04] text-[#7f93b0] text-sm">Cancelar</button>
+              <button onClick={() => setAvisarPago(null)} className="px-4 py-2.5 rounded-lg bg-[var(--d-card)] text-[var(--d-muted)] text-sm">Cancelar</button>
             </div>
           </div>
         </div>

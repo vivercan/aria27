@@ -5,6 +5,9 @@ const KEY = "dom:tema";
 export function leerTema(): TemaDom { try { return localStorage.getItem(KEY) === "oscuro" ? "oscuro" : "claro"; } catch { return "claro"; } }
 export function aplicarTema(t: TemaDom) { if (typeof document === "undefined") return; document.body.classList.toggle("dom-oscuro", t === "oscuro"); }
 export function guardarTema(t: TemaDom) { try { localStorage.setItem(KEY, t); } catch { /* sin storage */ } aplicarTema(t); try { window.dispatchEvent(new Event("dom:tema")); } catch { /* */ } }
+/** Pantallas de ARIA que en el celular se ven con diseño Doménica (en la web conservan el de ARIA) */
+const MOVIL = ["/dashboard/requisiciones/requisiciones/nuevo", "/dashboard/requisiciones/requisiciones/estatus", "/dashboard/requisiciones/requisiciones/entrega"];
+export function esRutaDomenicaMovil(path: string | null | undefined): boolean { const p = path || ""; return MOVIL.some(m => p.startsWith(m)); }
 /** Rutas que usan el diseño Doménica */
 export function esRutaDomenica(path: string | null | undefined): boolean {
   const p = path || "";

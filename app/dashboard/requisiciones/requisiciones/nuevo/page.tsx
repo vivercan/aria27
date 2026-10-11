@@ -522,7 +522,7 @@ export default function NewRequisitionPage() {
         {solicitanteVisible ? (
           <div className="ml-auto inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-xs">
             <span className="text-emerald-300 font-semibold">Solicitante:</span>
-            <span className="text-white font-medium">{solicitanteVisible}</span>
+            <span className="text-[var(--d-text)] font-medium">{solicitanteVisible}</span>
           </div>
         ) : null}
       </div>
@@ -552,18 +552,18 @@ export default function NewRequisitionPage() {
               <Bot className="h-4 w-4" />
               Asistente IA — Extraer requisición
             </div>
-            <button onClick={() => { setShowAI(false); setAiError(null); }} className="text-white/40 hover:text-white/70"><X className="h-4 w-4" /></button>
+            <button onClick={() => { setShowAI(false); setAiError(null); }} className="text-[var(--d-faint)] hover:text-[var(--d-text-2)]"><X className="h-4 w-4" /></button>
           </div>
-          <p className="text-xs text-white/50 mb-3">Pega el mensaje de WhatsApp, describe lo que necesitas, o cualquier lista de materiales. La IA llenará el formulario automáticamente.</p>
+          <p className="text-xs text-[var(--d-muted)] mb-3">Pega el mensaje de WhatsApp, describe lo que necesitas, o cualquier lista de materiales. La IA llenará el formulario automáticamente.</p>
           <textarea
-            className="h-24 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+            className="h-24 w-full resize-none rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent"
             placeholder={'Ejemplo: "Necesito 10 sacos de cemento, 5 varillas 3/8 y 2 rollos de alambre para la obra Miravalle, lo necesito mañana URGENTE"'}
             value={aiTexto}
             onChange={e => setAiTexto(e.target.value)}
           />
           {aiError && <p className="mt-1 text-xs text-red-400">{aiError}</p>}
           <div className="mt-3 flex justify-end gap-2">
-            <button onClick={() => { setShowAI(false); setAiError(null); }} className="rounded-full bg-white/[0.04] px-4 py-2 text-xs text-white/50 hover:bg-white/[0.08]">Cancelar</button>
+            <button onClick={() => { setShowAI(false); setAiError(null); }} className="rounded-full bg-[var(--d-card)] px-4 py-2 text-xs text-[var(--d-muted)] hover:bg-[var(--d-hover)]">Cancelar</button>
             <button onClick={handleAI} disabled={aiLoading || !aiTexto.trim()} className="inline-flex items-center gap-2 rounded-full bg-aria-primary/40 px-5 py-2 text-xs font-semibold text-aria-accent hover:bg-aria-primary/60 disabled:opacity-40 transition">
               {aiLoading ? <><Loader2 className="h-3 w-3 animate-spin" />Analizando...</> : <><Sparkles className="h-3 w-3" />Extraer con IA</>}
             </button>
@@ -578,7 +578,7 @@ export default function NewRequisitionPage() {
 
       <div className="grid gap-5 lg:grid-cols-1 xl:grid-cols-2">
         {/* ARIA27 Campo F1: ¿Qué vas a solicitar? */}
-        <section className="rounded-2xl bg-white/[0.04] p-4 shadow-lg backdrop-blur">
+        <section className="rounded-2xl bg-[var(--d-card)] p-4 shadow-lg backdrop-blur">
           <h2 className="mb-3 text-lg font-semibold">¿Qué vas a solicitar?</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {([
@@ -590,11 +590,11 @@ export default function NewRequisitionPage() {
               return (
                 <button key={k} type="button"
                   onClick={() => { if (k === "ACTIVIDAD") { router.push("/dashboard/actividades?nueva=1"); return; } setTipoSolicitud(k as TipoSolicitud); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
-                  className={`btn-flat text-left rounded-2xl border p-4 transition min-h-[88px] ${active ? "border-aria-accent bg-aria-accent/15 ring-2 ring-aria-accent/40" : "border-white/[0.10] bg-white/[0.03] hover:bg-white/[0.07]"}`}
+                  className={`btn-flat text-left rounded-2xl border p-4 transition min-h-[88px] ${active ? "border-aria-accent bg-aria-accent/15 ring-2 ring-aria-accent/40" : "border-[var(--d-border)] bg-[var(--d-card)] hover:bg-[var(--d-hover)]"}`}
                   aria-pressed={active}>
-                  <Icon className={`w-6 h-6 mb-2 ${active ? "text-white" : "text-aria-accent"}`} />
-                  <div className="text-sm font-semibold text-white">{t}</div>
-                  <div className="text-[11px] text-white/60 mt-0.5">{d}</div>
+                  <Icon className={`w-6 h-6 mb-2 ${active ? "text-[var(--d-text)]" : "text-aria-accent"}`} />
+                  <div className="text-sm font-semibold text-[var(--d-text)]">{t}</div>
+                  <div className="text-[11px] text-[var(--d-muted)] mt-0.5">{d}</div>
                 </button>
               );
             })}
@@ -603,23 +603,23 @@ export default function NewRequisitionPage() {
 
         {tipoSolicitud && (<>
         {/* SECCION 1: CONFIGURACION */}
-        <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
+        <section className="rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur">
           <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Obra / Centro</label>
-              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={selectedCostCenterId??""} onChange={e => setSelectedCostCenterId(e.target.value||null)}>
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Obra / Centro</label>
+              <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={selectedCostCenterId??""} onChange={e => setSelectedCostCenterId(e.target.value||null)}>
                 <option value="">Seleccione...</option>
                 {costCenters.map((c,i) => <option key={c.id} value={c.id}>{i+1}. {c.name}</option>)}
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Fecha Requerida *</label>
-              <input type="date" required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Fecha Requerida *</label>
+              <input type="date" required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
             </div>
             {tipoSolicitud !== "DESTAJO" && <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Tipo / Subcategoría</label>
-              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={subcategoria} onChange={e => setSubcategoria(e.target.value)}>
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Tipo / Subcategoría</label>
+              <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={subcategoria} onChange={e => setSubcategoria(e.target.value)}>
                 <option value="">MATERIALES (por defecto)</option>
                 {subcategorias.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -627,13 +627,13 @@ export default function NewRequisitionPage() {
           </div>
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Prioridad</label>
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Prioridad</label>
               <select
                 className={`w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-aria-accent ${
                   prioridad === "CRITICO" ? "border-red-500/60 bg-red-500/10 text-red-300" :
                   prioridad === "URGENTE" ? "border-orange-500/60 bg-orange-500/10 text-orange-300" :
                   prioridad === "PLANIFICADO" ? "border-emerald-500/40 bg-emerald-500/5 text-aria-accent" :
-                  "border-white/15 bg-black/30 text-white"
+                  "border-[var(--d-border)] bg-[var(--d-input)] text-[var(--d-text)]"
                 }`}
                 value={prioridad}
                 onChange={e => setPrioridad(e.target.value as "CRITICO"|"URGENTE"|"NORMAL"|"PLANIFICADO")}
@@ -645,9 +645,9 @@ export default function NewRequisitionPage() {
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Presupuesto estimado (opcional)</label>
-              <div className="flex items-center gap-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2">
-                <span className="text-sm text-white/40">$</span>
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Presupuesto estimado (opcional)</label>
+              <div className="flex items-center gap-1 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2">
+                <span className="text-sm text-[var(--d-faint)]">$</span>
                 <input
                   type="number" min="0" step="0.01"
                   className="w-full bg-transparent text-sm outline-none"
@@ -662,20 +662,20 @@ export default function NewRequisitionPage() {
           {/* ── DATOS DE PAGO E IVA ─────────────────────────────────────────── */}
           <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Forma de pago</label>
-              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={formaPago} onChange={e => setFormaPago(e.target.value)}>
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Forma de pago</label>
+              <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={formaPago} onChange={e => setFormaPago(e.target.value)}>
                 <option value="EFECTIVO">Efectivo</option>
                 <option value="TRANSFERENCIA">Transferencia</option>
                 <option value="CHEQUE">Cheque</option>
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Fecha de pago</label>
-              <input type="date" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={fechaPago} onChange={e => setFechaPago(e.target.value)} />
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Fecha de pago</label>
+              <input type="date" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={fechaPago} onChange={e => setFechaPago(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">IVA</label>
-              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={ivaPorcentaje} onChange={e => setIvaPorcentaje(Number(e.target.value))}>
+              <label className="text-xs font-medium text-[var(--d-text-2)]">IVA</label>
+              <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={ivaPorcentaje} onChange={e => setIvaPorcentaje(Number(e.target.value))}>
                 <option value={0}>0% (Sin IVA)</option>
                 <option value={3}>3%</option>
                 <option value={7}>7%</option>
@@ -689,11 +689,11 @@ export default function NewRequisitionPage() {
 
           {/* ── PROVEEDOR PRE-SELECCIONADO ─────────────────────────────────── */}
           <div className="mt-3 space-y-1">
-            <label className="text-xs font-medium text-white/70">Proveedor (opcional — auto-llena datos de pago)</label>
+            <label className="text-xs font-medium text-[var(--d-text-2)]">Proveedor (opcional — auto-llena datos de pago)</label>
             <div className="relative">
               <input
                 type="text"
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+                className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent"
                 placeholder="Buscar proveedor..."
                 value={selectedProveedor ? selectedProveedor.name : proveedorSearch}
                 onChange={e => { setProveedorSearch(e.target.value); setSelectedProveedor(null); }}
@@ -703,13 +703,13 @@ export default function NewRequisitionPage() {
                 }}
               />
               {selectedProveedor && (
-                <button onClick={() => { setSelectedProveedor(null); setProveedorSearch(""); }} className="absolute right-2 top-2 text-white/40 hover:text-white/70">
+                <button onClick={() => { setSelectedProveedor(null); setProveedorSearch(""); }} className="absolute right-2 top-2 text-[var(--d-faint)] hover:text-[var(--d-text-2)]">
                   <X className="h-4 w-4" />
                 </button>
               )}
             </div>
             {!selectedProveedor && proveedorSearch.length >= 2 && (
-              <div className="max-h-40 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#0c1d38]">
+              <div className="max-h-40 overflow-y-auto rounded-xl border border-[var(--d-border)] bg-[var(--d-surface)]">
                 {proveedoresResults.slice(0, 20).map(p => (
                   <div key={p.id} onClick={() => {
                     setSelectedProveedor(p);
@@ -723,20 +723,20 @@ export default function NewRequisitionPage() {
                       setClabeError(null);
                       setShowClabeModal(true);
                     }
-                  }} className="cursor-pointer px-3 py-2 text-sm hover:bg-white/[0.06] transition-colors">
-                    <div className="text-white">{p.name}</div>
-                    {(p.bank_name || p.bank_clabe) && <div className="text-xs text-white/40">{p.bank_name}{p.bank_clabe ? ` · CLABE: ${p.bank_clabe.slice(0,6)}…` : ""}</div>}
+                  }} className="cursor-pointer px-3 py-2 text-sm hover:bg-[var(--d-hover)] transition-colors">
+                    <div className="text-[var(--d-text)]">{p.name}</div>
+                    {(p.bank_name || p.bank_clabe) && <div className="text-xs text-[var(--d-faint)]">{p.bank_name}{p.bank_clabe ? ` · CLABE: ${p.bank_clabe.slice(0,6)}…` : ""}</div>}
                   </div>
                 ))}
                 {proveedoresResults.length === 0 && (
-                  <div className="px-3 py-2 text-xs text-white/40">Sin resultados</div>
+                  <div className="px-3 py-2 text-xs text-[var(--d-faint)]">Sin resultados</div>
                 )}
               </div>
             )}
             {selectedProveedor && (
-              <div className="mt-2 rounded-xl bg-white/[0.02] border border-white/[0.08] p-3 space-y-2">
+              <div className="mt-2 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 space-y-2">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="text-sm font-semibold text-white">{selectedProveedor.name}</span>
+                  <span className="text-sm font-semibold text-[var(--d-text)]">{selectedProveedor.name}</span>
                   {(() => {
                     const m = (selectedProveedor.payment_method || formaPago || "").toUpperCase();
                     let bg = "linear-gradient(180deg, #D97706 0%, #B45309 100%)"; // EFECTIVO ambar
@@ -748,7 +748,7 @@ export default function NewRequisitionPage() {
                     else { bg = "linear-gradient(180deg, #475569 0%, #334155 100%)"; label = m; }
                     return (
                       <span
-                        className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide text-white shadow-[inset_0_1px_0_rgba(220,235,255,0.15),0_2px_4px_rgba(0,0,0,0.30)] border border-[rgba(140,178,228,0.25)]"
+                        className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide text-[var(--d-text)] shadow-[inset_0_1px_0_rgba(220,235,255,0.15),0_2px_4px_rgba(0,0,0,0.30)] border border-[rgba(140,178,228,0.25)]"
                         style={{ background: bg }}
                       >
                         {label}
@@ -770,15 +770,15 @@ export default function NewRequisitionPage() {
           {/* DESCRIPCION DE LA COMPRA + MOTIVO - 28-Abr-2026 PR #108 */}
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Tipo de compra *</label>
-              <select required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={descripcionCompra} onChange={e => setDescripcionCompra(e.target.value)}>
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Tipo de compra *</label>
+              <select required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={descripcionCompra} onChange={e => setDescripcionCompra(e.target.value)}>
                 <option value="">Selecciona tipo...</option>
                 {tiposCompra.map(t => <option key={t} value={t}>{t.charAt(0) + t.slice(1).toLowerCase()}</option>)}
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Motivo de la solicitud *</label>
-              <textarea required className="h-[42px] w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Razon o motivo..." value={motivoSolicitud} onChange={e => setMotivoSolicitud(e.target.value)} />
+              <label className="text-xs font-medium text-[var(--d-text-2)]">Motivo de la solicitud *</label>
+              <textarea required className="h-[42px] w-full resize-none rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Razon o motivo..." value={motivoSolicitud} onChange={e => setMotivoSolicitud(e.target.value)} />
             </div>
           </div>
 
@@ -788,12 +788,12 @@ export default function NewRequisitionPage() {
               <div className="text-[11px] font-bold uppercase tracking-wider text-amber-300">Datos para pago en efectivo / gasto por pagar</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-white/70">Solicitante (nombre completo) *</label>
-                  <input type="text" required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Juan Carlos Mendez Lopez" value={solicitanteCompleto} onChange={e => setSolicitanteCompleto(e.target.value)} />
+                  <label className="text-xs font-medium text-[var(--d-text-2)]">Solicitante (nombre completo) *</label>
+                  <input type="text" required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Juan Carlos Mendez Lopez" value={solicitanteCompleto} onChange={e => setSolicitanteCompleto(e.target.value)} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-white/70">Foto del ticket / comprobante</label>
-                  <input type="file" accept="image/*,application/pdf" className="w-full text-xs text-white/80 file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-aria-primary-light file:text-aria-accent file:cursor-pointer" onChange={e => setFotoTicket(e.target.files?.[0] || null)} />
+                  <label className="text-xs font-medium text-[var(--d-text-2)]">Foto del ticket / comprobante</label>
+                  <input type="file" accept="image/*,application/pdf" className="w-full text-xs text-[var(--d-text-2)] file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-aria-primary-light file:text-aria-accent file:cursor-pointer" onChange={e => setFotoTicket(e.target.files?.[0] || null)} />
                   {fotoTicket && <div className="text-[10px] text-emerald-300 mt-1">{fotoTicket.name} ({(fotoTicket.size/1024).toFixed(0)}KB)</div>}
                 </div>
               </div>
@@ -802,8 +802,8 @@ export default function NewRequisitionPage() {
           )}
 
           <div className="mt-3 space-y-1">
-            <label className="text-xs font-medium text-white/70">Instrucciones generales</label>
-            <textarea className="h-16 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Instrucciones de entrega, horarios, etc." value={generalComments} onChange={e => setGeneralComments(e.target.value)} />
+            <label className="text-xs font-medium text-[var(--d-text-2)]">Instrucciones generales</label>
+            <textarea className="h-16 w-full resize-none rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Instrucciones de entrega, horarios, etc." value={generalComments} onChange={e => setGeneralComments(e.target.value)} />
           </div>
 
           {/* INDICADOR DE MODO */}
@@ -822,59 +822,59 @@ export default function NewRequisitionPage() {
 
         {/* ARIA27 Campo F1: DESTAJO — un solo pago por requi, con saldo del destajista */}
         {tipoSolicitud === "DESTAJO" && (
-          <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
+          <section className="rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur">
             <h2 className="mb-1 text-lg font-semibold flex items-center gap-2"><Hammer className="w-5 h-5 text-aria-accent" /> 2. DESTAJO</h2>
-            <p className="text-xs text-white/50 mb-4">Elige al destajista arriba en “Proveedor”. Aquí capturas qué se paga y cuánto.</p>
+            <p className="text-xs text-[var(--d-muted)] mb-4">Elige al destajista arriba en “Proveedor”. Aquí capturas qué se paga y cuánto.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1 md:col-span-3">
-                <label className="text-xs font-medium text-white/70">Concepto del destajo *</label>
-                <input type="text" value={destajoConcepto} onChange={e => setDestajoConcepto(e.target.value)} placeholder="Ej. Muros planta baja, Redes hidráulica y sanitaria" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" />
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Concepto del destajo *</label>
+                <input type="text" value={destajoConcepto} onChange={e => setDestajoConcepto(e.target.value)} placeholder="Ej. Muros planta baja, Redes hidráulica y sanitaria" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-white/70">Tipo de pago *</label>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Tipo de pago *</label>
                 <div className="grid grid-cols-3 gap-1">
                   {([["ANTICIPO","Anticipo"],["SEMANA","Semana"],["FINIQUITO","Finiquito"]] as const).map(([k,l]) => (
                     <button key={k} type="button" onClick={() => setDestajoTipoPago(k)} aria-pressed={destajoTipoPago===k}
-                      className={`btn-flat rounded-xl border px-2 py-2 text-xs font-semibold ${destajoTipoPago===k ? "border-aria-accent bg-aria-accent/20 text-white" : "border-white/15 bg-black/30 text-white/70"}`}>{l}</button>
+                      className={`btn-flat rounded-xl border px-2 py-2 text-xs font-semibold ${destajoTipoPago===k ? "border-aria-accent bg-aria-accent/20 text-[var(--d-text)]" : "border-[var(--d-border)] bg-[var(--d-input)] text-[var(--d-text-2)]"}`}>{l}</button>
                   ))}
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-white/70">Monto *</label>
-                <div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">$</span>
-                  <input type="number" inputMode="decimal" min="0" step="0.01" value={destajoMonto} onChange={e => setDestajoMonto(e.target.value)} placeholder="0.00" className="w-full rounded-xl border border-white/15 bg-black/30 pl-7 pr-3 py-2 text-sm outline-none focus:border-aria-accent" /></div>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Monto *</label>
+                <div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--d-muted)]">$</span>
+                  <input type="number" inputMode="decimal" min="0" step="0.01" value={destajoMonto} onChange={e => setDestajoMonto(e.target.value)} placeholder="0.00" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] pl-7 pr-3 py-2 text-sm outline-none focus:border-aria-accent" /></div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-white/70">Saldo con este destajista en esta obra</label>
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm">
-                  {!selectedProveedor ? <span className="text-white/40">Elige destajista</span>
-                   : saldoDestajista === null ? <span className="text-white/40">Calculando…</span>
-                   : <><span className="text-amber-300 font-semibold">${saldoDestajista.total.toLocaleString("es-MX",{minimumFractionDigits:2})}</span><span className="text-white/50 text-xs"> en {saldoDestajista.n} pago{saldoDestajista.n===1?"":"s"} previo{saldoDestajista.n===1?"":"s"}</span></>}
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Saldo con este destajista en esta obra</label>
+                <div className="rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-sm">
+                  {!selectedProveedor ? <span className="text-[var(--d-faint)]">Elige destajista</span>
+                   : saldoDestajista === null ? <span className="text-[var(--d-faint)]">Calculando…</span>
+                   : <><span className="text-amber-300 font-semibold">${saldoDestajista.total.toLocaleString("es-MX",{minimumFractionDigits:2})}</span><span className="text-[var(--d-muted)] text-xs"> en {saldoDestajista.n} pago{saldoDestajista.n===1?"":"s"} previo{saldoDestajista.n===1?"":"s"}</span></>}
                 </div>
               </div>
             </div>
             {Number(destajoMonto) > 0 && destajoConcepto.trim() && (
-              <div className="mt-3 text-xs text-white/60">Se registrará: <span className="text-white">{destajoTipoPago === "ANTICIPO" ? "Anticipo" : destajoTipoPago === "FINIQUITO" ? "Finiquito" : "Pago semanal"} · {destajoConcepto.trim()} · ${Number(destajoMonto).toLocaleString("es-MX",{minimumFractionDigits:2})}</span>. Va a Dirección para autorizar y a Caja para pagar.</div>
+              <div className="mt-3 text-xs text-[var(--d-muted)]">Se registrará: <span className="text-[var(--d-text)]">{destajoTipoPago === "ANTICIPO" ? "Anticipo" : destajoTipoPago === "FINIQUITO" ? "Finiquito" : "Pago semanal"} · {destajoConcepto.trim()} · ${Number(destajoMonto).toLocaleString("es-MX",{minimumFractionDigits:2})}</span>. Va a Dirección para autorizar y a Caja para pagar.</div>
             )}
           </section>
         )}
 
         {/* SECCION 2: BUSQUEDA O CAPTURA */}
-        <section className={`rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur ${tipoSolicitud === "DESTAJO" ? "hidden" : ""}`}>
+        <section className={`rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur ${tipoSolicitud === "DESTAJO" ? "hidden" : ""}`}>
           {formMode === "catalogo" && (
             <>
               <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
-              <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/30 px-3 py-2 mb-3">
+              <div className="flex items-center gap-2 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 mb-3">
                 <Search className="h-4 w-4 opacity-70" />
                 <input className="w-full bg-transparent text-sm outline-none" placeholder="Buscar por nombre, código o descripción..." value={searchTerm} onChange={e => handleSearch(e.target.value)} />
                 {searching && <Loader2 className="h-4 w-4 animate-spin" />}
               </div>
-              <div className="max-h-48 overflow-auto rounded-xl border border-white/[0.08] bg-black/20">
-                <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-white/[0.08] bg-aria-bg px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0 z-10">
+              <div className="max-h-48 overflow-auto rounded-xl border border-[var(--d-border)] bg-[var(--d-sunken)]">
+                <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-[var(--d-border)] bg-[var(--d-bg)] px-3 py-2 text-[11px] font-medium uppercase text-[var(--d-text-2)] sticky top-0 z-10">
                   <div>Cat</div><div>Descripción</div><div className="text-right">Unidad</div>
                 </div>
                 {searchResults.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-xs text-white/40">{searchTerm.length < 2 ? "Busca un producto del catálogo" : "Sin resultados"}</div>
+                  <div className="px-3 py-4 text-center text-xs text-[var(--d-faint)]">{searchTerm.length < 2 ? "Busca un producto del catálogo" : "Sin resultados"}</div>
                 ) : searchResults.map(p => {
                   const isSel = materials.some(m => m.id === p.id);
                   return (
@@ -882,7 +882,7 @@ export default function NewRequisitionPage() {
                       className={`grid grid-cols-[70px_1fr_80px] gap-2 items-center px-3 py-2.5 text-xs cursor-pointer transition-all ${isSel ? "bg-emerald-500/20 border-l-2 border-emerald-400" : "hover:bg-white/[0.04] border-l-2 border-transparent"}`}>
                       <div className="text-aria-accent/80 text-[10px] truncate">{shortCat(p.category)}</div>
                       <div className={`truncate ${isSel ? "text-aria-accent font-medium" : ""}`}>{p.name}</div>
-                      <div className="text-white/60 truncate text-right">{p.unit}</div>
+                      <div className="text-[var(--d-muted)] truncate text-right">{p.unit}</div>
                     </div>
                   );
                 })}
@@ -897,12 +897,12 @@ export default function NewRequisitionPage() {
                   <p className="text-xs text-aria-accent font-medium">Nuevo producto — se guardará en el catálogo</p>
                   <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
                     <div className="space-y-1">
-                      <label className="text-[10px] text-white/50">Nombre del producto</label>
-                      <input className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-1.5 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Tornillo galvanizado 3/8..." value={manualName} onChange={e => setManualName(e.target.value)} />
+                      <label className="text-[10px] text-[var(--d-muted)]">Nombre del producto</label>
+                      <input className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-1.5 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Tornillo galvanizado 3/8..." value={manualName} onChange={e => setManualName(e.target.value)} />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] text-white/50">Unidad</label>
-                      <select className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-1.5 text-sm outline-none focus:border-aria-accent" value={manualUnit} onChange={e => setManualUnit(e.target.value)}>
+                      <label className="text-[10px] text-[var(--d-muted)]">Unidad</label>
+                      <select className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-1.5 text-sm outline-none focus:border-aria-accent" value={manualUnit} onChange={e => setManualUnit(e.target.value)}>
                         {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                       </select>
                     </div>
@@ -939,7 +939,7 @@ export default function NewRequisitionPage() {
                       }} disabled={!manualName.trim()} className="rounded-lg bg-aria-primary/30 px-3 py-1.5 text-xs text-aria-accent hover:bg-aria-primary-hover/40 disabled:opacity-40 transition">
                         <Plus className="w-3 h-3 inline mr-1" />Agregar
                       </button>
-                      <button onClick={() => { setShowManual(false); setManualName(""); setManualUnit("PZA"); }} className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-xs text-white/50 hover:bg-white/[0.06] transition">✕</button>
+                      <button onClick={() => { setShowManual(false); setManualName(""); setManualUnit("PZA"); }} className="rounded-lg bg-[var(--d-card)] px-2 py-1.5 text-xs text-[var(--d-muted)] hover:bg-[var(--d-hover)] transition">✕</button>
                     </div>
                   </div>
                 </div>
@@ -960,17 +960,17 @@ export default function NewRequisitionPage() {
               </button>
               <div className="max-h-96 overflow-auto space-y-2">
                 {freeRows.map((r, i) => (
-                  <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
-                    <input required className="bg-transparent text-sm outline-none border-b border-white/[0.08] pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
-                    <input type="number" required step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Cant" value={r.cantidad||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, cantidad: Number(e.target.value)} : x))} title="Acepta negativos para anticipos descontados" />
-                    <select className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" value={r.unidad || "PZA"} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad: e.target.value} : x))}>
+                  <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center bg-[var(--d-sunken)] rounded-xl px-3 py-2">
+                    <input required className="bg-transparent text-sm outline-none border-b border-[var(--d-border)] pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
+                    <input type="number" required step="0.01" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" placeholder="Cant" value={r.cantidad||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, cantidad: Number(e.target.value)} : x))} title="Acepta negativos para anticipos descontados" />
+                    <select className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" value={r.unidad || "PZA"} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad: e.target.value} : x))}>
                       {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
-                    <input type="number" required step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="$" value={r.monto||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, monto: Number(e.target.value)} : x))} />
+                    <input type="number" required step="0.01" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" placeholder="$" value={r.monto||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, monto: Number(e.target.value)} : x))} />
                     <button onClick={() => setFreeRows(prev => prev.filter(x => x.tempId !== r.tempId))} className="rounded-full bg-red-500/70 p-1 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
                   </div>
                 ))}
-                {freeRows.length === 0 && <div className="text-center text-xs text-white/40 py-4">Sin partidas. Click "Agregar partida".</div>}
+                {freeRows.length === 0 && <div className="text-center text-xs text-[var(--d-faint)] py-4">Sin partidas. Click "Agregar partida".</div>}
               </div>
             </>
           )}
@@ -983,21 +983,21 @@ export default function NewRequisitionPage() {
               </button>
               <div className="max-h-96 overflow-auto space-y-2">
                 {combRows.map(r => (
-                  <div key={r.tempId} className="grid grid-cols-[90px_70px_90px_90px_1fr_110px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
-                    <select required className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo: e.target.value} : x))}>
+                  <div key={r.tempId} className="grid grid-cols-[90px_70px_90px_90px_1fr_110px_30px] gap-2 items-center bg-[var(--d-sunken)] rounded-xl px-3 py-2">
+                    <select required className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-sm" value={r.tipo} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo: e.target.value} : x))}>
                       <option>DIESEL</option><option>MAGNA</option><option>PREMIUM</option><option>GAS LP</option>
                     </select>
-                    <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Litros" value={r.litros||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, litros: Number(e.target.value)} : x))} />
-                    <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="$ / Litro" value={r.precio_unitario||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, precio_unitario: Number(e.target.value)} : x))} />
+                    <input type="number" required min="0.01" step="0.01" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" placeholder="Litros" value={r.litros||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, litros: Number(e.target.value)} : x))} />
+                    <input type="number" required min="0.01" step="0.01" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" placeholder="$ / Litro" value={r.precio_unitario||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, precio_unitario: Number(e.target.value)} : x))} />
                     <div className="text-right text-xs text-amber-300 font-medium pr-1">${((r.litros||0) * (r.precio_unitario||0)).toLocaleString("es-MX", {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-                    <input required className="bg-transparent text-sm outline-none border-b border-white/[0.08] pb-1" placeholder="Unidad destino (ej: Retroexcavadora CAT 420F)" value={r.unidad_destino} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad_destino: e.target.value} : x))} />
-                    <select className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo_unidad} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo_unidad: e.target.value} : x))}>
+                    <input required className="bg-transparent text-sm outline-none border-b border-[var(--d-border)] pb-1" placeholder="Unidad destino (ej: Retroexcavadora CAT 420F)" value={r.unidad_destino} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad_destino: e.target.value} : x))} />
+                    <select className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-sm" value={r.tipo_unidad} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo_unidad: e.target.value} : x))}>
                       <option>CAMION</option><option>RETROEXCAVADORA</option><option>CARGADOR</option><option>COMPACTADOR</option><option>CAMIONETA</option><option>PIPA</option><option>OTRO</option>
                     </select>
                     <button onClick={() => setCombRows(prev => prev.filter(x => x.tempId !== r.tempId))} className="rounded-full bg-red-500/70 p-1 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
                   </div>
                 ))}
-                {combRows.length === 0 && <div className="text-center text-xs text-white/40 py-4">Sin combustible. Click "Agregar línea".</div>}
+                {combRows.length === 0 && <div className="text-center text-xs text-[var(--d-faint)] py-4">Sin combustible. Click "Agregar línea".</div>}
               </div>
             </>
           )}
@@ -1006,7 +1006,7 @@ export default function NewRequisitionPage() {
       </div>
 
       {/* SECCION 3: RESUMEN */}
-      {tipoSolicitud && (<section className="flex-1 rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur flex flex-col">
+      {tipoSolicitud && (<section className="flex-1 rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-aria-accent" />
@@ -1026,12 +1026,12 @@ export default function NewRequisitionPage() {
             return (
               <div className="flex items-center gap-4 text-xs">
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] uppercase text-white/50">Subtotal</span>
-                  <span className="text-white font-medium">${fmt(subtotal)}</span>
+                  <span className="text-[10px] uppercase text-[var(--d-muted)]">Subtotal</span>
+                  <span className="text-[var(--d-text)] font-medium">${fmt(subtotal)}</span>
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] uppercase text-white/50">IVA {ivaPorcentaje}%</span>
-                  <span className="text-white font-medium">${fmt(ivaMonto)}</span>
+                  <span className="text-[10px] uppercase text-[var(--d-muted)]">IVA {ivaPorcentaje}%</span>
+                  <span className="text-[var(--d-text)] font-medium">${fmt(ivaMonto)}</span>
                 </div>
                 <div className="flex flex-col items-end rounded-lg bg-aria-accent/15 border border-aria-accent/40 px-3 py-1">
                   <span className="text-[10px] uppercase text-aria-accent">Total</span>
@@ -1042,22 +1042,22 @@ export default function NewRequisitionPage() {
           })()}
         </div>
 
-        <div className="flex-1 overflow-auto rounded-xl border border-white/[0.08] bg-black/20 max-h-60">
+        <div className="flex-1 overflow-auto rounded-xl border border-[var(--d-border)] bg-[var(--d-sunken)] max-h-60">
           {formMode === "catalogo" && (
             <>
-              <div className="grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+              <div className="grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 border-b border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[11px] font-medium uppercase text-[var(--d-text-2)] sticky top-0">
                 <div>Descripcion</div><div>Unidad</div><div>Cantidad</div><div className="text-right">P.U.</div><div className="text-right">Subtotal</div><div>Observaciones</div><div></div>
               </div>
               {materials.length === 0 ? (
-                <div className="px-3 py-8 text-center text-sm text-white/40"><ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-30" />Busca y agrega materiales arriba.</div>
+                <div className="px-3 py-8 text-center text-sm text-[var(--d-faint)]"><ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-30" />Busca y agrega materiales arriba.</div>
               ) : materials.map(m => (
                 <div key={m.id} className="grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 items-center px-3 py-2 text-xs">
                   <div className="truncate font-medium">{m.name}</div>
-                  <div className="text-white/60">{m.unit}</div>
-                  <input ref={el => { if(el) qtyInputRefs.current.set(m.id, el); }} type="number" className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none" value={m.qty} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Number(e.target.value)} : x))} title="Acepta negativos para anticipos descontados" />
-                  <input type="number" min={0} step="0.01" placeholder="$" className="w-full rounded-lg bg-black/40 px-2 py-1 text-right outline-none" value={m.price ?? ""} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, price: Number(e.target.value)} : x))} />
+                  <div className="text-[var(--d-muted)]">{m.unit}</div>
+                  <input ref={el => { if(el) qtyInputRefs.current.set(m.id, el); }} type="number" className="w-full rounded-lg bg-[var(--d-input)] px-2 py-1 text-center outline-none" value={m.qty} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Number(e.target.value)} : x))} title="Acepta negativos para anticipos descontados" />
+                  <input type="number" min={0} step="0.01" placeholder="$" className="w-full rounded-lg bg-[var(--d-input)] px-2 py-1 text-right outline-none" value={m.price ?? ""} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, price: Number(e.target.value)} : x))} />
                   <div className="text-right text-aria-accent font-medium">${(((m.price ?? 0) * m.qty) || 0).toLocaleString("es-MX", {minimumFractionDigits: 2})}</div>
-                  <input type="text" className="w-full rounded-lg bg-black/40 px-2 py-1 outline-none" placeholder="Opcional..." value={m.observations} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, observations: e.target.value} : x))} />
+                  <input type="text" className="w-full rounded-lg bg-[var(--d-input)] px-2 py-1 outline-none" placeholder="Opcional..." value={m.observations} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, observations: e.target.value} : x))} />
                   <button onClick={() => setMaterials(prev => prev.filter(x => x.id !== m.id))} className="rounded-full bg-red-500/70 p-1.5 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
                 </div>
               ))}
@@ -1066,24 +1066,24 @@ export default function NewRequisitionPage() {
 
           {formMode === "libre" && (
             <>
-              <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+              <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 border-b border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[11px] font-medium uppercase text-[var(--d-text-2)] sticky top-0">
                 <div>Descripción</div><div>Cant</div><div>Unidad</div><div className="text-right">Monto</div>
               </div>
               {tipoSolicitud === "DESTAJO" ? (
                 Number(destajoMonto) > 0 && destajoConcepto.trim() ? (
                   <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 items-center px-3 py-2 text-xs">
-                    <div className="truncate text-white">{destajoTipoPago === "ANTICIPO" ? "Anticipo" : destajoTipoPago === "FINIQUITO" ? "Finiquito" : "Pago semanal"} destajo: {destajoConcepto.trim()}{selectedProveedor ? ` · ${selectedProveedor.name}` : ""}</div>
+                    <div className="truncate text-[var(--d-text)]">{destajoTipoPago === "ANTICIPO" ? "Anticipo" : destajoTipoPago === "FINIQUITO" ? "Finiquito" : "Pago semanal"} destajo: {destajoConcepto.trim()}{selectedProveedor ? ` · ${selectedProveedor.name}` : ""}</div>
                     <div className="text-center">1</div><div className="text-center">PAGO</div>
                     <div className="text-right text-emerald-400">${Number(destajoMonto).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</div>
                   </div>
-                ) : <div className="px-3 py-8 text-center text-sm text-white/40">Captura concepto y monto del destajo en la sección 2.</div>
+                ) : <div className="px-3 py-8 text-center text-sm text-[var(--d-faint)]">Captura concepto y monto del destajo en la sección 2.</div>
               ) : freeRows.length === 0 ? (
-                <div className="px-3 py-8 text-center text-sm text-white/40">Agrega partidas en la sección 2.</div>
+                <div className="px-3 py-8 text-center text-sm text-[var(--d-faint)]">Agrega partidas en la sección 2.</div>
               ) : freeRows.map(r => (
                 <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_90px] gap-2 items-center px-3 py-2 text-xs">
                   <div className="truncate font-medium">{r.descripcion || "(sin descripción)"}</div>
                   <div className="text-center">{r.cantidad}</div>
-                  <div className="text-white/60">{r.unidad}</div>
+                  <div className="text-[var(--d-muted)]">{r.unidad}</div>
                   <div className="text-right text-aria-accent font-medium">${(r.monto * r.cantidad).toLocaleString()}</div>
                 </div>
               ))}
@@ -1092,17 +1092,17 @@ export default function NewRequisitionPage() {
 
           {formMode === "combustible" && (
             <>
-              <div className="grid grid-cols-[100px_80px_1fr_100px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+              <div className="grid grid-cols-[100px_80px_1fr_100px] gap-2 border-b border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[11px] font-medium uppercase text-[var(--d-text-2)] sticky top-0">
                 <div>Tipo</div><div>Litros</div><div>Destino</div><div>Unidad</div>
               </div>
               {combRows.length === 0 ? (
-                <div className="px-3 py-8 text-center text-sm text-white/40">Agrega líneas de combustible en la sección 2.</div>
+                <div className="px-3 py-8 text-center text-sm text-[var(--d-faint)]">Agrega líneas de combustible en la sección 2.</div>
               ) : combRows.map(r => (
                 <div key={r.tempId} className="grid grid-cols-[100px_80px_1fr_100px] gap-2 items-center px-3 py-2 text-xs">
                   <div className="font-medium text-amber-300">{r.tipo}</div>
                   <div className="text-center">{r.litros}L</div>
                   <div className="truncate">{r.unidad_destino}</div>
-                  <div className="text-white/60">{r.tipo_unidad}</div>
+                  <div className="text-[var(--d-muted)]">{r.tipo_unidad}</div>
                 </div>
               ))}
             </>
@@ -1111,7 +1111,7 @@ export default function NewRequisitionPage() {
 
         <div className="mt-4 flex justify-end">
           <button onClick={handleSubmit} disabled={sending || isEmpty}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isEmpty ? "bg-gray-600 text-gray-400 cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
+            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isEmpty ? "bg-gray-600 text-[var(--d-muted)] cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Generando...</> : <><Check className="h-4 w-4" />Generar Requisición</>}
           </button>
         </div>
@@ -1120,26 +1120,26 @@ export default function NewRequisitionPage() {
       {/* FIX 544 · Modal captura CLABE al vuelo */}
       {showClabeModal && selectedProveedor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0c1d38] p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--d-border)] bg-[var(--d-surface)] p-6 shadow-2xl">
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-white">Datos bancarios pendientes</h3>
-              <p className="mt-1 text-xs text-white/60">
+              <h3 className="text-lg font-bold text-[var(--d-text)]">Datos bancarios pendientes</h3>
+              <p className="mt-1 text-xs text-[var(--d-muted)]">
                 <span className="font-semibold text-amber-300">{selectedProveedor.name}</span> aún no tiene CLABE registrada. Captúrala una sola vez: quedará guardada para las siguientes requisiciones.
               </p>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-medium text-white/70">Banco</label>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Banco</label>
                 <input
                   type="text"
                   value={clabeForm.bank_name}
                   onChange={e => setClabeForm(f => ({ ...f, bank_name: e.target.value.toUpperCase() }))}
                   placeholder="BBVA / BANORTE / BANAMEX ..."
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-white/70">CLABE (18 dígitos) *</label>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">CLABE (18 dígitos) *</label>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -1147,26 +1147,26 @@ export default function NewRequisitionPage() {
                   value={clabeForm.bank_clabe}
                   onChange={e => setClabeForm(f => ({ ...f, bank_clabe: e.target.value.replace(/\D/g, "").slice(0, 18) }))}
                   placeholder="012914001234567890"
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm font-mono outline-none focus:border-aria-accent"
+                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm font-mono outline-none focus:border-aria-accent"
                 />
-                <p className="mt-1 text-[10px] text-white/40">{clabeForm.bank_clabe.length}/18</p>
+                <p className="mt-1 text-[10px] text-[var(--d-faint)]">{clabeForm.bank_clabe.length}/18</p>
               </div>
               <div>
-                <label className="text-xs font-medium text-white/70">Número de cuenta (opcional)</label>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Número de cuenta (opcional)</label>
                 <input
                   type="text"
                   value={clabeForm.bank_account_number}
                   onChange={e => setClabeForm(f => ({ ...f, bank_account_number: e.target.value }))}
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-white/70">Titular / Razón social (opcional)</label>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Titular / Razón social (opcional)</label>
                 <input
                   type="text"
                   value={clabeForm.nombre_cuenta}
                   onChange={e => setClabeForm(f => ({ ...f, nombre_cuenta: e.target.value }))}
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent"
                 />
               </div>
               {clabeError && (
@@ -1179,7 +1179,7 @@ export default function NewRequisitionPage() {
               <button
                 onClick={() => { setShowClabeModal(false); setSelectedProveedor(null); setProveedorSearch(""); }}
                 disabled={clabeSaving}
-                className="rounded-full border border-white/15 bg-transparent px-4 py-2 text-sm text-white/70 hover:bg-white/[0.06] disabled:opacity-50"
+                className="rounded-full border border-[var(--d-border)] bg-transparent px-4 py-2 text-sm text-[var(--d-text-2)] hover:bg-[var(--d-hover)] disabled:opacity-50"
               >
                 Cancelar
               </button>

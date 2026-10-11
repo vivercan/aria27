@@ -1312,13 +1312,13 @@ body {
   --d-bg: #0a1628; --d-surface: #0b1830; --d-card: rgba(255,255,255,.04); --d-card-2: rgba(255,255,255,.07); --d-hover: rgba(255,255,255,.06);
   --d-border: rgba(255,255,255,.09); --d-text: #ffffff; --d-text-2: #c9d8ed; --d-muted: #9fb4d4; --d-faint: #6f84a3;
   --d-link: #9cc3ff; --d-ok: #5be3a8; --d-warn: #ffc978; --d-danger: #ff8a9c; --d-purple: #d3b3f5;
-  --d-shadow: none; --d-field: rgba(255,255,255,.05); --d-nav: rgba(7,17,34,.96);
+  --d-shadow: none; --d-field: rgba(255,255,255,.05); --d-input: rgba(0,0,0,.3); --d-sunken: rgba(0,0,0,.2); --d-nav: rgba(7,17,34,.96);
 }
 body.dom-ruta:not(.dom-oscuro) {
   --d-bg: #eceff4; --d-surface: #ffffff; --d-card: #ffffff; --d-card-2: #e9edf4; --d-hover: #f3f5f9;
   --d-border: rgba(15,23,42,.09); --d-text: #0f172a; --d-text-2: #334155; --d-muted: #5b6b82; --d-faint: #94a3b8;
   --d-link: #0060d0; --d-ok: #037f4c; --d-warn: #b45309; --d-danger: #d0213d; --d-purple: #6d28d9;
-  --d-shadow: 0 1px 2px rgba(15,23,42,.05), 0 8px 22px -10px rgba(15,23,42,.18); --d-field: #ffffff; --d-nav: rgba(255,255,255,.97);
+  --d-shadow: 0 1px 2px rgba(15,23,42,.05), 0 8px 22px -10px rgba(15,23,42,.18); --d-field: #ffffff; --d-input: #ffffff; --d-sunken: #f1f4f8; --d-nav: rgba(255,255,255,.97);
 }
 .dom-wordmark { font-family: var(--font-dom), ui-sans-serif, system-ui, sans-serif; font-weight: 800; letter-spacing: -0.04em; font-style: italic; background: linear-gradient(100deg, #0073ea 0%, #7e3bdd 55%, #e2445c 100%); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; padding-right: 1px; }
 .dom-wordmark-27 { font-family: var(--font-dom), ui-sans-serif, system-ui, sans-serif; margin-left: .2em; font-weight: 800; letter-spacing: -0.03em; color: #fdab3d; line-height: 1; }
@@ -1330,6 +1330,22 @@ body.dom-ruta main > header.sticky { background: linear-gradient(180deg, #ffffff
 body.dom-ruta main > header.sticky::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, #0073ea 0%, #7e3bdd 45%, #e2445c 78%, #fdab3d 100%); }
 body.dom-ruta:not(.dom-oscuro) main > header.sticky button, body.dom-ruta:not(.dom-oscuro) main > header.sticky svg { color: #334155 !important; }
 body.dom-ruta.dom-oscuro main > header.sticky { background: linear-gradient(180deg, #13284a 0%, #0b1830 100%) !important; box-shadow: 0 1px 0 rgba(255,255,255,.04), 0 14px 30px -14px rgba(0,0,0,.8); }
+/* Pantallas ARIA que usa el celular (Solicitudes, Pedir material, Entrega) en claro */
+body.dom-ruta:not(.dom-oscuro) {
+  --aria-bg: #eceff4; --aria-card: #ffffff; --aria-card-border: rgba(15,23,42,.09); --aria-text: #0f172a; --aria-muted: #5b6b82; --aria-muted-2: #94a3b8; --aria-text-secondary: #334155;
+  --aria-accent: #0060d0; --aria-accent-bg: rgba(0,115,234,.08); --aria-primary: #0073ea; --aria-primary-hover: #0060c0; --aria-primary-light: rgba(0,115,234,.14);
+  color-scheme: light;
+}
+body.dom-ruta:not(.dom-oscuro) .aria-page-canon, body.dom-ruta:not(.dom-oscuro) .aria-bg-canon { background: var(--d-bg); }
+body.dom-ruta:not(.dom-oscuro) input[type="date"], body.dom-ruta:not(.dom-oscuro) input[type="time"], body.dom-ruta:not(.dom-oscuro) input[type="datetime-local"] { color-scheme: light; }
+body.dom-ruta:not(.dom-oscuro) input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
+body.dom-ruta:not(.dom-oscuro) .aria-btn-ghost { background: #ffffff; color: #334155; border-color: rgba(15,23,42,.12); }
+body.dom-ruta:not(.dom-oscuro) select option { background: #ffffff; color: #0f172a; }
+/* Textos pastel (pensados para fondo oscuro) legibles en claro */
+body.dom-ruta:not(.dom-oscuro) :is(.text-red-200,.text-red-300,.text-red-400) { color: #c2182b; }
+body.dom-ruta:not(.dom-oscuro) :is(.text-emerald-200,.text-emerald-300,.text-emerald-400,.text-green-300,.text-green-400) { color: #047857; }
+body.dom-ruta:not(.dom-oscuro) :is(.text-amber-200,.text-amber-300,.text-amber-400,.text-yellow-300,.text-orange-300) { color: #b45309; }
+body.dom-ruta:not(.dom-oscuro) :is(.text-indigo-300,.text-sky-300,.text-blue-300) { color: #3730a3; }
 /* Tipografía propia de Doménica (Plus Jakarta Sans); ARIA27 web sigue con la suya */
 body.dom-ruta, body.dom-ruta main { font-family: var(--font-dom), ui-sans-serif, system-ui, sans-serif; }
 body.dom-ruta { background: var(--d-bg); }

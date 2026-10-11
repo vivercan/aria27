@@ -85,51 +85,51 @@ export default function EntregaPage() {
     <div className="aria-page-canon pb-28 max-w-2xl mx-auto">
       <div className="flex items-center gap-3">
         <AriaBackButton href="/dashboard/requisiciones/requisiciones/estatus" />
-        <div><h1 className="text-xl font-bold text-white">Registrar entrega</h1><p className="text-[#7f93b0] text-sm">{req.folio} · {req.cost_center_name}{req.proveedor ? ` · ${req.proveedor}` : ""}</p></div>
+        <div><h1 className="text-xl font-bold text-[var(--d-text)]">Registrar entrega</h1><p className="text-[var(--d-muted)] text-sm">{req.folio} · {req.cost_center_name}{req.proveedor ? ` · ${req.proveedor}` : ""}</p></div>
       </div>
-      <div className="mt-3 rounded-xl bg-white/[0.03] border border-white/[0.06] px-2 py-2"><RequiStepper req={req} compact /></div>
+      <div className="mt-3 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-2 py-2"><RequiStepper req={req} compact /></div>
       {bloqueada && <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200 flex gap-2"><AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />Esta requisición no admite entrega en su estado actual ({req.status}).</div>}
       {error && <div className="mt-3 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>}
       {done && <div className="mt-3 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-200 flex gap-2"><Check className="w-4 h-4" />{done}</div>}
 
-      <section className="mt-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] p-4">
-        <h2 className="text-sm font-semibold text-white mb-2">1. ¿Qué llegó?</h2>
-        {items.length === 0 ? <p className="text-xs text-[#7f93b0]">Sin partidas registradas.</p> : (
-          <ul className="divide-y divide-white/[0.06]">
+      <section className="mt-4 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] p-4">
+        <h2 className="text-sm font-semibold text-[var(--d-text)] mb-2">1. ¿Qué llegó?</h2>
+        {items.length === 0 ? <p className="text-xs text-[var(--d-muted)]">Sin partidas registradas.</p> : (
+          <ul className="divide-y divide-[var(--d-border)]">
             {items.map((it, idx) => (
               <li key={it.id} className="py-2 flex items-center gap-3">
                 <button type="button" aria-pressed={it.recibida >= it.quantity} onClick={() => setItems(p => p.map((x, i) => i === idx ? { ...x, recibida: x.recibida >= x.quantity ? 0 : x.quantity } : x))}
-                  className={`btn-flat w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${it.recibida >= it.quantity ? "bg-emerald-500 border-emerald-400 text-slate-900" : "border-white/20 text-transparent"}`}><Check className="w-5 h-5" /></button>
-                <div className="flex-1 min-w-0"><div className="text-sm text-white truncate">{it.product_name}</div><div className="text-[11px] text-[#7f93b0]">pedido: {it.quantity} {it.unit}</div></div>
-                <input type="number" inputMode="decimal" min={0} value={it.recibida} onChange={e => setItems(p => p.map((x, i) => i === idx ? { ...x, recibida: Number(e.target.value) } : x))} className="w-20 rounded-lg border border-white/15 bg-black/30 px-2 py-1.5 text-sm text-right" aria-label={`Cantidad recibida de ${it.product_name}`} />
+                  className={`btn-flat w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${it.recibida >= it.quantity ? "bg-emerald-500 border-emerald-400 text-slate-900" : "border-[var(--d-border)] text-transparent"}`}><Check className="w-5 h-5" /></button>
+                <div className="flex-1 min-w-0"><div className="text-sm text-[var(--d-text)] truncate">{it.product_name}</div><div className="text-[11px] text-[var(--d-muted)]">pedido: {it.quantity} {it.unit}</div></div>
+                <input type="number" inputMode="decimal" min={0} value={it.recibida} onChange={e => setItems(p => p.map((x, i) => i === idx ? { ...x, recibida: Number(e.target.value) } : x))} className="w-20 rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-2 py-1.5 text-sm text-right" aria-label={`Cantidad recibida de ${it.product_name}`} />
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      <section className="mt-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] p-4">
-        <h2 className="text-sm font-semibold text-white mb-2">2. Foto de la entrega</h2>
+      <section className="mt-3 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] p-4">
+        <h2 className="text-sm font-semibold text-[var(--d-text)] mb-2">2. Foto de la entrega</h2>
         <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => onFoto(e.target.files?.[0] || null)} />
         {preview ? (
-          <div className="relative"><img src={preview} alt="Vista previa de la entrega" className="w-full max-h-72 object-cover rounded-xl border border-white/10" />
-            <button type="button" onClick={() => fileRef.current?.click()} className="btn-flat absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/70 px-3 py-1.5 text-xs text-white"><RefreshCw className="w-3.5 h-3.5" />Retomar</button></div>
+          <div className="relative"><img src={preview} alt="Vista previa de la entrega" className="w-full max-h-72 object-cover rounded-xl border border-[var(--d-border)]" />
+            <button type="button" onClick={() => fileRef.current?.click()} className="btn-flat absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/70 px-3 py-1.5 text-xs text-[var(--d-text)]"><RefreshCw className="w-3.5 h-3.5" />Retomar</button></div>
         ) : (
-          <button type="button" onClick={() => fileRef.current?.click()} className="w-full rounded-xl border border-dashed border-white/20 bg-white/[0.02] py-8 flex flex-col items-center gap-2 text-[#c9d8ed] hover:bg-white/[0.05]"><Camera className="w-7 h-7 text-aria-accent" /><span className="text-sm">Tomar foto</span><span className="text-[11px] text-[#7f93b0]">Nota de remisión, material en obra o ambos</span></button>
+          <button type="button" onClick={() => fileRef.current?.click()} className="w-full rounded-xl border border-dashed border-[var(--d-border)] bg-[var(--d-card)] py-8 flex flex-col items-center gap-2 text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"><Camera className="w-7 h-7 text-aria-accent" /><span className="text-sm">Tomar foto</span><span className="text-[11px] text-[var(--d-muted)]">Nota de remisión, material en obra o ambos</span></button>
         )}
       </section>
 
-      <section className="mt-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] p-4 space-y-3">
-        <h2 className="text-sm font-semibold text-white">3. Quién y dónde</h2>
-        <div><label className="text-xs text-[#7f93b0]">Recibió</label><input value={recibidoPor} onChange={e => setRecibidoPor(e.target.value)} className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2.5 text-sm" placeholder="Nombre de quien recibió" /></div>
+      <section className="mt-3 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] p-4 space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--d-text)]">3. Quién y dónde</h2>
+        <div><label className="text-xs text-[var(--d-muted)]">Recibió</label><input value={recibidoPor} onChange={e => setRecibidoPor(e.target.value)} className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2.5 text-sm" placeholder="Nombre de quien recibió" /></div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={pedirGps} disabled={gpsBusy} className={`btn-flat inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm ${gps ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-200" : "border-white/15 bg-black/30 text-[#c9d8ed]"}`}>{gpsBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}{gps ? "Ubicación lista" : "Usar mi ubicación"}</button>
-          {gps && <span className="text-[11px] text-[#7f93b0]">{gps.lat.toFixed(5)}, {gps.lng.toFixed(5)}{gps.acc ? ` · ±${Math.round(gps.acc)} m` : ""}</span>}
+          <button type="button" onClick={pedirGps} disabled={gpsBusy} className={`btn-flat inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm ${gps ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-200" : "border-[var(--d-border)] bg-[var(--d-input)] text-[var(--d-text-2)]"}`}>{gpsBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}{gps ? "Ubicación lista" : "Usar mi ubicación"}</button>
+          {gps && <span className="text-[11px] text-[var(--d-muted)]">{gps.lat.toFixed(5)}, {gps.lng.toFixed(5)}{gps.acc ? ` · ±${Math.round(gps.acc)} m` : ""}</span>}
         </div>
-        <div><label className="text-xs text-[#7f93b0]">Nota (opcional)</label><textarea value={nota} onChange={e => setNota(e.target.value)} rows={2} className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" placeholder="Faltó algo, llegó dañado, quién entregó…" /></div>
+        <div><label className="text-xs text-[var(--d-muted)]">Nota (opcional)</label><textarea value={nota} onChange={e => setNota(e.target.value)} rows={2} className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm" placeholder="Faltó algo, llegó dañado, quién entregó…" /></div>
       </section>
 
-      <div className="campo-bottom-bar fixed left-0 right-0 bottom-0 md:left-[220px] p-3 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/95 to-transparent" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+      <div className="campo-bottom-bar fixed left-0 right-0 bottom-0 md:left-[220px] p-3 bg-gradient-to-t from-[var(--d-surface)] via-[var(--d-surface)]/95 to-transparent" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
         <button onClick={enviar} disabled={sending || bloqueada || !!done || items.length === 0} className="w-full max-w-2xl mx-auto block rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
           {sending ? <span className="inline-flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" />Guardando…</span> : items.every(i => i.recibida >= i.quantity) ? "Registrar entrega completa" : "Registrar entrega parcial"}
         </button>
