@@ -576,7 +576,7 @@ export default function NewRequisitionPage() {
           </div>
         </div>
       ) : (
-        <button onClick={() => setShowAI(true)} className="inline-flex items-center gap-2 self-start rounded-full border border-aria-primary/40 bg-aria-primary/10 px-4 py-2 text-xs font-medium text-aria-accent hover:bg-aria-primary/20 transition">
+        <button onClick={() => setShowAI(true)} className="hidden md:inline-flex items-center gap-2 self-start rounded-full border border-aria-primary/40 bg-aria-primary/10 px-4 py-2 text-xs font-medium text-aria-accent hover:bg-aria-primary/20 transition">
           <Sparkles className="h-3 w-3" />
           Extraer datos con IA desde texto o WhatsApp
         </button>

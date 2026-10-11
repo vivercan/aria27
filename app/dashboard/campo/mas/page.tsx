@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FileText, PlusCircle, ListTodo, CalendarDays, PackageCheck, HardHat, Truck, Package, Users, UserCog, Fingerprint, Zap, Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone, Building2, LayoutTemplate, Repeat, BarChart3 } from "lucide-react";
+import { FileText, CalendarDays, PackageCheck, HardHat, Truck, Package, Users, UserCog, Fingerprint, Zap, Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone, Building2, LayoutTemplate, Repeat, BarChart3 } from "lucide-react";
 import { guardarTema, useTemaDom, type TemaDom } from "@/lib/dom-tema";
 import { estadoPush, activarPush } from "@/lib/push-client";
 import { iniciales, colorPersona } from "@/lib/actividades";
@@ -14,14 +14,12 @@ import { iniciales, colorPersona } from "@/lib/actividades";
 type Item = { href: string; t: string; d: string; icon: typeof FileText; color: string; roles?: string[] };
 const SECCIONES: { titulo: string; items: Item[] }[] = [
   { titulo: "Mi día", items: [
-    { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", d: "Materiales o destajo", icon: PlusCircle, color: "#0073ea" },
-    { href: "/dashboard/requisiciones/requisiciones/estatus", t: "Mis solicitudes", d: "En qué paso va cada una", icon: FileText, color: "#579bfc" },
-    { href: "/dashboard/actividades", t: "Actividades", d: "Mi trabajo, tablero y línea de tiempo", icon: ListTodo, color: "#a25ddc" },
     { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: CalendarDays, color: "#fdab3d" },
     { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: PackageCheck, color: "#00c875" },
   ] },
   { titulo: "Obras", items: [
-    { href: "/dashboard/obras/catalogo", t: "Obras", d: "Alta con ubicación GPS", icon: HardHat, color: "#ff642e" },
+    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, atrasos y gasto de cada obra", icon: Building2, color: "#ff642e" },
+    { href: "/dashboard/obras/catalogo", t: "Dar de alta una obra", d: "Con su ubicación GPS", icon: HardHat, color: "#ff642e" },
   ] },
   { titulo: "Compras", items: [
     { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Directorio y datos bancarios", icon: Truck, color: "#0086c0", roles: ["admin", "compras", "direccion", "rh", "validador"] },
@@ -33,7 +31,6 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
     { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: Fingerprint, color: "#bb3354", roles: ["admin", "rh", "direccion", "validador"] },
   ] },
   { titulo: "Organizar el trabajo", items: [
-    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, atrasos y gasto de cada obra", icon: Building2, color: "#ff642e" },
     { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate, color: "#a25ddc" },
     { href: "/dashboard/domenica/recurrentes", t: "Recurrentes", d: "Lo que se repite se crea solo", icon: Repeat, color: "#579bfc" },
     { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3, color: "#00c875", roles: ["admin", "rh", "direccion", "validador", "compras"] },
