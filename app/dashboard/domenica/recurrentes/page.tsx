@@ -64,7 +64,7 @@ export default function RecurrentesPage() {
               {lista.map((r, i) => (
                 <div key={r.id} className={`dom-card dom-in rounded-2xl p-4 ${r.activa ? "" : "opacity-60"}`} style={{ animationDelay: `${i * 50}ms` }}>
                   <div className="flex items-start gap-3">
-                    <button onClick={() => toggle(r)} aria-label={r.activa ? "Pausar" : "Activar"} className={`mt-0.5 shrink-0 w-11 h-6 rounded-full relative transition ${r.activa ? "bg-[#3cde01]" : "bg-[var(--d-border)]"}`}><span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${r.activa ? "left-[22px]" : "left-0.5"}`} /></button>
+                    <button onClick={() => toggle(r)} aria-label={r.activa ? "Pausar" : "Activar"} className={`mt-0.5 shrink-0 w-11 h-6 rounded-full relative transition ${r.activa ? "bg-[#3cde01]" : "bg-[var(--d-border)]"} sobre-verde`}><span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${r.activa ? "left-[22px]" : "left-0.5"}`} /></button>
                     <div className="flex-1 min-w-0">
                       <div className="text-[15px] font-semibold text-[var(--d-text)]">{r.titulo}</div>
                       <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-[var(--d-muted)]">
@@ -97,7 +97,7 @@ function Editor({ f, setF, emps, obras, onSaved, flash }: { f: Form; setF: (f: F
     try { if (f.id) await api(`/api/actividades/recurrentes/${f.id}`, "PATCH", body); else await api("/api/actividades/recurrentes", "POST", body); onSaved(); }
     catch (e) { flash("err", (e as Error).message); } finally { setBusy(false); }
   };
-  const chip = (on: boolean) => `rounded-xl px-3 py-2 text-sm font-semibold transition ${on ? "bg-[#0073ea] text-white shadow-[0_6px_14px_-8px_#0073ea]" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`;
+  const chip = (on: boolean) => `rounded-xl px-3 py-2 text-sm font-semibold transition ${on ? "bg-[#0073ea] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`;
   return (
     <Hoja titulo={f.id ? "Editar recurrente" : "Nueva recurrente"} onClose={() => setF(null)} pie={<button onClick={guardar} disabled={busy} className={`${boton} w-full py-3`}>{busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null}Guardar</button>}>
       <label className="block"><span className={etiqueta}>Qué hay que hacer</span><input value={f.titulo} onChange={e => up({ titulo: e.target.value })} placeholder="Ej. Reporte semanal de avance con fotos" className={campo} /></label>

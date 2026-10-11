@@ -1371,3 +1371,12 @@ body.dom-ruta { background: var(--d-bg); }
 
 /* 11-Oct-2026: en teléfono, la espera del login ya es clara (sin pantallazo oscuro) */
 html.es-tel .login-espera { background: #eceff4 !important; }
+
+/* 11-Oct-2026: en teléfono, la vista de computadora no se pinta (se cambia a la de Doménica al cargar). ?web=1 la muestra */
+html.es-tel:not(.ver-web) .vista-web { display: none !important; }
+/* Texto blanco sobre el verde vivo: sombra mínima para que se lea al sol */
+.sobre-verde { text-shadow: 0 1px 1px rgba(0,0,0,.28); }
+
+/* 11-Oct-2026: controles nativos (barras, fechas, selects) en claro cuando Doménica está en claro */
+body.dom-ruta:not(.dom-oscuro) { color-scheme: light; }
+body.dom-ruta.dom-oscuro { color-scheme: dark; }

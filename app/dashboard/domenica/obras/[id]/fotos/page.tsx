@@ -81,7 +81,7 @@ export default function FotosObra() {
 
         <div className="mt-5 space-y-5">
           {d === null ? <Esqueleto filas={2} alto={140} /> : !d.fotos.length ? (
-            <div className="dom-card rounded-3xl"><Vacio dibujo="caja" titulo="Aún no hay fotos" texto="Toma la primera del avance. Si le pones el punto (ej. “Fachada norte”), luego comparas el antes y el ahora." accion={{ label: "Tomar foto", onClick: () => camRef.current?.click() }} /></div>
+            <div className="dom-card rounded-3xl"><Vacio ico={IcoCamara} color="#e8760a" titulo="Aún no hay fotos" texto="Toma la primera del avance. Si le pones el punto (ej. “Fachada norte”), luego comparas el antes y el ahora." accion={{ label: "Tomar foto", onClick: () => camRef.current?.click() }} /></div>
           ) : porDia.map(([k, fs]) => (
             <section key={k}>
               <h2 className="mb-2 text-[13px] font-bold text-[var(--d-text-2)] first-letter:uppercase">{k}</h2>

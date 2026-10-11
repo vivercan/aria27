@@ -1,4 +1,6 @@
 "use client";
+import PersonalMovil from "@/components/movil/PersonalMovil";
+import { useEsTel } from "@/lib/es-tel";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -119,7 +121,7 @@ function Field({ label, field, type = "text", placeholder = "", options, min, fo
   );
 }
 
-export default function PersonalPage() {
+function PersonalPageWeb() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [centros, setCentros] = useState<CentroTrabajo[]>([]);
@@ -549,3 +551,7 @@ export default function PersonalPage() {
     </div>
   );
 }
+
+
+/** 11-Oct-2026: en teléfono se ve la versión Doménica; "?web=1" muestra la completa */
+export default function PersonalPage() { const tel = useEsTel(); return tel ? <PersonalMovil /> : <div className="contents vista-web"><PersonalPageWeb /></div>; }

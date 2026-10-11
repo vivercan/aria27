@@ -44,7 +44,7 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
       <main className="max-w-xl mx-auto px-4 py-5">
         {paso === "listo" ? (
           <div className="rounded-3xl bg-white p-8 text-center shadow-sm">
-            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center text-white text-3xl font-bold ${final === "APROBADA" ? "bg-[#3cde01]" : "bg-[#e2445c]"}`}>{final === "APROBADA" ? "✓" : "✕"}</div>
+            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center text-white text-3xl font-bold ${final === "APROBADA" ? "bg-[#3cde01]" : "bg-[#e2445c]"} sobre-verde`}>{final === "APROBADA" ? "✓" : "✕"}</div>
             <h1 className="mt-4 text-2xl font-bold">{final === "APROBADA" ? "Autorizada" : "Rechazada"}</h1>
             <p className="mt-1 text-slate-600">{d.folio} · {d.obra}. Ya le avisamos a {d.quien || "quien la pidió"}{final === "APROBADA" && d.efectivo ? " y a Administración para el pago" : ""}.</p>
           </div>
@@ -84,7 +84,7 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
               {err && <div className="mb-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{err}</div>}
               <div className="grid grid-cols-[1fr_2fr] gap-2">
                 <button onClick={() => setPaso("rechazar")} className="rounded-2xl border-2 border-[#e2445c] bg-white py-4 text-[16px] font-bold text-[#e2445c]">Rechazar</button>
-                <button disabled={busy} onClick={() => paso === "confirmar" ? enviar("AUTORIZAR") : setPaso("confirmar")} className={`rounded-2xl py-4 text-[16px] font-bold text-white ${paso === "confirmar" ? "bg-[#2fb800]" : "bg-[#3cde01]"}`}>{busy ? "Autorizando…" : paso === "confirmar" ? `Confirmar ${$(d.total)}` : "Autorizar"}</button>
+                <button disabled={busy} onClick={() => paso === "confirmar" ? enviar("AUTORIZAR") : setPaso("confirmar")} className={`rounded-2xl py-4 text-[16px] font-bold text-white ${paso === "confirmar" ? "bg-[#2fb800]" : "bg-[#3cde01]"} sobre-verde`}>{busy ? "Autorizando…" : paso === "confirmar" ? `Confirmar ${$(d.total)}` : "Autorizar"}</button>
               </div>
               {paso === "confirmar" && <p className="mt-2 text-center text-[13px] text-slate-500">Toca otra vez para confirmar.</p>}
             </div>

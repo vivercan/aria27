@@ -82,7 +82,7 @@ async function comprimir(file: File): Promise<Blob> {
 
 function Avatar({ nombre, size = 28 }: { nombre?: string | null; size?: number }) {
   return (
-    <span title={nombre || ""} className="inline-flex items-center justify-center rounded-full font-bold text-[var(--d-text)] shrink-0 ring-2 ring-[var(--d-surface)]"
+    <span title={nombre || ""} className="inline-flex items-center justify-center rounded-full font-bold text-white shrink-0"
       style={{ width: size, height: size, fontSize: Math.round(size * 0.38), background: colorPersona(nombre) }}>{iniciales(nombre)}</span>
   );
 }
@@ -256,15 +256,15 @@ export default function ActividadesPage() {
                 onClick={e => { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); }}
                 onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); } }}
                 className="-m-2 p-2 shrink-0 inline-flex">
-                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#3cde01] border-[#3cde01] text-white" : "border-[var(--d-faint)] hover:border-[#3cde01] hover:bg-[#3cde01]/15"}`}>
+                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#3cde01] border-[#3cde01] text-white" : "border-[var(--d-faint)] hover:border-[#3cde01] hover:bg-[#3cde01]/15"} sobre-verde`}>
                   {col === "TERMINADA" ? <span className="text-[13px] font-black">✓</span> : null}
                 </span>
               </span>
               <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.titulo}</div>
               {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
             </div>
-            {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0">⚠</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
-            {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0">🔒</span><span className="truncate">No empieza hasta: {p.titulo}</span></div> : null; })()}
+            {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Riesgo:</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
+            {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Espera:</span><span className="truncate">No empieza hasta: {p.titulo}</span></div> : null; })()}
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
             {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
             <Barra pct={Number(a.avance) || 0} col={col} />
@@ -301,8 +301,8 @@ export default function ActividadesPage() {
       }}
       onPointerCancel={() => { const sw = swipe.current; swipe.current = null; if (sw?.el) { sw.el.style.transition = "transform .22s ease"; sw.el.style.transform = "translateX(0)"; } }}>
       <div data-fondo className="absolute inset-0 flex items-center justify-between px-4 text-sm font-bold opacity-0">
-        <span className="text-white bg-[#3cde01] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4">✓ Terminar</span>
-        <span className="text-white bg-[#e2445c] absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-4">Atorada ⚠</span>
+        <span className="text-white bg-[#3cde01] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4 sobre-verde">✓ Terminar</span>
+        <span className="text-white bg-[#e2445c] absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-4">Atorada</span>
       </div>
       <div className="relative">{tarjeta(a)}</div>
     </div>
@@ -432,15 +432,17 @@ export default function ActividadesPage() {
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
             {([["mi", "Mi trabajo", Sun], ["tablero", "Tablero", LayoutGrid], ["lista", "Lista", List], ["linea", "Línea", GanttChart]] as const).map(([v, l, I]) => (
-              <button key={v} onClick={() => setVista(v)} className={`${v === "lista" || v === "linea" ? "hidden md:inline-flex" : ""} shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-white text-[#0a1628] shadow" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}><I className="w-3.5 h-3.5 hidden sm:block" />{l}</button>
+              <button key={v} onClick={() => setVista(v)} className={`${v === "lista" || v === "linea" ? "hidden md:inline-flex" : ""} shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-[#0073ea] text-white" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}><I className="w-3.5 h-3.5 hidden sm:block" />{l}</button>
             ))}
           </div>
-          <div className="inline-flex rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
+          {/* Celular: el ámbito es un selector compacto (una sola fila de controles) */}
+          <select value={ambito} onChange={e => setAmbito(e.target.value as Ambito)} aria-label="Cuáles ver" className="md:hidden rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-[13px] font-semibold text-[var(--d-text)]"><option value="mias">Mías</option><option value="asigne">Que pedí</option><option value="todas">Todas</option></select>
+          <div className="hidden md:inline-flex rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
             {([["mias", "Mías"], ["asigne", "Que pedí"], ["todas", "Todas"]] as const).map(([v, l]) => (
               <button key={v} onClick={() => setAmbito(v)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${ambito === v ? "bg-[#0073ea] text-white" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}>{l}</button>
             ))}
           </div>
-          <button onClick={() => setVerFiltros(v => !v)} className={`md:hidden inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold border ${verFiltros || fObra || fPersona || q ? "border-[#0073ea] text-white bg-[#0073ea]/15" : "border-[var(--d-border)] text-[var(--d-text-2)] bg-[var(--d-card)]"}`}><Search className="w-3.5 h-3.5" />Buscar{fObra || fPersona || q ? " •" : ""}</button>
+          <button onClick={() => setVerFiltros(v => !v)} className={`md:hidden ml-auto inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold border ${verFiltros || fObra || fPersona || q ? "border-[#0073ea] text-[#0073ea] bg-[var(--d-card)]" : "border-[var(--d-border)] text-[var(--d-text-2)] bg-[var(--d-card)]"}`}><Search className="w-4 h-4" /><span className="sr-only">Buscar</span>{fObra || fPersona || q ? <span className="w-1.5 h-1.5 rounded-full bg-[#0073ea]" /> : null}</button>
           <div className={`${verFiltros ? "flex" : "hidden"} md:flex w-full md:w-auto flex-wrap gap-2 md:flex-1`}>
           <div className="relative flex-1 min-w-[160px]">
             <Search className="w-4 h-4 text-[var(--d-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -466,7 +468,7 @@ export default function ActividadesPage() {
             {grupo("sem", "Esta semana", "var(--c-azul)", gruposMi.semana)}
             {grupo("des", "Más adelante", "var(--c-morado)", gruposMi.despues)}
             {grupo("sf", "Sin fecha", "var(--d-muted)", gruposMi.sinFecha)}
-            {gruposMi.atrasadas.length + gruposMi.hoy.length + gruposMi.semana.length + gruposMi.despues.length + gruposMi.sinFecha.length === 0 && <div className="text-center text-[var(--d-muted)] py-10">Todo terminado 🎉</div>}
+            {gruposMi.atrasadas.length + gruposMi.hoy.length + gruposMi.semana.length + gruposMi.despues.length + gruposMi.sinFecha.length === 0 && <div className="text-center text-[var(--d-muted)] py-10">Todo terminado</div>}
           </div>
         ) : vista === "linea" ? (
           lineaDeTiempo()
@@ -530,7 +532,7 @@ export default function ActividadesPage() {
 
       {nueva && me && <Nueva emps={emps} obras={obras} miEmp={miEmp} carga={carga} onClose={() => setNueva(false)} onCreated={async (id, notif) => { setNueva(false); await cargar(); setAbierta(id); flash("ok", notif ? "Creada y avisada por WhatsApp" : "Actividad creada"); }} flash={flash} />}
 
-      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#e2445c] text-white"}`}>{toast.m}</div>}
+      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#e2445c] text-white"} sobre-verde`}>{toast.m}</div>}
     </div>
   );
 }
@@ -655,7 +657,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
             <input type="range" min={0} max={100} step={5} value={avance} disabled={!puedeEditar} onChange={e => setAvance(Number(e.target.value))} onMouseUp={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }} onTouchEnd={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }}
               className="w-full accent-[#3cde01]" />
             <div className="mt-2 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => (
-              <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#3cde01] text-white" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}>{p}%</button>))}</div>
+              <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#3cde01] text-white" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"} sobre-verde`}>{p}%</button>))}</div>
           </div>
 
           </div>
@@ -739,7 +741,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
 
         <div className="px-5 py-3 border-t border-[var(--d-border)] flex items-center gap-2" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
           {puedeBorrar && <button onClick={borrar} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-[var(--d-danger)] hover:bg-[#e2445c]/10"><Trash2 className="w-4 h-4" />Borrar</button>}
-          {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#3cde01] px-5 py-2.5 text-sm font-bold text-white active:scale-95">✓ Terminada</button>}
+          {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#3cde01] px-5 py-2.5 text-sm font-bold text-white active:scale-95 sobre-verde">✓ Terminada</button>}
         </div>
       </div>
     </div>
@@ -785,7 +787,7 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
         <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
         <div className="flex items-center justify-between px-5 pt-3 md:pt-5"><h2 className="text-lg font-bold text-[var(--d-text)]">Nueva actividad</h2><button onClick={onClose} className="p-2 rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-text-2)]" aria-label="Cerrar"><X className="w-5 h-5" /></button></div>
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          {deVoz && <div className="rounded-xl bg-[#a25ddc]/10 border border-[#a25ddc]/30 px-3 py-2 text-[12.5px] font-semibold text-[var(--d-purple)]">🎤 Lo llenamos con tu nota de voz. Revisa y toca Crear.</div>}
+          {deVoz && <div className="rounded-xl bg-[#a25ddc]/10 border border-[#a25ddc]/30 px-3 py-2 text-[12.5px] font-semibold text-[var(--d-purple)]">Lo llenamos con lo que dictaste. Revisa y toca Crear.</div>}
           <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace? <span className="normal-case tracking-normal font-normal">· el número es cuántas tiene abiertas</span></div>

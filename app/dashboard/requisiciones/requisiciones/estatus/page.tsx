@@ -1,4 +1,5 @@
 "use client";
+import { IcoCamion } from "@/components/domenica/IconosObra";
 import Link from "next/link";
 import { Printer, FileDown, Send, Loader2, Trash2, Pencil, Copy } from "lucide-react";
 import RequisicionEditModal from "@/components/RequisicionEditModal";
@@ -71,6 +72,9 @@ interface ReqItem {
   precio_unitario?: number;
   precio_total?: number;
 }
+
+/** 11-Oct-2026: color del punto de estado en la lista del celular */
+const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#e8760a", EN_COTIZACION: "#e8760a", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0086c0", ENTREGA_PARCIAL: "#0f8a7e", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#e2445c", RECHAZADA_DIRECCION: "#e2445c", CANCELADA: "#64748b" };
 
 export default function RequisicionesStatusPage() {
   const { msg, flash, clear } = useFlashMessage();
@@ -508,21 +512,21 @@ export default function RequisicionesStatusPage() {
           <div className="grid gap-1 rounded-2xl bg-[var(--d-card-2)] p-1" style={{ gridTemplateColumns: `repeat(${puedeVerTodas ? 3 : 2}, minmax(0, 1fr))` }}>
             {([["toca", "Me toca", cuentaMovil.toca], ["mias", "Las mías", cuentaMovil.mias], ...(puedeVerTodas ? [["todas", "Todas", cuentaMovil.todas]] : [])] as [string, string, number][]).map(([k, l, n]) => (
               <button key={k} type="button" onClick={() => { setTabMovil(k as "toca"); setNMovil(40); }} className={`rounded-xl py-2.5 text-[13px] font-bold transition ${tabActiva === k ? "bg-[var(--d-surface)] text-[var(--d-text)] shadow-[var(--d-shadow)]" : "text-[var(--d-muted)]"}`}>
-                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
+                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#e8760a] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
               </button>))}
           </div>
           <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar folio, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 py-2.5 text-sm text-[var(--d-text)]" />
           <div className="mt-3 space-y-2">
             {listaMovil.slice(0, nMovil).map(req => { const acc = accionPara(req, userRole, userEmail); const toca = meToca(req, userRole, userEmail); return (
-              <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#fdab3d]/60" : ""}`}>
+              <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#e8760a]" : ""}`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0"><div className="text-[15px] font-bold text-[var(--d-text)] truncate">{req.cost_center_name || "Sin obra"}</div>
                     <div className="text-[12px] text-[var(--d-muted)] truncate">{req.proveedor || (nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by || "")}</div></div>
-                  <div className="shrink-0 text-right"><div className="text-[15px] font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</div><div className="font-mono text-[10.5px] text-[var(--d-faint)]">{req.folio}</div></div>
+                  <div className="shrink-0 text-right"><div className="text-[15px] font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</div><div className="text-[11px] font-semibold text-[var(--d-faint)]">{String(req.folio || "").replace(/^REQ-\d{4}-/, "#")}</div></div>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#fdab3d] px-2.5 py-1 text-[11px] font-bold text-[#3d2300]">Te toca: {ACCION_TXT[acc]}</span>
-                    : <span className="text-[12.5px] text-[var(--d-text-2)] truncate">{queSigue(req.status)}</span>}
+                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#e8760a] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span>
+                    : <span className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--d-text-2)] truncate"><i className="shrink-0 w-2 h-2 rounded-full" style={{ background: COLOR_ESTADO[req.status] || "#64748b" }} />{queSigue(req.status)}</span>}
                 </div>
               </button>); })}
             {listaMovil.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({listaMovil.length - nMovil})</button>}
@@ -656,8 +660,8 @@ export default function RequisicionesStatusPage() {
 
       {/* Modal Detalle */}
       {detailReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setDetailReq(null)}>
-          <div className="bg-[var(--d-bg)] rounded-2xl border border-[var(--d-border)] w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setDetailReq(null)}>
+          <div className="bg-[var(--d-surface)] md:bg-[var(--d-bg)] rounded-t-[28px] md:rounded-2xl border border-[var(--d-border)] w-full max-w-2xl max-h-[92vh] md:max-h-[85vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-[var(--d-border)]">
               <div>
                 <h3 className="text-lg font-bold text-[var(--d-text)]">{detailReq.folio}</h3>
@@ -668,13 +672,13 @@ export default function RequisicionesStatusPage() {
                 <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-[var(--d-hover)] text-[var(--d-muted)] hover:text-[var(--d-text)] transition">✕</button>
               </div>
             </div>
-            <div className="p-5 overflow-y-auto max-h-[calc(85vh-140px)] space-y-4">
+            <div className="p-4 md:p-5 overflow-y-auto flex-1 md:max-h-[calc(85vh-140px)] space-y-3 md:space-y-4">
               <div className="rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-2 py-2"><RequiStepper req={detailReq} /></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2 md:gap-4">
                 <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Solicitante</p><p className="text-sm text-[var(--d-text)]">{nombresPorEmail[(detailReq.user_email || "").toLowerCase()] || detailReq.created_by}</p></div>
                 <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Fecha Requerida</p><p className="text-sm text-[var(--d-text)]">{formatDate(detailReq.required_date)}</p></div>
                 <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Fecha Creación</p><p className="text-sm text-[var(--d-text)]">{formatDate(detailReq.created_at)}</p></div>
-                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Total</p><p className="text-sm text-aria-accent font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Total</p><p className="text-[17px] font-bold text-[var(--d-text)]">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
               </div>
               {detailReq.instructions && (
                 <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Instrucciones</p><p className="text-sm text-[var(--d-text-2)]">{detailReq.instructions}</p></div>
@@ -684,7 +688,17 @@ export default function RequisicionesStatusPage() {
                 {loadingDetail ? (
                   <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-aria-accent" /></div>
                 ) : (
-                  <div className="rounded-xl border border-[var(--d-border)] overflow-x-auto">
+                  <>
+                  {/* Celular: lista en lugar de tabla */}
+                  <ul className="md:hidden rounded-xl border border-[var(--d-border)] divide-y divide-[var(--d-border)] bg-[var(--d-card)]">
+                    {detailItems.map(item => (
+                      <li key={item.id} className="px-3 py-2.5 flex items-start gap-3">
+                        <span className="shrink-0 rounded-lg bg-[var(--d-card-2)] px-2 py-1 text-[12px] font-bold text-[var(--d-text)]">{item.quantity} {String(item.unit || "").toLowerCase()}</span>
+                        <span className="flex-1 min-w-0 text-[14px] text-[var(--d-text)]">{item.product_name}</span>
+                        {Number(item.precio_total) > 0 && <span className="shrink-0 text-[13px] font-semibold text-[var(--d-text)]">{formatCurrency(item.precio_total)}</span>}
+                      </li>))}
+                  </ul>
+                  <div className="hidden md:block rounded-xl border border-[var(--d-border)] overflow-x-auto">
                     <table className="w-full min-w-[460px]">
                       <thead className="bg-[var(--d-card)]"><tr className="text-left text-[11px] text-[var(--d-faint)]"><th className="p-2.5">Material</th><th className="p-2.5 w-20">Unidad</th><th className="p-2.5 w-16 text-center">Cant.</th><th className="p-2.5 w-24 text-right">P. Unit.</th><th className="p-2.5 w-24 text-right">Total</th></tr></thead>
                       <tbody>
@@ -700,6 +714,7 @@ export default function RequisicionesStatusPage() {
                       </tbody>
                     </table>
                   </div>
+                  </>
                 )}
                 <CotizacionesProveedor reqId={detailReq.id} puedePedir={["admin", "compras", "rh", "direccion", "validador"].includes(userRole)} />
               </div>
@@ -718,21 +733,21 @@ export default function RequisicionesStatusPage() {
                 ) : (
                   <div className="flex gap-2 justify-end pb-3">
                     <button onClick={() => setRespAccion("RECHAZAR")} className="btn-flat px-4 py-2 rounded-lg border border-red-500/40 text-red-300 text-sm hover:bg-red-500/10">Rechazar</button>
-                    <button disabled={respSaving} onClick={() => resolverResponsable("AUTORIZAR")} className="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-sm font-bold disabled:opacity-50">{respSaving ? "Autorizando…" : "Autorizar"}</button>
+                    <button disabled={respSaving} onClick={() => resolverResponsable("AUTORIZAR")} className="px-5 py-2 rounded-lg bg-[#3cde01] text-white sobre-verde text-sm font-bold disabled:opacity-50">{respSaving ? "Autorizando…" : "Autorizar"}</button>
                   </div>
                 )}
               </div>
             )}
-            <div className="p-4 border-t border-[var(--d-border)] flex justify-end gap-2 flex-wrap">
+            <div className="p-3 md:p-4 border-t border-[var(--d-border)] flex justify-end gap-2 flex-wrap" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
               {accionPara(detailReq, userRole, userEmail) === "REGISTRAR_ENTREGA" && (
-                <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="px-4 py-2 rounded-lg bg-aria-accent/90 hover:bg-aria-accent text-slate-900 text-sm font-semibold transition flex items-center gap-2 shadow-md">📦 Registrar entrega</Link>
+                <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="w-full md:w-auto justify-center px-4 py-3 md:py-2 rounded-xl md:rounded-lg bg-[#3cde01] text-white sobre-verde text-[15px] md:text-sm font-bold transition flex items-center gap-2"><IcoCamion className="w-5 h-5" color="#fff" />Registrar entrega</Link>
               )}
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
-                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-medium transition flex items-center gap-2 shadow-md shadow-amber-500/30 ring-1 ring-amber-300/30"><Pencil className="w-4 h-4" />Editar</button>
+                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#e8760a] text-white text-sm font-semibold transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>
               )}
-              <button onClick={() => { setDupModal(detailReq); setDetailReq(null); }} disabled={duplicando} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-indigo-500/30 ring-1 ring-indigo-300/30 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Duplicar</button>
-              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-black/20 ring-1 ring-[var(--d-border)]"><Printer className="w-4 h-4" />Imprimir</button>
-              <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-emerald-500/30 ring-1 ring-emerald-300/30"><FileDown className="w-4 h-4" />PDF</button>
+              <button onClick={() => { setDupModal(detailReq); setDetailReq(null); }} disabled={duplicando} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#7e3bdd] text-white text-sm font-semibold transition flex items-center gap-2 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Duplicar</button>
+              <button onClick={() => { handlePrintClick(detailReq); }} className="hidden md:flex px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
+              <button onClick={() => { handlePDFClick(detailReq); }} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#0073ea] text-white text-sm font-semibold transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
             </div>
           </div>
         </div>
@@ -850,7 +865,7 @@ export default function RequisicionesStatusPage() {
           <div className="bg-[var(--d-surface)] border border-amber-400/40 rounded-2xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-amber-300 text-xs font-bold tracking-wider uppercase">📤 Avisar pago a tesoreria</p>
+                <p className="text-amber-300 text-xs font-bold tracking-wider uppercase">Avisar pago a tesoreria</p>
                 <h3 className="text-[var(--d-text)] text-lg font-bold mt-1">{avisarPago.folio}</h3>
               </div>
               <button onClick={() => setAvisarPago(null)} className="p-2 rounded hover:bg-[var(--d-hover)] text-[var(--d-muted)]">✕</button>

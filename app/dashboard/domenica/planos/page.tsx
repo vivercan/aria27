@@ -24,7 +24,7 @@ export default function PlanosPage() {
           accion={<button onClick={() => setSubir(true)} className={boton}><Upload className="w-4 h-4" />Subir</button>} />
         <select value={obra} onChange={e => setObra(e.target.value)} className={`${campo} mt-4`}><option value="">Todas las obras</option>{base.obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select>
         {lista === null ? <div className="mt-4"><Esqueleto filas={3} alto={84} /></div> : lista.length === 0 ? (
-          <div className="mt-5 dom-card rounded-3xl"><Vacio dibujo="caja" titulo="Aún no hay planos" texto="Sube el plano como foto o PDF y empieza a marcar pendientes encima." accion={{ label: "Subir un plano", onClick: () => setSubir(true) }} /></div>
+          <div className="mt-5 dom-card rounded-3xl"><Vacio ico={IcoPlano} color="#0073ea" titulo="Aún no hay planos" texto="Sube el plano como foto o PDF y empieza a marcar pendientes encima." accion={{ label: "Subir un plano", onClick: () => setSubir(true) }} /></div>
         ) : (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">{lista.map((p, i) => (
             <Link key={p.id} href={`/dashboard/domenica/planos/${p.id}`} className="dom-card dom-in rounded-2xl overflow-hidden" style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}>

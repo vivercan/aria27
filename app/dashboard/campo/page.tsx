@@ -98,7 +98,7 @@ export default function CampoHome() {
     }
     for (const a of acts) {
       const d = diasAtraso(a); const h = venceHoy(a); const col = columnaDe(a); const rg = enRiesgo(a, hoyIso);
-      out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `⚠ ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? `${d} día${d === 1 ? "" : "s"} tarde` : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#e2445c" : h ? "#e8760a" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#e2445c" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
+      out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `Riesgo: ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? `${d} día${d === 1 ? "" : "s"} tarde` : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#e2445c" : h ? "#e8760a" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#e2445c" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
     }
     // Si estás en una obra, lo de esa obra va primero
     const enAqui = (x: Item) => (aqui && normObra(x.obra) === normObra(aqui.nombre) ? 0 : 1);
@@ -111,7 +111,7 @@ export default function CampoHome() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-28 max-w-2xl mx-auto">
         {/* Saludo */}
-        <div className="dom-in relative overflow-hidden rounded-3xl px-4 py-3.5 bg-[#0060c7] shadow-[0_10px_24px_-12px_rgba(0,70,160,0.7)]">
+        <div className="dom-in relative overflow-hidden rounded-3xl px-4 py-3.5 bg-[#0060c7]">
           <div className="relative flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-[12px] text-white/85">{hoyTxt}</p>

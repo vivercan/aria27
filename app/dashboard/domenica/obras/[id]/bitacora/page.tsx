@@ -4,6 +4,7 @@
  * Junta avances, fotos, entregas y solicitudes del día; el residente solo agrega clima, personal e incidentes.
  * Se comparte por WhatsApp o se guarda en PDF (imprimir).
  */
+import { IcoBitacora } from "@/components/domenica/IconosObra";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -16,7 +17,7 @@ import type { BitacoraDia } from "@/lib/bitacora-dia";
 import { statusLabel } from "@/lib/requi-stepper";
 import { fmtMoney } from "@/lib/formatters";
 
-const CLIMAS = ["☀️ Soleado", "⛅ Nublado", "🌧️ Lluvia", "🌬️ Viento", "🥶 Frío", "🥵 Calor"];
+const CLIMAS = ["Soleado", "Nublado", "Lluvia", "Viento", "Frío", "Calor"];
 const largo = (f: string) => { const t = new Date(f + "T12:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); return t.charAt(0).toUpperCase() + t.slice(1); };
 
 export default function BitacoraPage() {
@@ -47,12 +48,12 @@ export default function BitacoraPage() {
     <div className="dom-page h-full overflow-y-auto print:overflow-visible">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-3xl mx-auto">
         <Link href={`/dashboard/domenica/obras/${id}`} className="print:hidden inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />Obra</Link>
-        <div className="dom-in rounded-3xl p-5 text-white relative overflow-hidden" style={{ background: "#0f766e", boxShadow: "0 14px 30px -14px #0f766e" }}>
+        <div className="dom-in rounded-3xl p-5 text-white relative overflow-hidden" style={{ background: "#0f8a7e" }}>
           <div className="relative text-[12px] font-bold uppercase tracking-wider text-white/80">Bitácora de obra</div>
           <h1 className="relative text-2xl font-bold leading-tight">{b?.obra.nombre || "…"}</h1>
           <div className="relative mt-3 flex items-center gap-2 print:hidden">
             <button onClick={() => setFecha(sumarDias(fecha, -1))} className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center" aria-label="Día anterior"><ChevronLeft className="w-5 h-5" /></button>
-            <div className="flex-1 text-center text-[14px] font-semibold">{fecha ? largo(fecha) : ""}</div>
+            <div className="flex-1 text-center text-[14px] font-semibold">{fecha ? largo(fecha).replace(/ de \d{4}$/, "") : ""}</div>
             <button onClick={() => !esHoy && setFecha(sumarDias(fecha, 1))} disabled={esHoy} className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center disabled:opacity-30" aria-label="Día siguiente"><ChevronRight className="w-5 h-5" /></button>
           </div>
           <div className="relative mt-1 hidden print:block text-[14px]">{fecha ? largo(fecha) : ""}</div>
@@ -60,7 +61,7 @@ export default function BitacoraPage() {
 
         <div className="mt-3 flex gap-2 print:hidden">
           <button onClick={() => setEditar(true)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] py-3 text-[13.5px] font-semibold text-[var(--d-text)]"><Pencil className="w-4 h-4" />Agregar lo del día</button>
-          <button onClick={compartir} className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-[#25d366] px-4 py-3 text-[13.5px] font-bold text-white"><Share2 className="w-4 h-4" />Compartir</button>
+          <button onClick={compartir} className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-[#3cde01] px-4 py-3 text-[13.5px] font-bold text-white sobre-verde"><Share2 className="w-4 h-4" />Compartir</button>
           <button onClick={() => window.print()} className="inline-flex items-center justify-center rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] px-3.5 text-[var(--d-text)]" aria-label="Guardar PDF"><Printer className="w-5 h-5" /></button>
         </div>
 
@@ -80,7 +81,7 @@ export default function BitacoraPage() {
           {b.registro?.incidentes && <div className="mt-3 rounded-2xl bg-[#e2445c]/10 border border-[#e2445c]/30 p-3 text-[14px] text-[var(--d-danger)] flex gap-2"><AlertTriangle className="w-5 h-5 shrink-0" /><div><b>Incidentes:</b> {b.registro.incidentes}</div></div>}
 
           {!b.registro && !b.terminadas.length && !b.avances.length && !b.fotos.length && !b.entregas.length && !b.solicitudes.length ? (
-            <div className="mt-4 dom-card rounded-3xl"><Vacio dibujo="lista" titulo="Aún no hay nada este día" texto="Se llena sola con los avances, fotos y entregas que registren en Doménica. Tú solo agrega clima y gente." accion={{ label: "Agregar clima y gente", onClick: () => setEditar(true) }} /></div>
+            <div className="mt-4 dom-card rounded-3xl"><Vacio ico={IcoBitacora} color="#0f8a7e" titulo="Aún no hay nada este día" texto="Se llena sola con los avances, fotos y entregas que registren en Doménica. Tú solo agrega clima y gente." accion={{ label: "Agregar clima y gente", onClick: () => setEditar(true) }} /></div>
           ) : (<>
             {b.terminadas.length > 0 && <Seccion icono={<CheckCircle2 className="w-5 h-5 text-[var(--c-verde)]" />} titulo={`Terminado (${b.terminadas.length})`}>
               {b.terminadas.map(t => <li key={t.id} className="px-4 py-3 text-[14px] text-[var(--d-text)]"><b>✓</b> {t.titulo}{t.quien ? <span className="text-[var(--d-muted)]"> · {t.quien}</span> : null}</li>)}

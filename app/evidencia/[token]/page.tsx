@@ -30,7 +30,7 @@ export default function EvidenciaPublica() {
     <div className="min-h-screen bg-[#eceff4] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
       <header className="bg-white shadow-[0_8px_24px_-16px_rgba(15,23,42,.5)] relative">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#3cde01] text-white font-extrabold italic flex items-center justify-center">GA</div>
+          <div className="w-10 h-10 rounded-xl bg-[#3cde01] text-white font-extrabold italic flex items-center justify-center sobre-verde">GA</div>
           <div><div className="font-bold leading-tight">Grupo Constructor Urbano Avante</div><div className="text-[12px] text-slate-500">Fotos de avance</div></div>
         </div>
         <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#e2445c 78%,#fdab3d)" }} />
@@ -50,7 +50,7 @@ export default function EvidenciaPublica() {
             <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { agregar(e.target.files); e.target.value = ""; }} />
             <input ref={galRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => { agregar(e.target.files); e.target.value = ""; }} />
             <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => camRef.current?.click()} className="rounded-2xl bg-[#0073ea] py-5 text-white font-bold shadow-[0_12px_24px_-12px_#0073ea]"><div className="flex justify-center mb-1"><IcoCamara className="w-8 h-8" color="#fff" /></div>Tomar foto</button>
+              <button type="button" onClick={() => camRef.current?.click()} className="rounded-2xl bg-[#0073ea] py-5 text-white font-bold"><div className="flex justify-center mb-1"><IcoCamara className="w-8 h-8" color="#fff" /></div>Tomar foto</button>
               <button type="button" onClick={() => galRef.current?.click()} className="rounded-2xl bg-slate-100 py-5 font-bold text-slate-700"><div className="flex justify-center mb-1"><IcoComparar className="w-8 h-8" color="#334155" /></div>De la galería</button>
             </div>
             {fotos.length > 0 && <div className="mt-3 grid grid-cols-5 gap-2">{fotos.map((f, i) => (
@@ -60,10 +60,10 @@ export default function EvidenciaPublica() {
               </div>))}</div>}
             <div className="mt-1 text-[11.5px] text-slate-500">Hasta 5 fotos por envío.</div>
             <div className="mt-4"><span className="text-[13px] font-semibold text-slate-700">¿Cuánto lleva? (opcional)</span>
-              <div className="mt-1 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => <button key={p} type="button" onClick={() => setAvance(avance === p ? null : p)} className={`rounded-xl py-2.5 text-sm font-bold ${avance === p ? "bg-[#3cde01] text-white" : "bg-slate-100 text-slate-700"}`}>{p}%</button>)}</div></div>
+              <div className="mt-1 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => <button key={p} type="button" onClick={() => setAvance(avance === p ? null : p)} className={`rounded-xl py-2.5 text-sm font-bold ${avance === p ? "bg-[#3cde01] text-white" : "bg-slate-100 text-slate-700"} sobre-verde`}>{p}%</button>)}</div></div>
             <label className="mt-4 block"><span className="text-[13px] font-semibold text-slate-700">Comentario (opcional)</span><textarea value={comentario} onChange={e => setComentario(e.target.value)} rows={3} placeholder="Qué se hizo, qué falta, qué necesitas…" className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-[16px] outline-none focus:border-[#0073ea]" /></label>
             {msg && <div className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{msg}</div>}
-            <button type="button" onClick={enviar} disabled={enviando} className="mt-4 w-full rounded-2xl bg-[#3cde01] py-4 text-base font-bold text-white shadow-[0_12px_28px_-12px_#3cde01] disabled:opacity-60">{enviando ? "Enviando…" : "Enviar fotos"}</button>
+            <button type="button" onClick={enviar} disabled={enviando} className="mt-4 w-full rounded-2xl bg-[#3cde01] py-4 text-base font-bold text-white disabled:opacity-60 sobre-verde">{enviando ? "Enviando…" : "Enviar fotos"}</button>
           </div>
           <p className="mt-6 text-center text-[11px] text-slate-400">Link solo para esta actividad. Vence el {fecha(d.vence)}. No lo compartas.</p>
         </>)}

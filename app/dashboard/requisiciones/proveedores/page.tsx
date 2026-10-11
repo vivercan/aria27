@@ -1,4 +1,6 @@
 "use client";
+import ProveedoresMovil from "@/components/movil/ProveedoresMovil";
+import { useEsTel } from "@/lib/es-tel";
 import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
@@ -37,7 +39,7 @@ const EMPTY_FORM = {
 
 
 
-export default function ProveedoresPage() {
+function ProveedoresPageWeb() {
   const log = clientLogger("PROVEEDORES");
   const { msg, flash, clear } = useFlashMessage();
   const [suppliers,setSuppliers] = useState<Supplier[]>([]);
@@ -477,3 +479,7 @@ export default function ProveedoresPage() {
     </div>
   );
 }
+
+
+/** 11-Oct-2026: en teléfono se ve la versión Doménica; "?web=1" muestra la completa */
+export default function ProveedoresPage() { const tel = useEsTel(); return tel ? <ProveedoresMovil /> : <div className="contents vista-web"><ProveedoresPageWeb /></div>; }

@@ -1,7 +1,8 @@
 "use client";
+import { IcoSaco, IcoCasco, IcoTarea } from "@/components/domenica/IconosObra";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users2, Receipt, Sparkles, AlertTriangle, Bot, X, Package, HardHat, ClipboardList } from "lucide-react";
+import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users2, Receipt, Sparkles, AlertTriangle, Bot, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import AriaBackButton from "@/components/AriaBackButton";
@@ -510,7 +511,7 @@ export default function NewRequisitionPage() {
       });
       const data = await res.json().catch(() => ({})) as { folio?: string; error?: string };
       if (!res.ok) throw new Error(data.error || `Error del servidor (${res.status})`);
-      setMessage("✅ Requisición " + data.folio + " generada exitosamente.");
+      setMessage("Requisición " + data.folio + " generada exitosamente.");
       setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments(""); setDescripcionCompra(""); setMotivoSolicitud(""); setSolicitanteCompleto(""); setFotoTicket(null);
       setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
     } catch (err: unknown) {
@@ -526,7 +527,7 @@ export default function NewRequisitionPage() {
         <AriaBackButton href="/dashboard/requisiciones" />
         <h1 className="text-2xl font-bold"><span className="md:hidden">Pedir material</span><span className="hidden md:inline">Nueva Requisición</span></h1>
         {solicitanteVisible ? (
-          <div className="ml-auto inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-xs">
+          <div className="ml-auto hidden md:inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-xs">
             <span className="text-emerald-300 font-semibold">Solicitante:</span>
             <span className="text-[var(--d-text)] font-medium">{solicitanteVisible}</span>
           </div>
@@ -594,19 +595,19 @@ export default function NewRequisitionPage() {
           <h2 className="mb-3 text-lg font-semibold">¿Qué vas a solicitar?</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {([
-              { k: "MATERIALES", icon: Package, t: "Materiales o servicios", d: "Compra con cotización. Crédito o contado." },
-              { k: "DESTAJO", icon: HardHat, t: "Destajo", d: "Anticipo, pago semanal o finiquito a destajista." },
-              { k: "ACTIVIDAD", icon: ClipboardList, t: "Actividad", d: "Una tarea para alguien. No genera gasto." },
-            ] as const).map(({ k, icon: Icon, t, d }) => {
+              { k: "MATERIALES", icon: IcoSaco, c: "#0073ea", t: "Materiales o servicios", d: "Compra con cotización. Crédito o contado." },
+              { k: "DESTAJO", icon: IcoCasco, c: "#ff642e", t: "Destajo", d: "Anticipo, pago semanal o finiquito a destajista." },
+              { k: "ACTIVIDAD", icon: IcoTarea, c: "#7e3bdd", t: "Actividad", d: "Una tarea para alguien. No genera gasto." },
+            ] as const).map(({ k, icon: Icon, c, t, d }) => {
               const active = tipoSolicitud === k;
               return (
                 <button key={k} type="button"
                   onClick={() => { if (k === "ACTIVIDAD") { router.push("/dashboard/actividades?nueva=1"); return; } setTipoSolicitud(k as TipoSolicitud); setPasoM(2); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
-                  className={`btn-flat text-left rounded-2xl border p-4 transition min-h-[88px] ${active ? "border-aria-accent bg-aria-accent/15 ring-2 ring-aria-accent/40" : "border-[var(--d-border)] bg-[var(--d-card)] hover:bg-[var(--d-hover)]"}`}
+                  className={`btn-flat text-left rounded-2xl border p-4 transition min-h-[88px] flex sm:block items-center gap-3 ${active ? "border-[#0073ea] ring-2 ring-[#0073ea]/40 bg-[var(--d-card)]" : "border-[var(--d-border)] bg-[var(--d-card)] hover:bg-[var(--d-hover)]"}`}
                   aria-pressed={active}>
-                  <Icon className={`w-6 h-6 mb-2 ${active ? "text-[var(--d-text)]" : "text-aria-accent"}`} />
-                  <div className="text-sm font-semibold text-[var(--d-text)]">{t}</div>
-                  <div className="text-[11px] text-[var(--d-muted)] mt-0.5">{d}</div>
+                  <span className="shrink-0 sm:mb-2 w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: c }}><Icon className="w-6 h-6" color="#fff" /></span>
+                  <span className="block min-w-0"><span className="block text-[15px] sm:text-sm font-semibold text-[var(--d-text)]">{t}</span>
+                  <span className="block text-[12px] sm:text-[11px] text-[var(--d-muted)] mt-0.5">{d}</span></span>
                 </button>
               );
             })}
@@ -650,10 +651,10 @@ export default function NewRequisitionPage() {
                 value={prioridad}
                 onChange={e => setPrioridad(e.target.value as "CRITICO"|"URGENTE"|"NORMAL"|"PLANIFICADO")}
               >
-                <option value="CRITICO">🔴 CRÍTICO — Hoy/Emergencia</option>
-                <option value="URGENTE">🟠 URGENTE — Mañana/Esta semana</option>
-                <option value="NORMAL">🟡 NORMAL</option>
-                <option value="PLANIFICADO">🟢 PLANIFICADO — +7 días</option>
+                <option value="CRITICO">Crítico: hoy o emergencia</option>
+                <option value="URGENTE">Urgente: mañana o esta semana</option>
+                <option value="NORMAL">Normal</option>
+                <option value="PLANIFICADO">Planificado: en más de 7 días</option>
               </select>
             </div>
             <div className={`space-y-1 ${avz}`}>
@@ -835,7 +836,7 @@ export default function NewRequisitionPage() {
           )}
           <div className="md:hidden mt-5 grid grid-cols-[auto_1fr] gap-2">
             <button type="button" onClick={() => setPasoM(1)} className="rounded-2xl bg-[var(--d-card-2)] px-5 py-3.5 text-sm font-semibold text-[var(--d-text-2)]">Atrás</button>
-            <button type="button" onClick={() => { if (!selectedCostCenterId) { setErrorMsg("Elige la obra."); return; } if (!requiredDate) { setErrorMsg("Elige para cuándo."); return; } setErrorMsg(null); setPasoM(3); try { window.scrollTo({ top: 0 }); } catch { /* */ } }} className="rounded-2xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3.5 text-[15px] font-bold text-white shadow-[0_10px_22px_-10px_#0073ea]">Siguiente →</button>
+            <button type="button" onClick={() => { if (!selectedCostCenterId) { setErrorMsg("Elige la obra."); return; } if (!requiredDate) { setErrorMsg("Elige para cuándo."); return; } setErrorMsg(null); setPasoM(3); try { window.scrollTo({ top: 0 }); } catch { /* */ } }} className="rounded-2xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3.5 text-[15px] font-bold text-white">Siguiente →</button>
           </div>
         </section>
 

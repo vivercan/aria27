@@ -35,8 +35,8 @@ export type Actividad = {
 export type ColumnaId = "POR_HACER" | "EN_PROCESO" | "BLOQUEADA" | "TERMINADA";
 
 export const COLUMNAS: { id: ColumnaId; label: string; color: string; soft: string; text: string }[] = [
-  { id: "POR_HACER", label: "Por hacer", color: "#579bfc", soft: "rgba(87,155,252,0.14)", text: "var(--d-link)" },
-  { id: "EN_PROCESO", label: "En proceso", color: "#fdab3d", soft: "rgba(253,171,61,0.14)", text: "var(--d-warn)" },
+  { id: "POR_HACER", label: "Por hacer", color: "#0073ea", soft: "rgba(87,155,252,0.14)", text: "var(--d-link)" },
+  { id: "EN_PROCESO", label: "En proceso", color: "#e8760a", soft: "rgba(253,171,61,0.14)", text: "var(--d-warn)" },
   { id: "BLOQUEADA", label: "Atorada", color: "#e2445c", soft: "rgba(226,68,92,0.14)", text: "var(--d-danger)" },
   { id: "TERMINADA", label: "Terminada", color: "#3cde01", soft: "rgba(60,222,1,0.14)", text: "var(--d-ok)" },
 ];
@@ -44,9 +44,9 @@ export const COLUMNAS: { id: ColumnaId; label: string; color: string; soft: stri
 export const PRIORIDADES: { id: string; label: string; color: string }[] = [
   // valores reales de la BD (check constraint tareas_asignadas_prioridad_check)
   { id: "URGENTE", label: "Urgente", color: "#e2445c" },
-  { id: "ALTA", label: "Alta", color: "#fdab3d" },
-  { id: "MEDIA", label: "Normal", color: "#579bfc" },
-  { id: "BAJA", label: "Baja", color: "#7f93b0" },
+  { id: "ALTA", label: "Alta", color: "#e8760a" },
+  { id: "MEDIA", label: "Normal", color: "#0073ea" },
+  { id: "BAJA", label: "Baja", color: "#64748b" },
 ];
 
 /** Normaliza prioridad (acepta minusculas o "normal" heredados). */

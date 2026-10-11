@@ -1,4 +1,6 @@
 "use client";
+import UsuariosMovil from "@/components/movil/UsuariosMovil";
+import { useEsTel } from "@/lib/es-tel";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -55,7 +57,7 @@ const ROLES = [
   { v: "admin", l: "Administrador" },
 ];
 
-export default function UsuariosPage() {
+function UsuariosPageWeb() {
   const [users, setUsers] = useState<User[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -442,3 +444,7 @@ export default function UsuariosPage() {
     </div>
   );
 }
+
+
+/** 11-Oct-2026: en teléfono se ve la versión Doménica; "?web=1" muestra la completa */
+export default function UsuariosPage() { const tel = useEsTel(); return tel ? <UsuariosMovil /> : <div className="contents vista-web"><UsuariosPageWeb /></div>; }

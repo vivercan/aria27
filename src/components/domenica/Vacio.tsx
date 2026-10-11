@@ -1,40 +1,21 @@
-/** Doménica 27 · pantallas vacías amables: dibujo + qué significa + qué hacer · 11-Oct-2026 */
+/** Doménica 27 · pantallas vacías amables: ícono de color sólido + qué significa + qué hacer · 11-Oct-2026 (sin círculos difuminados ni confeti) */
 import Link from "next/link";
+import { IcoTarea, IcoSaco, type Ico } from "@/components/domenica/IconosObra";
 
-const DIBUJOS = {
-  listo: (
-    <svg viewBox="0 0 120 120" className="w-28 h-28" aria-hidden>
-      <circle cx="60" cy="60" r="52" fill="#3cde01" opacity=".12" /><circle cx="60" cy="60" r="38" fill="#3cde01" opacity=".18" />
-      <path d="M42 61l12 12 25-27" fill="none" stroke="#3cde01" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="96" cy="26" r="5" fill="#fdab3d" /><circle cx="22" cy="34" r="3.5" fill="#a25ddc" /><circle cx="100" cy="88" r="3" fill="#579bfc" />
-    </svg>),
-  caja: (
-    <svg viewBox="0 0 120 120" className="w-28 h-28" aria-hidden>
-      <circle cx="60" cy="60" r="52" fill="#579bfc" opacity=".12" />
-      <path d="M30 48l30-14 30 14v32l-30 14-30-14z" fill="#fff" stroke="#579bfc" strokeWidth="4" strokeLinejoin="round" />
-      <path d="M30 48l30 14 30-14M60 62v32" fill="none" stroke="#579bfc" strokeWidth="4" strokeLinejoin="round" />
-      <circle cx="98" cy="30" r="4" fill="#fdab3d" />
-    </svg>),
-  buscar: (
-    <svg viewBox="0 0 120 120" className="w-28 h-28" aria-hidden>
-      <circle cx="60" cy="60" r="52" fill="#a25ddc" opacity=".12" />
-      <circle cx="54" cy="54" r="20" fill="#fff" stroke="#a25ddc" strokeWidth="5" /><path d="M69 69l16 16" stroke="#a25ddc" strokeWidth="7" strokeLinecap="round" />
-    </svg>),
-  lista: (
-    <svg viewBox="0 0 120 120" className="w-28 h-28" aria-hidden>
-      <circle cx="60" cy="60" r="52" fill="#fdab3d" opacity=".14" />
-      <rect x="36" y="28" width="48" height="64" rx="8" fill="#fff" stroke="#fdab3d" strokeWidth="4" />
-      <path d="M46 46h28M46 58h28M46 70h18" stroke="#fdab3d" strokeWidth="4" strokeLinecap="round" />
-    </svg>),
+const Palomita: Ico = ({ className, color = "#fff" }) => <svg viewBox="0 0 24 24" className={className} fill="none" stroke={color} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>;
+const Lupa: Ico = ({ className, color = "#fff" }) => <svg viewBox="0 0 24 24" className={className} fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round" aria-hidden><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></svg>;
+const DIBUJOS: Record<string, { ico: Ico; color: string }> = {
+  listo: { ico: Palomita, color: "#3cde01" }, caja: { ico: IcoSaco, color: "#0073ea" }, buscar: { ico: Lupa, color: "#7e3bdd" }, lista: { ico: IcoTarea, color: "#e8760a" },
 };
 
-export function Vacio({ dibujo = "listo", titulo, texto, accion }: { dibujo?: keyof typeof DIBUJOS; titulo: string; texto?: string; accion?: { label: string; href?: string; onClick?: () => void } }) {
-  const btn = "mt-4 inline-flex items-center justify-center rounded-xl bg-[#0073ea] px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_22px_-10px_#0073ea]";
+export function Vacio({ dibujo = "listo", ico, color, titulo, texto, accion }: { dibujo?: keyof typeof DIBUJOS; ico?: Ico; color?: string; titulo: string; texto?: string; accion?: { label: string; href?: string; onClick?: () => void } }) {
+  const d = DIBUJOS[dibujo] || DIBUJOS.listo; const I = ico || d.ico; const c = color || d.color;
+  const btn = "mt-5 inline-flex items-center justify-center rounded-xl bg-[#0073ea] px-5 py-3 text-[15px] font-bold text-white";
   return (
     <div className="dom-in flex flex-col items-center text-center px-6 py-10">
-      {DIBUJOS[dibujo]}
-      <div className="mt-3 text-[16px] font-bold text-[var(--d-text)]">{titulo}</div>
-      {texto && <div className="mt-1 max-w-xs text-[13px] text-[var(--d-muted)]">{texto}</div>}
+      <span className="w-[72px] h-[72px] rounded-[22px] flex items-center justify-center" style={{ background: c }}><I className="w-10 h-10" color="#fff" /></span>
+      <div className="mt-4 text-[17px] font-bold text-[var(--d-text)]">{titulo}</div>
+      {texto && <div className="mt-1 max-w-xs text-[13.5px] text-[var(--d-muted)]">{texto}</div>}
       {accion && (accion.href ? <Link href={accion.href} className={btn}>{accion.label}</Link> : <button type="button" onClick={accion.onClick} className={btn}>{accion.label}</button>)}
     </div>
   );

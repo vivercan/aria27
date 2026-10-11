@@ -70,7 +70,7 @@ export default function CotizarPublico() {
           <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
             <h2 className="text-lg font-bold">Tu cotización</h2>
             <input ref={fileRef} type="file" accept="application/pdf,image/*" className="hidden" onChange={e => setArchivo(e.target.files?.[0] || null)} />
-            <button type="button" onClick={() => fileRef.current?.click()} className={`mt-3 w-full rounded-2xl border-2 border-dashed px-4 py-6 text-center ${archivo ? "border-[#3cde01] bg-[#3cde01]/5" : "border-slate-300"}`}>
+            <button type="button" onClick={() => fileRef.current?.click()} className={`mt-3 w-full rounded-2xl border-2 border-dashed px-4 py-6 text-center ${archivo ? "border-[#3cde01] bg-[#3cde01]/5" : "border-slate-300"} sobre-verde`}>
               <div className="text-3xl">{archivo ? "📎" : "📄"}</div>
               <div className="mt-1 font-semibold">{archivo ? archivo.name : "Sube tu cotización (PDF o foto)"}</div>
               <div className="text-[12px] text-slate-500">{archivo ? `${(archivo.size / 1024 / 1024).toFixed(1)} MB · toca para cambiar` : "Máximo 10 MB"}</div>
@@ -84,7 +84,7 @@ export default function CotizarPublico() {
               <div className="mt-1 grid grid-cols-2 gap-2">{[["si", "Sí"], ["no", "No"]].map(([v, l]) => <button key={v} type="button" onClick={() => setFactura(v)} className={`rounded-xl py-2.5 font-semibold ${factura === v ? "bg-[#0073ea] text-white" : "bg-slate-100 text-slate-700"}`}>{l}</button>)}</div></div>
             <label className="mt-3 block"><span className="text-[13px] font-semibold text-slate-700">Comentarios (opcional)</span><textarea value={notas} onChange={e => setNotas(e.target.value)} rows={3} className={campo} /></label>
             {msg && <div className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{msg}</div>}
-            <button type="button" onClick={enviar} disabled={enviando} className="mt-4 w-full rounded-2xl bg-[#0073ea] py-4 text-base font-bold text-white shadow-[0_12px_28px_-12px_#0073ea] disabled:opacity-60">{enviando ? "Enviando…" : "Enviar cotización"}</button>
+            <button type="button" onClick={enviar} disabled={enviando} className="mt-4 w-full rounded-2xl bg-[#0073ea] py-4 text-base font-bold text-white disabled:opacity-60">{enviando ? "Enviando…" : "Enviar cotización"}</button>
             {d.enviadas > 0 && <div className="mt-2 text-center text-[12px] text-slate-500">Ya enviaste {d.enviadas} vez{d.enviadas === 1 ? "" : "es"}; si mandas otra, Compras verá ambas.</div>}
           </div>
           <p className="mt-6 text-center text-[11px] text-slate-400">Este formulario es solo para cotizar esta solicitud. No compartas el link.</p>

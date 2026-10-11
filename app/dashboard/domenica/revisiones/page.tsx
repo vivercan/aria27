@@ -41,12 +41,12 @@ export default function RevisionesPage() {
         <DomHeader icon={IcoRevision} from="#0f8a7e" titulo="Revisiones" desc="Calidad y seguridad, punto por punto, con firma."
           accion={<button onClick={() => setNueva(true)} className={boton}><Plus className="w-4 h-4" />Revisar</button>} />
         {!d ? <div className="mt-5"><Esqueleto filas={4} /></div> : d.revisiones.length === 0 ? (
-          <div className="mt-6 dom-card rounded-3xl"><Vacio dibujo="lista" titulo="Aún no hay revisiones" texto="Elige una lista (antes del colado, seguridad semanal o entrega de área), revisa punto por punto y firma." accion={{ label: "Hacer la primera revisión", onClick: () => setNueva(true) }} /></div>
+          <div className="mt-6 dom-card rounded-3xl"><Vacio ico={IcoRevision} color="#0f8a7e" titulo="Aún no hay revisiones" texto="Elige una lista (antes del colado, seguridad semanal o entrega de área), revisa punto por punto y firma." accion={{ label: "Hacer la primera revisión", onClick: () => setNueva(true) }} /></div>
         ) : (
           <div className="mt-5 space-y-2">
             {d.revisiones.map((r, i) => (
               <button key={r.id} onClick={() => setVer(r)} className="dom-card dom-in w-full text-left rounded-2xl p-4 flex items-center gap-3" style={{ animationDelay: `${Math.min(i, 10) * 40}ms` }}>
-                <span className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center text-[15px] font-extrabold ${r.fallas ? "bg-[#e2445c]/10 text-[var(--d-danger)]" : "bg-[#3cde01]/15 text-[var(--d-ok)]"}`}>{r.ok}/{r.total}</span>
+                <span className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center text-[15px] font-extrabold ${r.fallas ? "bg-[#e2445c]/10 text-[var(--d-danger)]" : "bg-[#3cde01]/15 text-[var(--d-ok)]"} sobre-verde`}>{r.ok}/{r.total}</span>
                 <div className="flex-1 min-w-0"><div className="text-[15px] font-bold text-[var(--d-text)] truncate">{r.formato_nombre}</div>
                   <div className="text-[12.5px] text-[var(--d-muted)] truncate">{r.obra_nombre} · {new Date(r.created_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })} · {r.realizada_nombre}</div></div>
                 {r.fallas > 0 && <span className="shrink-0 rounded-full bg-[#e2445c] px-2.5 py-1 text-[11px] font-bold text-white">{r.fallas} falla{r.fallas === 1 ? "" : "s"}</span>}
@@ -58,7 +58,7 @@ export default function RevisionesPage() {
       {ver && <Hoja titulo={ver.formato_nombre} onClose={() => setVer(null)}>
         <div className="text-[13px] text-[var(--d-muted)]">{ver.obra_nombre} · {new Date(ver.created_at).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}</div>
         <ul className="mt-3 dom-card rounded-2xl divide-y divide-[var(--d-border)] overflow-hidden">{ver.respuestas.map((r, i) => (
-          <li key={i} className="px-4 py-3 flex gap-3"><span className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold ${r.estado === "OK" ? "bg-[#3cde01]" : r.estado === "NO" ? "bg-[#e2445c]" : "bg-[#94a3b8]"}`}>{r.estado === "OK" ? "✓" : r.estado === "NO" ? "✗" : "–"}</span>
+          <li key={i} className="px-4 py-3 flex gap-3"><span className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold ${r.estado === "OK" ? "bg-[#3cde01]" : r.estado === "NO" ? "bg-[#e2445c]" : "bg-[#94a3b8]"} sobre-verde`}>{r.estado === "OK" ? "✓" : r.estado === "NO" ? "✗" : "–"}</span>
             <div className="flex-1"><div className="text-[14px] text-[var(--d-text)]">{r.texto}</div>{r.nota && <div className="text-[12.5px] text-[var(--d-muted)]">{r.nota}</div>}{r.foto_url && <img src={r.foto_url} alt="" className="mt-2 max-h-40 rounded-xl" />}</div></li>))}</ul>
         <div className="mt-4 text-[12px] text-[var(--d-muted)]">Firma de {ver.nombre_firma}</div>
         <img src={ver.firma_url} alt="Firma" className="mt-1 h-24 rounded-xl border border-[var(--d-border)] bg-white" />
@@ -108,11 +108,11 @@ function Nueva({ formatos, obras, emps, miEmp, onClose, onSaved, flash }: { form
 
   if (actual && f) return (
     <Hoja titulo={f.nombre} onClose={onClose}>
-      <div className="flex gap-1">{f.puntos.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? (resp[k].estado === "NO" ? "bg-[#e2445c]" : "bg-[#3cde01]") : k === i ? "bg-[#0073ea]" : "bg-[var(--d-border)]"}`} />)}</div>
+      <div className="flex gap-1">{f.puntos.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? (resp[k].estado === "NO" ? "bg-[#e2445c]" : "bg-[#3cde01]") : k === i ? "bg-[#0073ea]" : "bg-[var(--d-border)]"} sobre-verde`} />)}</div>
       <div className="mt-2 text-[12.5px] font-semibold text-[var(--d-muted)]">Punto {i + 1} de {f.puntos.length}</div>
       <div key={i} className="dom-in mt-6 min-h-[110px] text-center text-[22px] font-bold leading-snug text-[var(--d-text)]">{actual.texto}</div>
       <div className="mt-6 grid grid-cols-2 gap-3">
-        <button onClick={() => marcar("OK")} className={`rounded-3xl py-6 text-[18px] font-bold flex flex-col items-center gap-1 ${actual.estado === "OK" ? "bg-[#3cde01] text-white" : "bg-[#3cde01]/15 text-[var(--d-ok)]"}`}><Check className="w-9 h-9" strokeWidth={3} />Bien</button>
+        <button onClick={() => marcar("OK")} className={`rounded-3xl py-6 text-[18px] font-bold flex flex-col items-center gap-1 ${actual.estado === "OK" ? "bg-[#3cde01] text-white" : "bg-[#3cde01]/15 text-[var(--d-ok)]"} sobre-verde`}><Check className="w-9 h-9" strokeWidth={3} />Bien</button>
         <button onClick={() => marcar("NO")} className={`rounded-3xl py-6 text-[18px] font-bold flex flex-col items-center gap-1 ${actual.estado === "NO" ? "bg-[#e2445c] text-white" : "bg-[#e2445c]/10 text-[var(--d-danger)]"}`}><X className="w-9 h-9" strokeWidth={3} />Mal</button>
       </div>
       <button onClick={() => marcar("NA")} className="mt-3 w-full rounded-2xl bg-[var(--d-card-2)] py-3 text-[14px] font-semibold text-[var(--d-text-2)] inline-flex items-center justify-center gap-1.5"><Minus className="w-4 h-4" />No aplica</button>
@@ -131,7 +131,7 @@ function Nueva({ formatos, obras, emps, miEmp, onClose, onSaved, flash }: { form
 
   return (
     <Hoja titulo="Firma y listo" onClose={onClose} pie={<button onClick={guardar} disabled={busy} className={`${boton} w-full py-3.5 text-base`}>{busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}Guardar revisión</button>}>
-      <div className={`rounded-2xl p-4 text-center ${fallas ? "bg-[#e2445c]/10" : "bg-[#3cde01]/10"}`}>
+      <div className={`rounded-2xl p-4 text-center ${fallas ? "bg-[#e2445c]/10" : "bg-[#3cde01]/10"} sobre-verde`}>
         <div className={`text-[34px] font-extrabold ${fallas ? "text-[var(--d-danger)]" : "text-[var(--d-ok)]"}`}>{resp.filter(r => r.estado === "OK").length}/{resp.filter(r => r.estado !== "NA").length}</div>
         <div className="text-[14px] font-semibold text-[var(--d-text)]">{fallas ? `${fallas} punto${fallas === 1 ? "" : "s"} con falla` : "¡Todo bien!"}</div>
       </div>

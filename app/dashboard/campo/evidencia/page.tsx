@@ -1,35 +1,45 @@
 "use client";
-/** /dashboard/campo/evidencia — lista de requis que puedo recibir; cada una abre la pantalla de entrega. */
-import { useEffect, useState } from "react";
+/** /dashboard/campo/evidencia — Registrar entrega: lo que te toca recibir; cada una abre la pantalla de entrega (Doménica 27 · 11-Oct-2026). */
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Camera, Loader2, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { accionPara, statusLabel } from "@/lib/requi-stepper";
-import AriaBackButton from "@/components/AriaBackButton";
-import { useListFilter } from "@/hooks/useListFilter";
-import ListToolbar from "@/components/ListToolbar";
+import { accionPara } from "@/lib/requi-stepper";
+import { IcoCamion } from "@/components/domenica/IconosObra";
+import { Esqueleto } from "@/components/domenica/Esqueleto";
+import { Vacio } from "@/components/domenica/Vacio";
+import { Encabezado, Buscador, Pagina } from "@/components/movil/base";
 
 type R = { id: string; folio: string; cost_center_name: string; status: string; purchase_status?: string | null; user_email?: string; responsable_email?: string | null; tipo_solicitud?: string | null; proveedor?: string | null; required_date?: string | null; created_at: string };
+const corto = (f: string) => String(f || "").replace(/^REQ-\d{4}-/, "#");
+const dias = (f: string) => Math.max(0, Math.floor((Date.now() - Date.parse(f)) / 864e5));
 
 export default function EvidenciaPage() {
-  const router = useRouter(); const [items, setItems] = useState<R[]>([]); const [loading, setLoading] = useState(true);
+  const router = useRouter(); const [items, setItems] = useState<R[] | null>(null); const [q, setQ] = useState(""); const [obra, setObra] = useState("");
   useEffect(() => { let alive = true; (async () => { try {
     const r = await fetch("/api/auth/me", { credentials: "include", cache: "no-store" }); if (r.status === 401) { router.replace("/"); return; }
     const u = await r.json(); const email = String(u.email || "").toLowerCase(); const role = String(u.role || "").toLowerCase();
-    let q = supabase.from("Requisiciones").select("id, folio, cost_center_name, status, purchase_status, user_email, responsable_email, tipo_solicitud, proveedor, required_date, created_at").order("created_at", { ascending: false }).limit(500);
-    if (!["admin", "compras", "rh", "direccion"].includes(role)) q = q.eq("user_email", email);
-    const { data } = await q; if (!alive) return;
+    let qq = supabase.from("Requisiciones").select("id, folio, cost_center_name, status, purchase_status, user_email, responsable_email, tipo_solicitud, proveedor, required_date, created_at").order("created_at", { ascending: false }).limit(500);
+    if (!["admin", "compras", "rh", "direccion"].includes(role)) qq = qq.eq("user_email", email);
+    const { data } = await qq; if (!alive) return;
     setItems(((data || []) as R[]).filter(x => accionPara(x, role, email) === "REGISTRAR_ENTREGA"));
-  } finally { if (alive) setLoading(false); } })(); return () => { alive = false; }; }, [router]);
-  const lf = useListFilter<R>({ items, storageKey: "aria:filtro:campo-evidencia", searchFields: r => [r.folio, r.cost_center_name, r.proveedor], chips: [{ key: "", label: "Todas" }], chipOf: () => null, selects: { obra: { label: "Obra", pick: r => r.cost_center_name } } });
+  } catch { if (alive) setItems([]); } })(); return () => { alive = false; }; }, [router]);
+  const obras = useMemo(() => [...new Set((items || []).map(r => r.cost_center_name).filter(Boolean))].sort(), [items]);
+  const vis = useMemo(() => { const t = q.trim().toLowerCase(); return (items || []).filter(r => (!obra || r.cost_center_name === obra) && (!t || `${r.folio} ${r.cost_center_name} ${r.proveedor || ""}`.toLowerCase().includes(t))); }, [items, q, obra]);
   return (
-    <div className="dom-page min-h-full"><div className="px-4 pt-4 pb-28 max-w-2xl mx-auto space-y-4">
-      <div className="flex items-center gap-3"><AriaBackButton href="/dashboard/campo" /><div><h1 className="text-xl font-bold text-[var(--d-text)]">Evidencia de entrega</h1><p className="text-[var(--d-muted)] text-sm">Toca una requi para registrar qué llegó, con foto y ubicación.</p></div></div>
-      <div className="mt-3"><ListToolbar search={lf.search} onSearch={lf.setSearch} placeholder="Buscar folio, obra, proveedor…" chips={[{ key: "", label: "Todas" }]} chip={lf.chip} onChip={lf.setChip} counts={lf.counts} selects={[{ key: "obra", label: "Obra", options: lf.selectOptions.obra || [], value: lf.selects.obra || "" }]} onSelect={lf.setSelect} shown={lf.filtered.length} total={items.length} isActive={lf.isActive} onClear={lf.clear} /></div>
-      {loading ? <div className="py-12 text-center"><Loader2 className="w-7 h-7 animate-spin text-aria-accent mx-auto" /></div> : lf.filtered.length === 0 ? <div className="py-12 text-center text-sm text-[var(--d-muted)]">No tienes requisiciones por entregar.</div> : (
-        <ul className="mt-3 space-y-2">{lf.filtered.map(r => (<li key={r.id}><Link href={`/dashboard/requisiciones/requisiciones/entrega/${r.id}`} className="flex items-center gap-3 rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] p-3 active:bg-[var(--d-hover)]"><Camera className="w-5 h-5 text-aria-accent shrink-0" /><div className="flex-1 min-w-0"><div className="text-sm text-[var(--d-text)] font-medium">{r.folio} <span className="text-[var(--d-muted)] font-normal">· {r.cost_center_name}</span></div><div className="text-[11px] text-[var(--d-muted)] truncate">{statusLabel(r.status)}{r.proveedor ? ` · ${r.proveedor}` : ""}</div></div><ChevronRight className="w-4 h-4 text-[var(--d-muted)]" /></Link></li>))}</ul>
-      )}
-    </div></div>
+    <Pagina>
+      <Encabezado ico={IcoCamion} color="#0086c0" titulo="Registrar entrega" sub={items ? `${items.length} esperan llegar` : "Cargando…"} atras="/dashboard/campo" />
+      <Buscador valor={q} cambiar={setQ} texto="Buscar folio, obra o proveedor" />
+      {obras.length > 1 && <select value={obra} onChange={e => setObra(e.target.value)} className="mt-2 w-full rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] px-3.5 h-11 text-[15px] text-[var(--d-text)]"><option value="">Todas las obras</option>{obras.map(o => <option key={o} value={o}>{o}</option>)}</select>}
+      <div className="mt-3">
+        {items === null ? <Esqueleto filas={6} alto={64} /> : vis.length === 0 ? <div className="dom-card rounded-3xl"><Vacio dibujo="listo" titulo="Nada por recibir" texto="Cuando una compra esté por llegar a tu obra, aparece aquí." /></div> : (
+          <div className="dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)]">{vis.map(r => (
+            <Link key={r.id} href={`/dashboard/requisiciones/requisiciones/entrega/${r.id}`} className="flex items-center gap-3 px-3.5 py-3 active:bg-[var(--d-hover)]">
+              <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{r.cost_center_name || "Sin obra"}</div>
+                <div className="text-[12.5px] text-[var(--d-muted)] truncate">{corto(r.folio)} · {r.proveedor || "Sin proveedor"} · hace {dias(r.created_at)} d</div></div>
+              <span className="shrink-0 rounded-xl bg-[#3cde01] px-3 py-2 text-[13px] font-bold text-white sobre-verde">Recibir</span>
+            </Link>))}</div>)}
+      </div>
+    </Pagina>
   );
 }

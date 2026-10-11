@@ -34,7 +34,7 @@ if(!m){return}
 d.classList.add("es-tel");
 var hubs=["/dashboard","/dashboard/requisiciones","/dashboard/obras","/dashboard/talento","/dashboard/finanzas","/dashboard/activos","/dashboard/administracion","/dashboard/configuracion","/dashboard/comunicacion","/dashboard/reportes","/dashboard/clientes","/dashboard/admin","/dashboard/plantillas"];
 if(hubs.indexOf(p)>=0){location.replace("/dashboard/campo");return}
-var pre=["/dashboard/campo","/dashboard/actividades","/dashboard/domenica","/dashboard/domingo","/dashboard/requisiciones/requisiciones/nuevo","/dashboard/requisiciones/requisiciones/estatus","/dashboard/requisiciones/requisiciones/entrega"],dom=false;for(var i=0;i<pre.length;i++){if(p.indexOf(pre[i])===0)dom=true}
+var pre=["/dashboard/campo","/dashboard/actividades","/dashboard/domenica","/dashboard/domingo","/dashboard/requisiciones/requisiciones/nuevo","/dashboard/requisiciones/requisiciones/estatus","/dashboard/requisiciones/requisiciones/entrega","/dashboard/talento/usuarios","/dashboard/talento/personal","/dashboard/talento/checadas","/dashboard/requisiciones/proveedores","/dashboard/requisiciones/productos"],dom=false;if(/[?&]web=1(&|$)/.test(location.search)){d.classList.add("ver-web");pre=pre.slice(0,4)}for(var i=0;i<pre.length;i++){if(p.indexOf(pre[i])===0)dom=true}
 if(dom){b.classList.add("dom-ruta");if(localStorage.getItem("dom:tema")==="oscuro")b.classList.add("dom-oscuro")}
 }catch(e){}})();`;
 

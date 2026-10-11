@@ -1,4 +1,6 @@
 "use client";
+import ChecadasMovil from "@/components/movil/ChecadasMovil";
+import { useEsTel } from "@/lib/es-tel";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Calendar, Clock, MapPin, CheckCircle, XCircle, Filter, Plus, Save, X, Loader2 } from "lucide-react";
@@ -33,7 +35,7 @@ interface EmpleadoInfo {
   employee_number: string;
 }
 
-export default function ChecadasPage() {
+function ChecadasPageWeb() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [mapaModal, setMapaModal] = useState<{ a: Asistencia; tipo: "entrada" | "salida" } | null>(null);
   const [scorecardEmp, setScorecardEmp] = useState<string | null>(null);
@@ -902,3 +904,7 @@ export default function ChecadasPage() {
     </div>
   );
 }
+
+
+/** 11-Oct-2026: en teléfono se ve la versión Doménica; "?web=1" muestra la completa */
+export default function ChecadasPage() { const tel = useEsTel(); return tel ? <ChecadasMovil /> : <div className="contents vista-web"><ChecadasPageWeb /></div>; }

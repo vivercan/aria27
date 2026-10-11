@@ -1,4 +1,6 @@
 "use client";
+import ProductosMovil from "@/components/movil/ProductosMovil";
+import { useEsTel } from "@/lib/es-tel";
 import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
@@ -20,7 +22,7 @@ interface SupplierOption { id:number; name:string; }
 const PAGE_SIZE = 50;
 const UNITS = ["PIEZA","LITRO","METRO","METRO_CUBICO","METRO_CUADRADO","KILO","TONELADA","SACO","CUBETA_19L","ROLLO","TRAMO","JUEGO","PAR","CAJA","PAQUETE","VIAJE","SERVICIO","GLOBAL","LOTE","GALON","BOLSA","BOTE"];
 
-export default function ProductosPage() {
+function ProductosPageWeb() {
   const log = clientLogger("PRODUCTOS");
   const { msg, flash, clear } = useFlashMessage();
   const [products,setProducts]=useState<Product[]>([]);
@@ -616,3 +618,7 @@ function DataRow({ icon: Icon, label, value }: { icon: any; label: string; value
     </div>
   );
 }
+
+
+/** 11-Oct-2026: en teléfono se ve la versión Doménica; "?web=1" muestra la completa */
+export default function ProductosPage() { const tel = useEsTel(); return tel ? <ProductosMovil /> : <div className="contents vista-web"><ProductosPageWeb /></div>; }

@@ -45,7 +45,7 @@ export default function ObraDomPage() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <Link href="/dashboard/domenica/obras" className="inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />Obras</Link>
-        <div className="relative overflow-hidden rounded-3xl p-5 text-white dom-in" style={{ background: "#ff642e", boxShadow: "0 14px 30px -14px #ff642e" }}>
+        <div className="relative overflow-hidden rounded-3xl p-5 text-white dom-in" style={{ background: "#ff642e" }}>
           <div className="relative flex items-start gap-3">
             <span className="shrink-0 w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center"><Building2 className="w-6 h-6" /></span>
             <div className="flex-1 min-w-0">
@@ -56,10 +56,16 @@ export default function ObraDomPage() {
           </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2">
-          {[{ n: `${x.avance}%`, l: "Avance de actividades", c: "var(--c-azul)" }, { n: String(x.abiertas.length), l: "Actividades abiertas", c: "var(--d-text)" }, { n: String(x.atrasadas), l: "Atrasadas", c: x.atrasadas ? "var(--c-rojo)" : "var(--d-faint)" }, { n: String(x.atoradas), l: "Atoradas", c: x.atoradas ? "var(--c-rojo)" : "var(--d-faint)" }, { n: String(x.detenidas.length), l: "Solicitudes detenidas (+3 días)", c: x.detenidas.length ? "var(--c-ambar)" : "var(--d-faint)" }, { n: String(x.abiertas.filter(q => enRiesgo(q, new Date().toISOString().slice(0, 10))).length), l: "En riesgo de atrasarse", c: "var(--c-ambar)" }].map((k, i) => (
-            <div key={k.l} className="dom-card dom-in rounded-2xl p-3" style={{ animationDelay: `${i * 50}ms` }}><div className="text-[24px] font-bold leading-none" style={{ color: k.c }}>{k.n}</div><div className="mt-1.5 text-[11.5px] text-[var(--d-muted)]">{k.l}</div></div>))}
+        {/* Golpe de vista: 3 números siempre; lo demás solo si hay algo (no tarjetas en cero) */}
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {[{ n: `${x.avance}%`, l: "Avance", c: "#0073ea" }, { n: String(x.abiertas.length), l: "Abiertas", c: "var(--d-text)" }, { n: String(x.atrasadas), l: "Atrasadas", c: x.atrasadas ? "#e2445c" : "var(--d-faint)" }].map((k, i) => (
+            <div key={k.l} className="dom-card dom-in rounded-2xl px-3 py-2.5" style={{ animationDelay: `${i * 50}ms` }}><div className="text-[24px] font-bold leading-none" style={{ color: k.c }}>{k.n}</div><div className="mt-1.5 text-[12px] text-[var(--d-muted)]">{k.l}</div></div>))}
         </div>
+        {(() => { const nRiesgo = x.abiertas.filter(q => enRiesgo(q, new Date().toISOString().slice(0, 10))).length; return (x.atoradas > 0 || x.detenidas.length > 0 || nRiesgo > 0) && <div className="mt-2 flex flex-wrap gap-1.5">
+          {x.atoradas > 0 && <span className="rounded-full bg-[#e2445c] px-3 py-1.5 text-[12.5px] font-bold text-white">{x.atoradas} atorada{x.atoradas === 1 ? "" : "s"}</span>}
+          {x.detenidas.length > 0 && <span className="rounded-full bg-[#7e3bdd] px-3 py-1.5 text-[12.5px] font-bold text-white">{x.detenidas.length} solicitud{x.detenidas.length === 1 ? "" : "es"} detenida{x.detenidas.length === 1 ? "" : "s"}</span>}
+          {nRiesgo > 0 && <span className="rounded-full bg-[#e8760a] px-3 py-1.5 text-[12.5px] font-bold text-white">{nRiesgo} en riesgo de atrasarse</span>}
+        </div>; })()}
 
         <div className="mt-3 dom-card dom-in rounded-2xl p-4">
           <div className="flex items-baseline justify-between"><span className="text-sm font-bold text-[var(--d-text)]">Presupuesto contra gastado</span><span className="text-[12px] text-[var(--d-muted)]">{x.requis.length} solicitudes</span></div>
