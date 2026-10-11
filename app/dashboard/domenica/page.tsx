@@ -57,7 +57,7 @@ export default function DomenicaHub() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <div className="flex items-center gap-3">
-          <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#c85f08] flex items-center justify-center"><Sun className="w-7 h-7 text-white" /></span>
+          <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#b85507] flex items-center justify-center"><Sun className="w-7 h-7 text-white" /></span>
           <div><h1 className="text-[26px] font-bold text-[var(--d-text)] tracking-tight leading-tight">{NOMBRE_MODULO}</h1><p className="text-[13px] text-[var(--d-muted)]">Lo que Monday promete, conectado a tus obras, requisiciones y personal.</p></div>
         </div>
         <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -72,7 +72,7 @@ export default function DomenicaHub() {
                 <div className={`dom-card dom-in h-full rounded-2xl p-4 flex items-start gap-3 transition ${p.href ? "hover:-translate-y-0.5" : "opacity-70"}`}>
                   <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${p.color}22` }}><Icon className="w-5 h-5" style={{ color: p.color }} /></span>
                   <div className="flex-1 min-w-0"><div className="flex items-center gap-2"><span className={`text-[14px] font-semibold ${p.href ? "text-[var(--d-text)]" : "text-[var(--d-muted)]"}`}>{p.t}</span>
-                    <span className={`text-[10px] font-bold rounded px-1.5 py-0.5 ${p.estado === "listo" ? "bg-[#3cde01]/15 text-[var(--d-ok)]" : p.estado === "parcial" ? "bg-[#579bfc]/20 text-[var(--d-link)]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"} sobre-verde`}>{p.estado === "listo" ? "Listo" : p.estado === "parcial" ? "Disponible" : "En construcción"}</span></div>
+                    <span className={`text-[11px] font-bold rounded px-1.5 py-0.5 ${p.estado === "listo" ? "bg-[#3cde01]/15 text-[var(--d-ok)]" : p.estado === "parcial" ? "bg-[#579bfc]/20 text-[var(--d-link)]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"} sobre-verde`}>{p.estado === "listo" ? "Listo" : p.estado === "parcial" ? "Disponible" : "En construcción"}</span></div>
                     <div className="text-[12px] text-[var(--d-muted)]">{p.d}</div></div>
                   {p.href && <ChevronRight className="w-4 h-4 text-[var(--d-faint)] mt-1" />}
                 </div>);

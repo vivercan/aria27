@@ -38,7 +38,6 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
           <span className="w-10 h-10 rounded-xl bg-[#3cde01] flex items-center justify-center"><IcoSello className="w-6 h-6" color="#fff" fondo="#3cde01" /></span>
           <div><div className="font-bold leading-tight">Autorizar solicitud</div><div className="text-[12px] text-slate-500">Grupo Constructor Urbano Avante</div></div>
         </div>
-        <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#d0304a 78%,#fdab3d)" }} />
       </header>
 
       <main className="max-w-xl mx-auto px-4 py-5">

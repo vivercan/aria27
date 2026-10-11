@@ -44,8 +44,8 @@ export default function ObraDomPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
-        <Link href="/dashboard/domenica/obras" className="inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />Obras</Link>
-        <div className="relative overflow-hidden rounded-3xl p-5 text-white dom-in" style={{ background: "#d94a14" }}>
+        <Link href="/dashboard/domenica/obras" className="hidden md:inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />Obras</Link>
+        <div className="relative overflow-hidden rounded-3xl p-5 text-white dom-in" style={{ background: "#c9410f" }}>
           <div className="relative flex items-start gap-3">
             <span className="shrink-0 w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center"><Building2 className="w-6 h-6" /></span>
             <div className="flex-1 min-w-0">
@@ -64,7 +64,7 @@ export default function ObraDomPage() {
         {(() => { const nRiesgo = x.abiertas.filter(q => enRiesgo(q, new Date().toISOString().slice(0, 10))).length; return (x.atoradas > 0 || x.detenidas.length > 0 || nRiesgo > 0) && <div className="mt-2 flex flex-wrap gap-1.5">
           {x.atoradas > 0 && <span className="rounded-full bg-[#d0304a] px-3 py-1.5 text-[12.5px] font-bold text-white">{x.atoradas} atorada{x.atoradas === 1 ? "" : "s"}</span>}
           {x.detenidas.length > 0 && <span className="rounded-full bg-[#7e3bdd] px-3 py-1.5 text-[12.5px] font-bold text-white">{x.detenidas.length} solicitud{x.detenidas.length === 1 ? "" : "es"} detenida{x.detenidas.length === 1 ? "" : "s"}</span>}
-          {nRiesgo > 0 && <span className="rounded-full bg-[#c85f08] px-3 py-1.5 text-[12.5px] font-bold text-white">{nRiesgo} en riesgo de atrasarse</span>}
+          {nRiesgo > 0 && <span className="rounded-full bg-[#b85507] px-3 py-1.5 text-[12.5px] font-bold text-white">{nRiesgo} en riesgo de atrasarse</span>}
         </div>; })()}
 
         <div className="mt-3 dom-card dom-in rounded-2xl p-4">
@@ -76,13 +76,13 @@ export default function ObraDomPage() {
         </div>
 
         <div className="mt-3 grid grid-cols-3 md:grid-cols-6 gap-2">
-          {([{ href: `/dashboard/domenica/obras/${o.id}/bitacora`, t: "Bitácora", icon: IcoBitacora, c: "#0077ad" }, { href: `/dashboard/domenica/obras/${o.id}/fotos`, t: "Fotos de avance", icon: IcoCamara, c: "#c85f08" }, { href: `/dashboard/domenica/planos?obra=${o.id}`, t: "Planos", icon: IcoPlano, c: "#0073ea" },
+          {([{ href: `/dashboard/domenica/obras/${o.id}/bitacora`, t: "Bitácora", icon: IcoBitacora, c: "#0077ad" }, { href: `/dashboard/domenica/obras/${o.id}/fotos`, t: "Fotos de avance", icon: IcoCamara, c: "#b85507" }, { href: `/dashboard/domenica/planos?obra=${o.id}`, t: "Planos", icon: IcoPlano, c: "#0073ea" },
             { href: `/dashboard/actividades?nueva=1&obra=${o.id}`, t: "Nueva actividad", icon: IcoTarea, c: "#7e3bdd" }, { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", icon: IcoSaco, c: "#3cde01" }, { href: `/dashboard/actividades?vista=linea&obra=${o.id}`, t: "Línea de tiempo", icon: IcoCalendario, c: "#c62f5e" }] as { href: string; t: string; icon: Ico; c: string }[]).map(b => (
             <Link key={b.t} href={b.href} className="dom-card rounded-2xl py-3 px-1 flex flex-col items-center gap-1.5 active:scale-[0.98] transition"><Ficha ico={b.icon} color={b.c} size="sm" /><span className="text-[12px] font-semibold text-[var(--d-text)] leading-tight text-center">{b.t}</span></Link>))}
         </div>
 
         <section className="mt-6">
-          <div className="flex items-center justify-between mb-2"><h2 className="text-[15px] font-bold text-[var(--d-text)]">Actividades</h2><Link href={`/dashboard/actividades?vista=tablero&obra=${o.id}`} className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[var(--d-link)]"><LayoutGrid className="w-3.5 h-3.5" />Tablero</Link></div>
+          <div className="flex items-center justify-between mb-2"><h2 className="text-[15px] font-bold text-[var(--d-text)]">Actividades</h2><Link href={`/dashboard/actividades?vista=tablero&obra=${o.id}`} className="inline-flex items-center gap-1 py-2.5 -my-2.5 pl-3 text-[13px] font-semibold text-[var(--d-link)]"><LayoutGrid className="w-3.5 h-3.5" />Tablero</Link></div>
           <div className="mb-2 flex h-2.5 rounded-full overflow-hidden bg-[var(--d-card-2)]">{porCol.filter(p => p.n).map(p => <div key={p.c.id} title={`${p.c.label}: ${p.n}`} style={{ width: `${(p.n / Math.max(1, x.actividades.length)) * 100}%`, background: p.c.color }} />)}</div>
           <div className="mb-3 flex flex-wrap gap-3 text-[11.5px] text-[var(--d-muted)]">{porCol.map(p => <span key={p.c.id} className="inline-flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-full" style={{ background: p.c.color }} />{p.c.label} {p.n}</span>)}</div>
           <div className="space-y-2">
@@ -91,7 +91,7 @@ export default function ObraDomPage() {
                 <span className="shrink-0 w-1 self-stretch rounded-full" style={{ background: COLUMNAS.find(c => c.id === col)?.color }} />
                 <div className="flex-1 min-w-0"><div className="text-[14px] font-semibold text-[var(--d-text)] truncate">{a.titulo}</div>
                   <div className="text-[11.5px] flex flex-wrap gap-x-2"><span className={atr > 0 ? "text-[var(--d-danger)] font-semibold" : "text-[var(--d-muted)]"}>{a.fecha_compromiso ? (atr > 0 ? `${atr} d tarde` : `Entrega ${fechaCorta(a.fecha_compromiso)}`) : "Sin fecha"}</span>{col === "BLOQUEADA" && <span className="inline-flex items-center gap-0.5 text-[var(--d-danger)]"><AlertTriangle className="w-3 h-3" />Atorada</span>}<span className="text-[var(--d-muted)]">{Number(a.avance) || 0}%</span></div></div>
-                <span className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: colorPersona(a.asignado_nombre) }} title={a.asignado_nombre || ""}>{iniciales(a.asignado_nombre)}</span>
+                <span className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold" style={{ background: colorPersona(a.asignado_nombre) }} title={a.asignado_nombre || ""}>{iniciales(a.asignado_nombre)}</span>
               </Link>); })}
             {x.abiertas.length === 0 && <div className="rounded-2xl border border-dashed border-[var(--d-border)] p-6 text-center text-sm text-[var(--d-muted)]">No hay actividades abiertas. <Link href={`/dashboard/domenica/plantillas?obra=${o.id}`} className="text-[var(--d-link)] font-semibold">Usa una plantilla</Link> para arrancar.</div>}
             {x.abiertas.length > 15 && <Link href={`/dashboard/actividades?vista=lista&obra=${o.id}`} className="block text-center text-sm font-semibold text-[var(--d-link)] py-2">Ver las {x.abiertas.length}</Link>}
@@ -129,7 +129,7 @@ export default function ObraDomPage() {
             {x.requis.slice(0, 8).map(r => (
               <Link key={r.id} href={`/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-[var(--d-hover)]">
                 <div className="flex-1 min-w-0"><div className="font-mono text-[12.5px] font-semibold text-[var(--d-link)]">{r.folio}</div><div className="text-[12px] text-[var(--d-muted)] truncate">{r.proveedor || statusLabel(r.status)}</div></div>
-                <div className="text-right"><div className="text-[13px] font-bold text-[var(--d-text)]">{fmtMoney(Number(r.monto) || Number(r.total) || 0)}</div><div className="text-[10.5px] text-[var(--d-muted)]">{statusLabel(r.status)}</div></div>
+                <div className="text-right"><div className="text-[13px] font-bold text-[var(--d-text)]">{fmtMoney(Number(r.monto) || Number(r.total) || 0)}</div><div className="text-[11px] text-[var(--d-muted)]">{statusLabel(r.status)}</div></div>
                 <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />
               </Link>))}
             {x.requis.length === 0 && <div className="px-4 py-6 text-center text-sm text-[var(--d-muted)]">Sin solicitudes registradas con el nombre de esta obra.</div>}

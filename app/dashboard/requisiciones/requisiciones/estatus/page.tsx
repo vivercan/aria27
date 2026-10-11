@@ -74,7 +74,7 @@ interface ReqItem {
 }
 
 /** 11-Oct-2026: color del punto de estado en la lista del celular */
-const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#c85f08", EN_COTIZACION: "#c85f08", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0077ad", ENTREGA_PARCIAL: "#0077ad", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#d0304a", RECHAZADA_DIRECCION: "#d0304a", CANCELADA: "#64748b" };
+const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#b85507", EN_COTIZACION: "#b85507", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0077ad", ENTREGA_PARCIAL: "#0077ad", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#d0304a", RECHAZADA_DIRECCION: "#d0304a", CANCELADA: "#64748b" };
 
 export default function RequisicionesStatusPage() {
   const { msg, flash, clear } = useFlashMessage();
@@ -512,20 +512,20 @@ export default function RequisicionesStatusPage() {
           <div className="grid gap-1 rounded-2xl bg-[var(--d-card-2)] p-1" style={{ gridTemplateColumns: `repeat(${puedeVerTodas ? 3 : 2}, minmax(0, 1fr))` }}>
             {([["toca", "Me toca", cuentaMovil.toca], ["mias", "Las mías", cuentaMovil.mias], ...(puedeVerTodas ? [["todas", "Todas", cuentaMovil.todas]] : [])] as [string, string, number][]).map(([k, l, n]) => (
               <button key={k} type="button" onClick={() => { setTabMovil(k as "toca"); setNMovil(40); }} className={`rounded-xl py-2.5 text-[13px] font-bold transition ${tabActiva === k ? "bg-[var(--d-surface)] text-[var(--d-text)] shadow-[var(--d-shadow)]" : "text-[var(--d-muted)]"}`}>
-                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#c85f08] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
+                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#b85507] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
               </button>))}
           </div>
           <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar folio, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 py-2.5 text-sm text-[var(--d-text)]" />
           <div className="mt-3 space-y-2">
             {listaMovil.slice(0, nMovil).map(req => { const acc = accionPara(req, userRole, userEmail); const toca = meToca(req, userRole, userEmail); return (
-              <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#c85f08]" : ""}`}>
+              <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#b85507]" : ""}`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0"><div className="text-[15px] font-bold text-[var(--d-text)] truncate">{req.cost_center_name || "Sin obra"}</div>
                     <div className="text-[12px] text-[var(--d-muted)] truncate">{req.proveedor || (nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by || "")}</div></div>
                   <div className="shrink-0 text-right"><div className="text-[15px] font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</div><div className="text-[11px] font-semibold text-[var(--d-faint)]">{String(req.folio || "").replace(/^REQ-\d{4}-/, "#")}</div></div>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#c85f08] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span>
+                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#b85507] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span>
                     : <span className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--d-text-2)] truncate"><i className="shrink-0 inline-block w-2.5 h-2.5 rounded-full" style={{ background: COLOR_ESTADO[req.status] || "#64748b" }} />{queSigue(req.status)}</span>}
                 </div>
               </button>); })}
@@ -582,7 +582,7 @@ export default function RequisicionesStatusPage() {
                     <td className="p-3 text-[var(--d-text-2)] text-sm">{formatDate(req.required_date)}</td>
                     <td className="p-3 text-aria-accent text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>
+                      <span className={`px-2 py-1 rounded-full text-[11px] font-bold ${getStatusColor(req.status)}`}>
                         {req.status}
                       </span>
                     </td>
@@ -668,20 +668,20 @@ export default function RequisicionesStatusPage() {
                 <p className="text-[var(--d-muted)] text-sm">{detailReq.cost_center_name}</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(detailReq.status)}`}>{statusLabel(detailReq.status).toUpperCase()}</span>
-                <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-[var(--d-hover)] text-[var(--d-muted)] hover:text-[var(--d-text)] transition">✕</button>
+                <span className={`px-3 py-1 rounded-full text-[11px] font-bold ${getStatusColor(detailReq.status)}`}>{statusLabel(detailReq.status).toUpperCase()}</span>
+                <button onClick={() => setDetailReq(null)} aria-label="Cerrar" className="w-10 h-10 -mr-1 inline-flex items-center justify-center rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-muted)] hover:text-[var(--d-text)] transition"><svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
               </div>
             </div>
             <div className="p-4 md:p-5 overflow-y-auto flex-1 md:max-h-[calc(85vh-140px)] space-y-3 md:space-y-4">
               <div className="rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-2 py-2"><RequiStepper req={detailReq} /></div>
               <div className="grid grid-cols-2 gap-2 md:gap-4">
-                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Solicitante</p><p className="text-sm text-[var(--d-text)]">{nombresPorEmail[(detailReq.user_email || "").toLowerCase()] || detailReq.created_by}</p></div>
-                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Fecha Requerida</p><p className="text-sm text-[var(--d-text)]">{formatDate(detailReq.required_date)}</p></div>
-                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Fecha Creación</p><p className="text-sm text-[var(--d-text)]">{formatDate(detailReq.created_at)}</p></div>
-                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Total</p><p className="text-[17px] font-bold text-[var(--d-text)]">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[11px] uppercase text-[var(--d-faint)] mb-1">Solicitante</p><p className="text-sm text-[var(--d-text)]">{nombresPorEmail[(detailReq.user_email || "").toLowerCase()] || detailReq.created_by}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[11px] uppercase text-[var(--d-faint)] mb-1">Fecha Requerida</p><p className="text-sm text-[var(--d-text)]">{formatDate(detailReq.required_date)}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[11px] uppercase text-[var(--d-faint)] mb-1">Fecha Creación</p><p className="text-sm text-[var(--d-text)]">{formatDate(detailReq.created_at)}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[11px] uppercase text-[var(--d-faint)] mb-1">Total</p><p className="text-[17px] font-bold text-[var(--d-text)]">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
               </div>
               {detailReq.instructions && (
-                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[10px] uppercase text-[var(--d-faint)] mb-1">Instrucciones</p><p className="text-sm text-[var(--d-text-2)]">{detailReq.instructions}</p></div>
+                <div className="p-3 rounded-xl bg-[var(--d-card)]"><p className="text-[11px] uppercase text-[var(--d-faint)] mb-1">Instrucciones</p><p className="text-sm text-[var(--d-text-2)]">{detailReq.instructions}</p></div>
               )}
               <div>
                 <p className="text-xs font-medium text-[var(--d-muted)] mb-2">MATERIALES</p>
@@ -743,7 +743,7 @@ export default function RequisicionesStatusPage() {
                 <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="w-full md:w-auto justify-center px-4 py-3 md:py-2 rounded-xl md:rounded-lg bg-[#3cde01] text-white sobre-verde text-[15px] md:text-sm font-bold transition flex items-center gap-2"><IcoCamion className="w-5 h-5" color="#fff" fondo="#3cde01" />Registrar entrega</Link>
               )}
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
-                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#c85f08] text-white text-sm font-semibold transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>
+                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#b85507] text-white text-sm font-semibold transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>
               )}
               <button onClick={() => { setDupModal(detailReq); setDetailReq(null); }} disabled={duplicando} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#7e3bdd] text-white text-sm font-semibold transition flex items-center gap-2 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Duplicar</button>
               <button onClick={() => { handlePrintClick(detailReq); }} className="hidden md:flex px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
@@ -868,7 +868,7 @@ export default function RequisicionesStatusPage() {
                 <p className="text-amber-300 text-xs font-bold tracking-wider uppercase">Avisar pago a tesoreria</p>
                 <h3 className="text-[var(--d-text)] text-lg font-bold mt-1">{avisarPago.folio}</h3>
               </div>
-              <button onClick={() => setAvisarPago(null)} className="p-2 rounded hover:bg-[var(--d-hover)] text-[var(--d-muted)]">✕</button>
+              <button onClick={() => setAvisarPago(null)} aria-label="Cerrar" className="w-10 h-10 inline-flex items-center justify-center rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-muted)]"><svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
             </div>
             <div className="bg-[var(--d-input)] border border-[var(--d-border)] rounded-lg p-3 mb-4">
               <pre className="text-[var(--d-ok)] text-xs font-mono whitespace-pre-wrap leading-relaxed">{`REQ ${avisarPago.folio} ${(avisarPago.motivo_solicitud || avisarPago.descripcion_compra || "").toUpperCase()} ${avisarPago.cost_center_name || ""}
@@ -879,11 +879,11 @@ ${avisarPago.clabe_interbancaria || avisarPago.numero_cuenta || ""}`}</pre>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-[10px] text-[var(--d-muted)] uppercase tracking-wide font-semibold">WhatsApp destinatario (10 digitos)</label>
+                <label className="text-[11px] text-[var(--d-muted)] uppercase tracking-wide font-semibold">WhatsApp destinatario (10 digitos)</label>
                 <input type="tel" placeholder="4951234567" value={pagoPhone} onChange={e => setPagoPhone(e.target.value)} className="w-full px-3 py-2 bg-[var(--d-input)] border border-[var(--d-border)] rounded-lg text-[var(--d-text)] text-sm focus:border-amber-400 outline-none mt-1" />
               </div>
               <div>
-                <label className="text-[10px] text-[var(--d-muted)] uppercase tracking-wide font-semibold">Email destinatario (opcional)</label>
+                <label className="text-[11px] text-[var(--d-muted)] uppercase tracking-wide font-semibold">Email destinatario (opcional)</label>
                 <input type="email" placeholder="nandito@gcuavante.com" value={pagoEmail} onChange={e => setPagoEmail(e.target.value)} className="w-full px-3 py-2 bg-[var(--d-input)] border border-[var(--d-border)] rounded-lg text-[var(--d-text)] text-sm focus:border-amber-400 outline-none mt-1" />
               </div>
             </div>

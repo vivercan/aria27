@@ -94,11 +94,11 @@ export default function CampoHome() {
       const a = accionPara(r, me.role, me.email);
       const boton = a === "AUTORIZAR_RESPONSABLE" ? "Autorizar" : a === "COTIZAR" ? "Cotizar" : a === "APROBAR_DIRECCION" ? "Aprobar" : a === "PAGAR" ? "Pagar" : "Ver";
       const autoriza = a === "AUTORIZAR_RESPONSABLE" || a === "APROBAR_DIRECCION";
-      out.push({ obra: r.cost_center_name, key: "r" + r.id, href: autoriza ? "/dashboard/campo/autorizar" : `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, titulo: `${r.folio} · ${r.cost_center_name || ""}`, sub: statusLabel(r.status) + (r.proveedor ? ` · ${r.proveedor}` : ""), boton, color: autoriza ? "#3cde01" : "#c85f08", icon: "req", urg: 2 });
+      out.push({ obra: r.cost_center_name, key: "r" + r.id, href: autoriza ? "/dashboard/campo/autorizar" : `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, titulo: `${r.folio} · ${r.cost_center_name || ""}`, sub: statusLabel(r.status) + (r.proveedor ? ` · ${r.proveedor}` : ""), boton, color: autoriza ? "#3cde01" : "#b85507", icon: "req", urg: 2 });
     }
     for (const a of acts) {
       const d = diasAtraso(a); const h = venceHoy(a); const col = columnaDe(a); const rg = enRiesgo(a, hoyIso);
-      out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `Riesgo: ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? `${d} día${d === 1 ? "" : "s"} tarde` : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#d0304a" : h ? "#c85f08" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#d0304a" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
+      out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `Riesgo: ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? `${d} día${d === 1 ? "" : "s"} tarde` : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#d0304a" : h ? "#b85507" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#d0304a" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
     }
     // Si estás en una obra, lo de esa obra va primero
     const enAqui = (x: Item) => (aqui && normObra(x.obra) === normObra(aqui.nombre) ? 0 : 1);
@@ -177,7 +177,7 @@ export default function CampoHome() {
         {!loading && items.length > 1 && (
           <section className="mt-4">
             <div className="mb-1.5 flex items-center justify-between"><h2 className="text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">Después</h2>
-              {items.length > 3 && <Link href="/dashboard/actividades?vista=mi" className="inline-flex items-center gap-0.5 text-[13px] font-semibold text-[var(--d-link)]">Ver las {items.length} <ChevronRight className="w-4 h-4" /></Link>}</div>
+              {items.length > 3 && <Link href="/dashboard/actividades?vista=mi" className="inline-flex items-center gap-0.5 py-2.5 -my-2.5 pl-3 text-[13px] font-semibold text-[var(--d-link)]">Ver las {items.length} <ChevronRight className="w-4 h-4" /></Link>}</div>
             <ul className="space-y-2">
               {items.slice(1, 3).map((it, ii) => (
               <li key={it.key} className="dom-in" style={{ animationDelay: `${120 + ii * 60}ms` }}>
@@ -199,11 +199,11 @@ export default function CampoHome() {
         <div className="mt-4 grid grid-cols-3 gap-2">
           {(porAutorizar > 0 ? [
             { href: "/dashboard/campo/autorizar", t: `Por autorizar (${porAutorizar})`, icon: IcoSello, c: "#3cde01" },
-            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#d94a14" },
-            { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#c85f08" },
+            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#c9410f" },
+            { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#b85507" },
           ] : [
-            { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#c85f08" },
-            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#d94a14" },
+            { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#b85507" },
+            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#c9410f" },
             { href: "/dashboard/campo/evidencia", t: porEntregar.length ? `Por recibir (${porEntregar.length})` : "Entregas", icon: IcoCamion, c: "#0077ad" },
           ] as { href: string; t: string; icon: Ico; c: string }[]).map(x => (
             <Link key={x.href} href={x.href} className="dom-card rounded-2xl py-3 flex flex-col items-center gap-1.5 active:scale-[0.97] transition">

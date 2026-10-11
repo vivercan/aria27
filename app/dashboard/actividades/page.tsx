@@ -83,13 +83,13 @@ async function comprimir(file: File): Promise<Blob> {
 function Avatar({ nombre, size = 28 }: { nombre?: string | null; size?: number }) {
   return (
     <span title={nombre || ""} className="inline-flex items-center justify-center rounded-full font-bold text-white shrink-0"
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.38), background: colorPersona(nombre) }}>{iniciales(nombre)}</span>
+      style={{ width: size, height: size, fontSize: Math.max(11, Math.round(size * 0.4)), background: colorPersona(nombre) }}>{iniciales(nombre)}</span>
   );
 }
 
 function StatusPill({ col, small }: { col: ColumnaId; small?: boolean }) {
   const c = COLUMNAS.find(x => x.id === col)!;
-  return <span className={`inline-flex items-center rounded-md font-semibold text-white ${small ? "text-[10px] px-1.5 py-0.5" : "text-xs px-2.5 py-1"}`} style={{ background: c.color }}>{c.label}</span>;
+  return <span className={`inline-flex items-center rounded-md font-semibold text-white ${small ? "text-[11px] px-1.5 py-0.5" : "text-xs px-2.5 py-1"}`} style={{ background: c.color }}>{c.label}</span>;
 }
 
 function Fecha({ a }: { a: Actividad }) {
@@ -266,7 +266,7 @@ export default function ActividadesPage() {
             {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Riesgo:</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
             {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Espera:</span><span className="truncate">No empieza hasta: {p.titulo}</span></div> : null; })()}
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#d0304a]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
-            {!compacta && a.obra && <div className="hidden md:inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
+            {!compacta && a.obra && <div className="hidden md:inline-flex items-center gap-1 text-[11px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
             <Barra pct={Number(a.avance) || 0} col={col} />
             <div className="flex items-center gap-2">
               <Avatar nombre={a.asignado_nombre} size={24} />
@@ -334,8 +334,8 @@ export default function ActividadesPage() {
               <div style={{ width: LBL }} className="shrink-0 sticky left-0 z-20 bg-[var(--d-surface)] px-3 py-2 text-[11px] font-semibold text-[var(--d-muted)]">Actividad</div>
               {dias.map((d, i) => { const fin_ = d.getDay() === 0 || d.getDay() === 6; const esHoy = Math.round((d.getTime() - hoyT) / DAY) === 0; return (
                 <div key={i} style={{ width: W }} className={`shrink-0 text-center py-1 border-l border-[var(--d-border)] ${fin_ ? "bg-[var(--d-card)]" : ""}`}>
-                  {(d.getDate() === 1 || i === 0) && <div className="text-[9px] uppercase text-[#579bfc] font-bold leading-none">{d.toLocaleDateString("es-MX", { month: "short" })}</div>}
-                  <div className={`text-[10.5px] leading-tight ${esHoy ? "text-[var(--d-text)] font-bold" : "text-[var(--d-muted)]"}`}>{d.getDate()}</div>
+                  {(d.getDate() === 1 || i === 0) && <div className="text-[11px] uppercase text-[#0073ea] font-bold leading-none">{d.toLocaleDateString("es-MX", { month: "short" })}</div>}
+                  <div className={`text-[11px] leading-tight ${esHoy ? "text-[var(--d-text)] font-bold" : "text-[var(--d-muted)]"}`}>{d.getDate()}</div>
                 </div>); })}
             </div>
             <div className="absolute top-0 bottom-0 w-0.5 bg-[#579bfc] z-[5] pointer-events-none" style={{ left: LBL + x(hoyT) + W / 2 }} />
@@ -355,14 +355,14 @@ export default function ActividadesPage() {
                   return (
                     <div key={a.id} className="flex items-center h-11 border-b border-[var(--d-border)] hover:bg-[var(--d-hover)]">
                       <button onClick={() => setAbierta(a.id)} style={{ width: LBL }} className="shrink-0 sticky left-0 z-[6] bg-[var(--d-surface)] h-full flex items-center gap-2 px-3 text-left border-r border-[var(--d-border)]">
-                        <Avatar nombre={a.asignado_nombre} size={20} /><span className={`text-[12px] truncate ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"}`}>{a.titulo}</span>
+                        <Avatar nombre={a.asignado_nombre} size={24} /><span className={`text-[12px] truncate ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"}`}>{a.titulo}</span>
                       </button>
                       <div className="relative h-full" style={{ width: nDias * W }}>
                         {atr && col !== "TERMINADA" && <div className="absolute top-3 h-5 rounded-r-md" style={{ left: l + w - 2, width: Math.max(0, x(hoyT) - (l + w) + W), background: "repeating-linear-gradient(45deg, rgba(226,68,92,.55) 0 6px, rgba(226,68,92,.25) 6px 12px)" }} />}
                         <button onClick={() => setAbierta(a.id)} title={`${a.titulo} · ${fechaCorta(a.fecha_inicio || a.fecha_compromiso)} → ${fechaCorta(a.fecha_compromiso)}`}
                           className="absolute top-2.5 h-6 rounded-md overflow-hidden text-left shadow" style={{ left: l + 2, width: w - 4, background: c.soft, border: `1px solid ${c.color}`, boxShadow: crit && col !== "TERMINADA" ? "0 0 0 2px #d0304a" : undefined }}>
                           <div className="h-full" style={{ width: `${Number(a.avance) || 0}%`, background: c.color, opacity: 0.85 }} />
-                          <span className="absolute inset-0 flex items-center px-2 text-[10.5px] font-semibold text-[var(--d-text)] truncate">{Number(a.avance) || 0}%</span>
+                          <span className="absolute inset-0 flex items-center px-2 text-[11px] font-semibold text-[var(--d-text)] truncate">{Number(a.avance) || 0}%</span>
                         </button>
                       </div>
                     </div>); })}
@@ -383,7 +383,7 @@ export default function ActividadesPage() {
   useEffect(() => { try { const n = Number(localStorage.getItem("dom:pista-act-n") || 0); if (localStorage.getItem("dom:pista-act") === "1" || n >= 3) setPistaVista(true); else localStorage.setItem("dom:pista-act-n", String(n + 1)); } catch { /* */ } }, []);
   const kpiBtn = (label: string, n: number, color: string, onClick?: () => void) => (
     <button key={label} onClick={onClick} className="flex-1 min-w-[96px] rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2.5 text-left hover:bg-[var(--d-hover)] transition">
-      <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[var(--d-muted)]"><span className="w-2 h-2 rounded-full" style={{ background: color }} />{label}</div>
+      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-[var(--d-muted)]"><span className="w-2 h-2 rounded-full" style={{ background: color }} />{label}</div>
       <div className="text-xl font-bold text-[var(--d-text)] mt-0.5">{n}</div>
     </button>
   );
@@ -418,13 +418,13 @@ export default function ActividadesPage() {
         {/* KPIs */}
         {/* Celular: solo lo que urge, en chips de color sólido (si es 0 no aparece) */}
         <div className="md:hidden mt-3 flex flex-wrap gap-1.5">
-          {([["Atrasadas", kpi.atrasadas, "#d0304a"], ["Atoradas", kpi.atoradas, "#c2410c"], ["Vencen hoy", kpi.hoy, "#c85f08"], ["En proceso", kpi.enProceso, "#0073ea"]] as const).filter(([, n]) => n > 0).map(([l, n, c]) => (
+          {([["Atrasadas", kpi.atrasadas, "#d0304a"], ["Atoradas", kpi.atoradas, "#c2410c"], ["Vencen hoy", kpi.hoy, "#b85507"], ["En proceso", kpi.enProceso, "#0073ea"]] as const).filter(([, n]) => n > 0).map(([l, n, c]) => (
             <button key={l} onClick={() => setVista("mi")} className="rounded-full px-3 py-1.5 text-[12.5px] font-bold text-white" style={{ background: c }}>{n} {l.toLowerCase()}</button>))}
         </div>
         <div className="hidden md:flex mt-4 gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                     {kpiBtn("En proceso", kpi.enProceso, "#fdab3d", () => setVista("tablero"))}
           {kpiBtn("Atoradas", kpi.atoradas, "#d0304a", () => setVista("tablero"))}
-          {kpiBtn("Atrasadas", kpi.atrasadas, "#d94a14", () => setVista("mi"))}
+          {kpiBtn("Atrasadas", kpi.atrasadas, "#c9410f", () => setVista("mi"))}
           {kpiBtn("Vencen hoy", kpi.hoy, "#ffcb00", () => setVista("mi"))}
           {kpiBtn("En riesgo", visibles.filter(x => enRiesgo(x, ymd(new Date()))).length, "#fdab3d", () => setVista("mi"))}
         </div>
@@ -505,7 +505,7 @@ export default function ActividadesPage() {
                 {!cerrado && <div className="divide-y divide-[var(--d-border)]">{list.map(a => (
                   <button key={a.id} onClick={() => setAbierta(a.id)} className="w-full grid grid-cols-[1fr_auto] md:grid-cols-[minmax(0,1fr)_150px_110px_120px_90px] items-center gap-3 px-4 py-2.5 text-left hover:bg-[var(--d-hover)]">
                     <div className="min-w-0"><div className="text-sm text-[var(--d-text)] truncate">{a.titulo}</div><div className="text-[11px] text-[var(--d-muted)] truncate md:hidden">{a.asignado_nombre} · {a.obra || "Sin obra"}</div></div>
-                    <div className="hidden md:flex items-center gap-2 min-w-0"><Avatar nombre={a.asignado_nombre} size={22} /><span className="text-xs text-[var(--d-text-2)] truncate">{a.asignado_nombre}</span></div>
+                    <div className="hidden md:flex items-center gap-2 min-w-0"><Avatar nombre={a.asignado_nombre} size={24} /><span className="text-xs text-[var(--d-text-2)] truncate">{a.asignado_nombre}</span></div>
                     <div className="hidden md:block"><StatusPill col={columnaDe(a)} small /></div>
                     <div className="hidden md:block"><Fecha a={a} /></div>
                     <div className="flex items-center gap-2 justify-end"><div className="w-12 hidden md:block"><Barra pct={Number(a.avance) || 0} col={columnaDe(a)} /></div><span className="text-xs font-semibold text-[var(--d-text-2)]">{Number(a.avance) || 0}%</span></div>
@@ -650,7 +650,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
             <div className="col-span-2 flex items-center gap-2.5 rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><Avatar nombre={a.asignado_nombre} size={34} /><div className="min-w-0"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Responsable</div><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{a.asignado_nombre || "Sin asignar"}</div></div></div>
             <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Entrega</div><div className={`text-[15px] font-semibold ${diasAtraso(a) > 0 ? "text-[var(--d-danger)]" : "text-[var(--d-text)]"}`}>{a.fecha_compromiso ? fechaCorta(a.fecha_compromiso) : "Sin fecha"}{diasAtraso(a) > 0 ? ` · ${diasAtraso(a)} d tarde` : ""}</div></div>
             <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5 min-w-0"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Obra</div><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{a.obra || "Oficina"}</div></div>
-            {(() => { const u = upds.find(x => x.tipo !== "sistema" && x.texto); return u ? <button type="button" onClick={() => setTabF("charla")} className="col-span-2 text-left rounded-2xl border border-[var(--d-border)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Lo último</div><div className="text-[14px] text-[var(--d-text)] line-clamp-2">{u.texto}</div></button> : null; })()}
+            {(() => { const u = upds.find(x => x.tipo !== "sistema" && x.texto); return u ? <button type="button" onClick={() => setTabF("charla")} className="col-span-2 text-left rounded-2xl border border-[var(--d-border)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Lo último</div><div className="text-[14px] text-[var(--d-text)] line-clamp-2">{u.texto}</div></button> : <button type="button" onClick={() => setTabF("charla")} className="col-span-2 flex items-center gap-3 text-left rounded-2xl border border-dashed border-[var(--d-border)] px-3 py-3"><span className="shrink-0 w-9 h-9 rounded-xl bg-[#0073ea] text-white inline-flex items-center justify-center"><svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.6A.5.5 0 0 1 5 19.2V16a2.5 2.5 0 0 1-1-2V5.5Z" /></svg></span><span className="min-w-0"><span className="block text-[14px] font-semibold text-[var(--d-text)]">Nadie ha comentado</span><span className="block text-[12.5px] text-[var(--d-muted)]">Escribe cómo va o sube una foto</span></span></button>; })()}
           </div>
           {/* Estado */}
           <div>
@@ -813,9 +813,9 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace? <span className="normal-case tracking-normal font-normal">· el número es cuántas tiene abiertas</span></div>
             {emps.length > 6 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />}
             <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
-              {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={22} />Yo</button>}
+              {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={24} />Yo</button>}
               {personas.filter(p => p.id !== miEmp).map(p => (
-                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={22} />{p.full_name.split(" ").slice(0, 2).join(" ")}{(carga[p.id] || 0) > 0 && <span title="Actividades abiertas" className={`ml-0.5 rounded-full px-1.5 text-[10px] font-bold ${carga[p.id] >= 15 ? "bg-[#d0304a] text-white" : carga[p.id] >= 8 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"}`}>{carga[p.id]}</span>}</button>))}
+                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={24} />{p.full_name.split(" ").slice(0, 2).join(" ")}{(carga[p.id] || 0) > 0 && <span title="Actividades abiertas" className={`ml-0.5 rounded-full px-1.5 text-[11px] font-bold ${carga[p.id] >= 15 ? "bg-[#d0304a] text-white" : carga[p.id] >= 8 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"}`}>{carga[p.id]}</span>}</button>))}
               {!buscaP && !todas && emps.length > 6 && <button type="button" onClick={() => setTodas(true)} className="inline-flex items-center rounded-full border border-dashed border-[var(--d-border)] px-3 py-1 text-xs font-semibold text-[var(--d-link)]">Ver todas ({emps.length})</button>}
             </div>
           </div>

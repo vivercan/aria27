@@ -75,9 +75,9 @@ export default function AutomatizacionesPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
-        <Link href="/dashboard/domenica" className="inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />ARIA Doménica</Link>
+        <Link href="/dashboard/domenica" className="hidden md:inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />ARIA Doménica</Link>
         <div className="flex items-start gap-3">
-          <span className="shrink-0 w-11 h-11 rounded-2xl bg-[#c85f08] flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></span>
+          <span className="shrink-0 w-11 h-11 rounded-2xl bg-[#b85507] flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></span>
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-[var(--d-text)] tracking-tight">Automatizaciones</h1>
             <p className="text-[13px] text-[var(--d-muted)]">Reglas que vigilan por ti: cuando pasa algo, avisan por WhatsApp y al teléfono, o crean una actividad. Se revisan cada 30 minutos, de 7:00 a 20:00.</p>
@@ -110,7 +110,7 @@ export default function AutomatizacionesPage() {
                       <button disabled={!puede} onClick={() => toggle(r, "activa")} aria-label={r.activa ? "Apagar" : "Encender"} className={`mt-0.5 shrink-0 w-11 h-6 rounded-full relative transition ${r.activa ? "bg-[#3cde01]" : "bg-[var(--d-border)]"} sobre-verde`}><span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${r.activa ? "left-[22px]" : "left-0.5"}`} /></button>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2"><span className="text-[14.5px] font-semibold text-[var(--d-text)]">{r.nombre}</span>
-                          {r.modo_prueba && <span className="inline-flex items-center gap-1 rounded-md bg-[#a25ddc]/20 text-[var(--d-purple)] text-[10.5px] font-semibold px-1.5 py-0.5"><FlaskConical className="w-3 h-3" />Prueba: solo te llega a ti</span>}</div>
+                          {r.modo_prueba && <span className="inline-flex items-center gap-1 rounded-md bg-[#a25ddc]/20 text-[var(--d-purple)] text-[11px] font-semibold px-1.5 py-0.5"><FlaskConical className="w-3 h-3" />Prueba: solo te llega a ti</span>}</div>
                         <div className="text-[12.5px] text-[var(--d-text-2)] mt-0.5">{describir(r)}</div>
                         <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--d-muted)]">
                           <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" />{r.ultima_corrida ? `Revisó ${new Date(r.ultima_corrida).toLocaleString("es-MX", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}` : "Aún no corre"}</span>

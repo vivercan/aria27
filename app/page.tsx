@@ -215,7 +215,7 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col justify-center px-5 py-8 max-w-md w-full mx-auto">
         <div className="text-center">
           <div className="flex justify-center"><DomenicaLogo grande /></div>
-          <p className="mt-2 text-[14px] text-slate-500">Grupo Constructor Urbano Avante · <span className="font-semibold text-slate-600">ARIA27</span></p>
+          <p className="mt-2 text-[14px] text-slate-600">Grupo Constructor Urbano Avante · <span className="font-semibold text-slate-800">ARIA27</span></p>
         </div>
         <form onSubmit={handleLogin} className="mt-8 rounded-3xl bg-white p-5 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] space-y-3">
           <label className="block"><span className="text-[13px] font-semibold text-slate-600">Correo</span>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                 className="w-full h-12 rounded-2xl border border-slate-200 bg-slate-50 pl-4 pr-12 text-[16px] outline-none focus:border-[#0073ea] focus:bg-white" />
               <button type="button" onClick={() => setShowPass(v => !v)} aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-slate-500">{showPass ? <EyeOff size={20} /> : <Eye size={20} />}</button>
             </div></label>
-          <label className="flex items-center gap-2.5 py-1 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[14px] text-slate-700">Mantener sesión iniciada</span></label>
+          <label className="flex items-center gap-2.5 py-2.5 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[14px] text-slate-700">Mantener sesión iniciada</span></label>
           {error && <div className="rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
           <button type="submit" disabled={loading} className="w-full h-13 py-3.5 rounded-2xl bg-[#0073ea] text-white text-[17px] font-bold disabled:opacity-70">{loading ? 'Entrando…' : 'Entrar'}</button>
         </form>
@@ -235,7 +235,7 @@ export default function LoginPage() {
           <span className="w-11 h-11 rounded-xl bg-[#0060c7] flex items-center justify-center"><ScanFace size={24} color="#fff" strokeWidth={2.2} /></span>
           <span className="flex-1"><span className="block text-[15px] font-bold text-slate-900">ARIA27 FaceID</span><span className="block text-[12.5px] text-slate-500">Checar asistencia con tu cara</span></span>
         </a>
-        <p className="mt-6 text-center text-[11.5px] text-slate-400">Usa tu contraseña de Zoho Mail · Acceso exclusivo GCUAVANTE</p>
+        <p className="mt-6 text-center text-[12px] text-slate-600">Usa tu contraseña de Zoho Mail · Acceso exclusivo GCUAVANTE</p>
       </div>
     </div>
   )

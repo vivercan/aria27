@@ -1327,10 +1327,10 @@ body.dom-ruta:not(.dom-oscuro) {
 .dom-page select, .dom-page input:not([type=checkbox]):not([type=radio]):not([type=range]), .dom-page textarea { background-color: var(--d-field); color: var(--d-text); border-color: var(--d-border); }
 .dom-card { background: var(--d-card); border: 1px solid var(--d-border); box-shadow: var(--d-shadow); }
 /* Encabezado Doménica: relieve suave + línea de marca (no plano) */
-body.dom-ruta main > header.sticky { background: linear-gradient(180deg, #ffffff 0%, #f6f8fc 100%) !important; border-bottom: 0 !important; box-shadow: 0 1px 0 rgba(15,23,42,.05), 0 12px 28px -16px rgba(15,23,42,.45); }
-body.dom-ruta main > header.sticky::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, #0073ea 0%, #7e3bdd 45%, #e2445c 78%, #fdab3d 100%); }
+body.dom-ruta main > header.sticky { background: #ffffff !important; border-bottom: 1px solid rgba(15,23,42,.08) !important; box-shadow: none; }
+body.dom-ruta main > header.sticky::after { content: none; }
 body.dom-ruta:not(.dom-oscuro) main > header.sticky button, body.dom-ruta:not(.dom-oscuro) main > header.sticky svg { color: #334155 !important; }
-body.dom-ruta.dom-oscuro main > header.sticky { background: linear-gradient(180deg, #13284a 0%, #0b1830 100%) !important; box-shadow: 0 1px 0 rgba(255,255,255,.04), 0 14px 30px -14px rgba(0,0,0,.8); }
+body.dom-ruta.dom-oscuro main > header.sticky { background: #0f1f3a !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; box-shadow: none; }
 /* Pantallas ARIA que usa el celular (Solicitudes, Pedir material, Entrega) en claro */
 body.dom-ruta:not(.dom-oscuro) {
   --aria-bg: #f6f7fa; --aria-card: #ffffff; --aria-card-border: rgba(15,23,42,.09); --aria-text: #0f172a; --aria-muted: #5b6b82; --aria-muted-2: #94a3b8; --aria-text-secondary: #334155;
@@ -1389,9 +1389,11 @@ body.dom-ruta button[style*="background"]::after, body.dom-ruta button [style*="
 body.dom-ruta .aria-sheet [style*="background"]::after { content: none !important; }
 
 /* Barra de avance propia (Chrome pinta oscura la parte vacía con acentos claros) */
-.rango { -webkit-appearance: none; appearance: none; height: 10px; border-radius: 999px; background: linear-gradient(to right, #3cde01 var(--p, 0%), var(--d-card-2) var(--p, 0%)); outline: none; }
-.rango::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; box-shadow: 0 1px 4px rgba(15,23,42,.25); }
-.rango::-moz-range-thumb { width: 22px; height: 22px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; }
+.rango { -webkit-appearance: none; appearance: none; height: 34px; background: transparent; outline: none; cursor: pointer; }
+.rango::-webkit-slider-runnable-track { height: 10px; border-radius: 999px; background: linear-gradient(to right, #3cde01 var(--p, 0%), var(--d-card-2) var(--p, 0%)); }
+.rango::-moz-range-track { height: 10px; border-radius: 999px; background: linear-gradient(to right, #3cde01 var(--p, 0%), var(--d-card-2) var(--p, 0%)); }
+.rango::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -9px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; box-shadow: 0 1px 4px rgba(15,23,42,.25); }
+.rango::-moz-range-thumb { width: 24px; height: 24px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; }
 
 /* 11-Oct-2026: con una hoja abierta en el celular, la barra de abajo se esconde (el + ya no "muerde" la hoja) */
 @media (max-width: 767px) { body:has(.aria-sheet) nav[aria-label="Navegación"] { display: none; } }
@@ -1403,3 +1405,4 @@ body.dom-ruta .aria-sheet [style*="background"]::after { content: none !importan
   @keyframes dom-pop { 0% { transform: scale(.6); opacity: .4 } 60% { transform: scale(1.18); opacity: 1 } 100% { transform: scale(1) } }
   body.dom-ruta .dom-pop { animation: dom-pop .32s cubic-bezier(.2,.9,.3,1.3); }
 }
+body.dom-ruta .aria-raiz { background: var(--d-bg) !important; }

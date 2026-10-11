@@ -596,7 +596,7 @@ export default function NewRequisitionPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {([
               { k: "MATERIALES", icon: IcoSaco, c: "#0073ea", t: "Materiales o servicios", d: "Compra con cotización. Crédito o contado." },
-              { k: "DESTAJO", icon: IcoCasco, c: "#d94a14", t: "Destajo", d: "Anticipo, pago semanal o finiquito a destajista." },
+              { k: "DESTAJO", icon: IcoCasco, c: "#c9410f", t: "Destajo", d: "Anticipo, pago semanal o finiquito a destajista." },
               { k: "ACTIVIDAD", icon: IcoTarea, c: "#7e3bdd", t: "Actividad", d: "Una tarea para alguien. No genera gasto." },
             ] as const).map(({ k, icon: Icon, c, t, d }) => {
               const active = tipoSolicitud === k;
@@ -807,10 +807,10 @@ export default function NewRequisitionPage() {
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-[var(--d-text-2)]">Foto del ticket / comprobante</label>
                   <input type="file" accept="image/*,application/pdf" className="w-full text-xs text-[var(--d-text-2)] file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-aria-primary-light file:text-aria-accent file:cursor-pointer" onChange={e => setFotoTicket(e.target.files?.[0] || null)} />
-                  {fotoTicket && <div className="text-[10px] text-emerald-300 mt-1">{fotoTicket.name} ({(fotoTicket.size/1024).toFixed(0)}KB)</div>}
+                  {fotoTicket && <div className="text-[11px] text-emerald-300 mt-1">{fotoTicket.name} ({(fotoTicket.size/1024).toFixed(0)}KB)</div>}
                 </div>
               </div>
-              <div className="text-[10px] text-amber-200/70">Esta requisicion se enviara al area de PAGOS POR PAGAR (no a Compras para cotizar).</div>
+              <div className="text-[11px] text-amber-200/70">Esta requisicion se enviara al area de PAGOS POR PAGAR (no a Compras para cotizar).</div>
             </div>
           )}
 
@@ -900,7 +900,7 @@ export default function NewRequisitionPage() {
                   return (
                     <div key={p.id} onClick={() => isSel ? setMaterials(prev=>prev.filter(m=>m.id!==p.id)) : addMaterial(p)}
                       className={`grid grid-cols-[70px_1fr_80px] gap-2 items-center px-3 py-2.5 text-xs cursor-pointer transition-all ${isSel ? "bg-emerald-500/20 border-l-2 border-emerald-400" : "hover:bg-white/[0.04] border-l-2 border-transparent"}`}>
-                      <div className="hidden md:block text-aria-accent/80 text-[10px] truncate">{shortCat(p.category)}</div>
+                      <div className="hidden md:block text-aria-accent/80 text-[11px] truncate">{shortCat(p.category)}</div>
                       <div className={`col-span-3 md:col-span-1 ${isSel ? "text-aria-accent font-medium" : ""}`}><span className="block md:truncate text-[13px] md:text-xs">{isSel ? "✓ " : ""}{p.name}</span><span className="md:hidden text-[11px] text-[var(--d-muted)]">{shortCat(p.category)} · {p.unit}</span></div>
                       <div className="hidden md:block text-[var(--d-muted)] truncate text-right">{p.unit}</div>
                     </div>
@@ -917,11 +917,11 @@ export default function NewRequisitionPage() {
                   <p className="text-xs text-aria-accent font-medium">Nuevo producto — se guardará en el catálogo</p>
                   <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
                     <div className="space-y-1">
-                      <label className="text-[10px] text-[var(--d-muted)]">Nombre del producto</label>
+                      <label className="text-[11px] text-[var(--d-muted)]">Nombre del producto</label>
                       <input className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-1.5 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Tornillo galvanizado 3/8..." value={manualName} onChange={e => setManualName(e.target.value)} />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] text-[var(--d-muted)]">Unidad</label>
+                      <label className="text-[11px] text-[var(--d-muted)]">Unidad</label>
                       <select className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-1.5 text-sm outline-none focus:border-aria-accent" value={manualUnit} onChange={e => setManualUnit(e.target.value)}>
                         {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                       </select>
@@ -1046,15 +1046,15 @@ export default function NewRequisitionPage() {
             return (
               <div className={`${subtotal > 0 ? "flex" : "hidden md:flex"} items-center gap-4 text-xs`}>
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] uppercase text-[var(--d-muted)]">Subtotal</span>
+                  <span className="text-[11px] uppercase text-[var(--d-muted)]">Subtotal</span>
                   <span className="text-[var(--d-text)] font-medium">${fmt(subtotal)}</span>
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] uppercase text-[var(--d-muted)]">IVA {ivaPorcentaje}%</span>
+                  <span className="text-[11px] uppercase text-[var(--d-muted)]">IVA {ivaPorcentaje}%</span>
                   <span className="text-[var(--d-text)] font-medium">${fmt(ivaMonto)}</span>
                 </div>
                 <div className="flex flex-col items-end rounded-lg bg-aria-accent/15 border border-aria-accent/40 px-3 py-1">
-                  <span className="text-[10px] uppercase text-aria-accent">Total</span>
+                  <span className="text-[11px] uppercase text-aria-accent">Total</span>
                   <span className="text-aria-accent font-bold text-base">${fmt(totalConIva)}</span>
                 </div>
               </div>
@@ -1184,7 +1184,7 @@ export default function NewRequisitionPage() {
                   placeholder="012914001234567890"
                   className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm font-mono outline-none focus:border-aria-accent"
                 />
-                <p className="mt-1 text-[10px] text-[var(--d-faint)]">{clabeForm.bank_clabe.length}/18</p>
+                <p className="mt-1 text-[11px] text-[var(--d-faint)]">{clabeForm.bank_clabe.length}/18</p>
               </div>
               <div>
                 <label className="text-xs font-medium text-[var(--d-text-2)]">Número de cuenta (opcional)</label>

@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
 
 type Fila = { id: string; nombre: string; abiertas: number; atrasadas: number; semana: number; atoradas: number; obras: Set<string> };
-const nivel = (n: number, atr = 0) => n >= 15 || atr >= 5 ? { t: n >= 15 ? "Saturado" : "Muy atrasado", c: "#c2182b" } : n >= 8 || atr >= 2 ? { t: n >= 8 ? "Cargado" : "Con atrasos", c: "#b45309" } : n === 0 ? { t: "Libre", c: "#64748b" } : { t: "Bien", c: "#2fb800" };
+const nivel = (n: number, atr = 0) => n >= 15 || atr >= 5 ? { t: n >= 15 ? "Saturado" : "Muy atrasado", c: "#c2182b" } : n >= 8 || atr >= 2 ? { t: n >= 8 ? "Cargado" : "Con atrasos", c: "#b45309" } : n === 0 ? { t: "Libre", c: "#64748b" } : { t: "Bien", c: "#3cde01" };
 
 export default function CargaPage() {
   const [acts, setActs] = useState<Actividad[] | null>(null);
@@ -63,7 +63,7 @@ export default function CargaPage() {
                 <Link key={f.id} href={`/dashboard/actividades?vista=lista&persona=${f.id}`} className="dom-card dom-in rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition" style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}>
                   <span className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: colorPersona(f.nombre) }}>{iniciales(f.nombre)}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2"><span className="text-[14.5px] font-semibold text-[var(--d-text)] truncate">{f.nombre}</span><span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold text-white" style={{ background: nv.c }}>{nv.t}</span></div>
+                    <div className="flex items-center gap-2"><span className="text-[14.5px] font-semibold text-[var(--d-text)] truncate">{f.nombre}</span><span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold text-white ${nv.c === "#3cde01" ? "sobre-verde" : ""}`} style={{ background: nv.c }}>{nv.t}</span></div>
                     <div className="mt-1.5 h-2.5 rounded-full bg-[var(--d-card-2)] overflow-hidden flex">
                       <div style={{ width: `${(f.atrasadas / max) * 100}%`, background: "#d0304a" }} />
                       <div style={{ width: `${(f.semana / max) * 100}%`, background: "#fdab3d" }} />

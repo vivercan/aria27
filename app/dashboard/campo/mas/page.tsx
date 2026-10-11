@@ -17,14 +17,14 @@ const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[]
   { titulo: "Mi día", items: [
     { href: "/dashboard/campo/autorizar", t: "Por autorizar", d: "Autoriza o rechaza en un toque", icon: IcoSello, color: "#3cde01", roles: ["admin", "direccion", "validador", "residente"] },
     { href: "/dashboard/campo/pregunta", t: "Pregúntale a Doménica", d: "“¿Qué está atrasado en Tanque?”", icon: IcoPregunta, color: "#7e3bdd" },
-    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: IcoCalendario, color: "#c85f08" },
+    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: IcoCalendario, color: "#b85507" },
     { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: IcoCamion, color: "#0077ad" },
   ] },
-  { titulo: "Obras", icon: IcoCasco, color: "#d94a14", items: [
-    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: IcoObra, color: "#d94a14" },
+  { titulo: "Obras", icon: IcoCasco, color: "#c9410f", items: [
+    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: IcoObra, color: "#c9410f" },
     { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Calidad y seguridad con foto y firma", icon: IcoRevision, color: "#3cde01" },
     { href: "/dashboard/domenica/planos", t: "Planos", d: "Marca pendientes encima del plano", icon: IcoPlano, color: "#0073ea" },
-    { href: "/dashboard/obras/catalogo", t: "Dar de alta una obra", d: "Con su ubicación GPS", icon: IcoCasco, color: "#c2461a" },
+    { href: "/dashboard/obras/catalogo", t: "Catálogo de obras", d: "Ver, ubicar y dar de alta", icon: IcoCasco, color: "#c2461a" },
   ] },
   { titulo: "Compras", icon: IcoBodega, color: "#0077ad", items: [
     { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Directorio y datos bancarios", icon: IcoBodega, color: "#0077ad", roles: ["admin", "compras", "direccion", "rh", "validador"] },
@@ -39,7 +39,7 @@ const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[]
     { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
     { href: "/dashboard/domenica/recurrentes", t: "Recurrentes", d: "Lo que se repite se crea solo", icon: Repeat as unknown as Ico, color: "#0073ea" },
     { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3 as unknown as Ico, color: "#3cde01", roles: ["admin", "rh", "direccion", "validador", "compras"] },
-    { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#c85f08", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+    { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#b85507", roles: ["admin", "rh", "direccion", "validador", "compras"] },
   ] },
 ];
 

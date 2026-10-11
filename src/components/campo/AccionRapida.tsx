@@ -127,7 +127,7 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
               <span><span className="block text-[17px] font-bold">Habla con Doménica</span><span className="block text-[12.5px] text-white/90">Pide, asigna o pregunta. Ella lo arma.</span></span>
             </button>
             <button onClick={() => ir("/dashboard/requisiciones/requisiciones/nuevo")} className={tile} style={{ background: "#0073ea" }}><IcoSaco className="w-8 h-8" color="#fff" fondo="#0073ea" /><span className="text-[15px] font-bold leading-tight">Pedir material</span></button>
-            <button onClick={() => ir("/dashboard/actividades?nueva=1")} className={tile} style={{ background: "#c85f08" }}><IcoTarea className="w-8 h-8" color="#fff" fondo="#c85f08" /><span className="text-[15px] font-bold leading-tight">Nueva actividad</span></button>
+            <button onClick={() => ir("/dashboard/actividades?nueva=1")} className={tile} style={{ background: "#b85507" }}><IcoTarea className="w-8 h-8" color="#fff" fondo="#b85507" /><span className="text-[15px] font-bold leading-tight">Nueva actividad</span></button>
             <button onClick={() => ir("/dashboard/campo/evidencia")} className={`${tile} col-span-2 min-h-[72px] flex-row items-center gap-3`} style={{ background: "#3cde01" }}><IcoCamion className="w-8 h-8" color="#fff" fondo="#3cde01" /><span className="text-[15px] font-bold sobre-verde">Registrar una entrega</span></button>
           </div>)}
 

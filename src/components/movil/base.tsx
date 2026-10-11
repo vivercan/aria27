@@ -7,7 +7,7 @@ import { Ficha, type Ico } from "@/components/domenica/IconosObra";
 export function Encabezado({ ico, color, titulo, sub, accion, atras = "/dashboard/campo/mas" }: { ico: Ico; color: string; titulo: string; sub?: string; accion?: React.ReactNode; atras?: string }) {
   return (
     <div className="flex items-center gap-3">
-      <Link href={atras} aria-label="Regresar" className="shrink-0 -ml-1 p-1.5 rounded-xl text-[var(--d-text-2)]"><ArrowLeft className="w-5 h-5" /></Link>
+      <Link href={atras} aria-label="Regresar" className="shrink-0 -ml-2 w-10 h-10 inline-flex items-center justify-center rounded-xl text-[var(--d-text-2)]"><ArrowLeft className="w-5 h-5" /></Link>
       <Ficha ico={ico} color={color} size="md" />
       <div className="flex-1 min-w-0"><h1 className="text-[21px] font-bold leading-tight text-[var(--d-text)] truncate">{titulo}</h1>{sub && <p className="text-[12.5px] text-[var(--d-muted)] truncate">{sub}</p>}</div>
       {accion}
@@ -19,7 +19,7 @@ export function Buscador({ valor, cambiar, texto }: { valor: string; cambiar: (v
   return (
     <label className="mt-4 flex items-center gap-2 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] px-3.5 h-12">
       <Search className="w-5 h-5 text-[var(--d-faint)]" />
-      <input value={valor} onChange={e => cambiar(e.target.value)} placeholder={texto} className="flex-1 min-w-0 bg-transparent text-[16px] text-[var(--d-text)] outline-none placeholder:text-[var(--d-faint)]" />
+      <input value={valor} onChange={e => cambiar(e.target.value)} placeholder={texto} className="flex-1 min-w-0 h-full bg-transparent text-[16px] text-[var(--d-text)] outline-none placeholder:text-[var(--d-faint)]" />
     </label>
   );
 }
@@ -49,7 +49,7 @@ export const iniciales = (s?: string | null) => String(s || "?").trim().split(/\
 /** Enlace a la vista completa (computadora) para lo que solo existe ahí */
 export function ModoCompleto({ texto = "Ver todo en modo completo" }: { texto?: string }) {
   const url = typeof window === "undefined" ? "" : `${window.location.pathname}?web=1`;
-  return <p className="mt-6 text-center"><a href={url} className="text-[13px] font-semibold text-[var(--d-link)]">{texto}</a></p>;
+  return <p className="mt-6 text-center"><a href={url} className="inline-block px-3 py-3 text-[13px] font-semibold text-[var(--d-link)]">{texto}</a></p>;
 }
 
 export const Pagina = ({ children }: { children: React.ReactNode }) => <div className="dom-page h-full overflow-y-auto"><div className="px-4 pt-4 pb-28 max-w-2xl mx-auto">{children}</div></div>;

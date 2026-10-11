@@ -429,7 +429,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className="min-h-screen relative"
+      className="min-h-screen relative aria-raiz"
       style={{ background: isDark ? "linear-gradient(155deg,#06152F 0%,#081E46 55%,#0A2450 100%)" : colors.bgGradient }}
     >
       <SeasonEffects />

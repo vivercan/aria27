@@ -33,7 +33,7 @@ export default function ChecadasMovil() {
       <Encabezado ico={IcoChecada} color="#c62f5e" titulo="Checadas" sub="Entradas y salidas del personal" />
       <Pestanas valor={rango} cambiar={setRango} opciones={[{ v: "hoy", l: "Hoy" }, { v: "ayer", l: "Ayer" }, { v: "semana", l: "7 días" }]} />
       <div className="mt-3 grid grid-cols-4 gap-1.5">
-        {[["Llegaron", k.llegaron, "#0073ea"], ["En la obra", k.sitio, "#1f8f00"], ["Retardos", k.retardos, "#c85f08"], ["Sin salida", k.sinSalida, "#d0304a"]].map(([l, n, c]) => (
+        {[["Llegaron", k.llegaron, "#0073ea"], ["En la obra", k.sitio, "#1f8f00"], ["Retardos", k.retardos, "#b85507"], ["Sin salida", k.sinSalida, "#d0304a"]].map(([l, n, c]) => (
           <div key={String(l)} className="dom-card rounded-2xl px-2 py-2.5 text-center"><div className="text-[22px] font-bold leading-none" style={{ color: Number(n) ? String(c) : "var(--d-faint)" }}>{lista ? n : "–"}</div><div className="mt-1 text-[11px] leading-tight text-[var(--d-muted)]">{l}</div></div>))}
       </div>
       <div className="mt-4 space-y-4">
@@ -50,9 +50,9 @@ export default function ChecadasMovil() {
                       <div className="text-[12.5px] text-[var(--d-muted)] truncate">{a.falta ? "Falta" : `${hora(a.hora_entrada)} → ${hora(a.hora_salida)}`}{a.centro_nombre ? ` · ${a.centro_nombre}` : ""}</div>
                     </div>
                     <div className="shrink-0 flex flex-col items-end gap-1">
-                      {a.retardo && <span className="rounded-md bg-[#c85f08] px-1.5 py-0.5 text-[10.5px] font-bold text-white">{a.minutos_retardo ? `${a.minutos_retardo} min tarde` : "Retardo"}</span>}
-                      {a.hora_entrada && a.dentro_geocerca_entrada === false && <span className="rounded-md bg-[#d0304a] px-1.5 py-0.5 text-[10.5px] font-bold text-white">Fuera de obra</span>}
-                      {a.hora_entrada && a.dentro_geocerca_entrada && !a.retardo && <span className="rounded-md bg-[#3cde01] px-1.5 py-0.5 text-[10.5px] font-bold text-white sobre-verde">A tiempo</span>}
+                      {a.retardo && <span className="rounded-md bg-[#b85507] px-1.5 py-0.5 text-[11px] font-bold text-white">{a.minutos_retardo ? `${a.minutos_retardo} min tarde` : "Retardo"}</span>}
+                      {a.hora_entrada && a.dentro_geocerca_entrada === false && <span className="rounded-md bg-[#d0304a] px-1.5 py-0.5 text-[11px] font-bold text-white">Fuera de obra</span>}
+                      {a.hora_entrada && a.dentro_geocerca_entrada && !a.retardo && <span className="rounded-md bg-[#3cde01] px-1.5 py-0.5 text-[11px] font-bold text-white sobre-verde">A tiempo</span>}
                     </div>
                   </div>); })}
               </div>

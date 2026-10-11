@@ -1,4 +1,6 @@
 "use client";
+import ObrasCatalogoMovil from "@/components/movil/ObrasCatalogoMovil";
+import { useEsTel } from "@/lib/es-tel";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -60,7 +62,7 @@ function parseCoords(text: string): { lat: string; lng: string } | null {
   return { lat: String(lat), lng: String(lng) };
 }
 
-export default function CatalogoObrasPage() {
+function CatalogoObrasPageWeb() {
   const router = useRouter();
   const [obras, setObras] = useState<Obra[]>([]);
   // ARIA27 Campo F2: responsable que autoriza primero las requis de la obra
@@ -482,3 +484,5 @@ export default function CatalogoObrasPage() {
     </div>
   );
 }
+
+export default function CatalogoObrasPage() { const tel = useEsTel(); return tel ? <ObrasCatalogoMovil /> : <div className="contents vista-web"><CatalogoObrasPageWeb /></div>; }

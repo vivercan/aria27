@@ -14,46 +14,10 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
     .single();
 
   // === Estado: token invalido ===
-  if (!req) {
-    return (
-      <html lang="es">
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
-        </head>
-        <body style={{ margin: 0 }}>
-          <div style={{ fontFamily: "Outfit, sans-serif", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", padding: 24, background: "linear-gradient(135deg,#040810 0%,#091525 100%)" }}>
-            <div style={{ textAlign: "center", background: "linear-gradient(135deg,#0F1A2E 0%,#091525 100%)", border: "1px solid rgba(220,38,38,0.30)", padding: "48px 36px", borderRadius: 18, maxWidth: 460, color: "#F4F8FF" }}>
-              <div style={{ width: 64, height: 64, borderRadius: 999, background: "linear-gradient(135deg,#DC2626 0%,#A21D1D 100%)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", color: "#F4F8FF", fontSize: 30, fontWeight: 800 }}>!</div>
-              <h1 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 8px", letterSpacing: "-0.02em" }}>Enlace invalido</h1>
-              <p style={{ color: "rgba(214,228,255,0.65)", fontSize: 13, margin: 0 }}>Este enlace ya fue procesado o ha expirado.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    );
-  }
+  if (!req) return <Aviso tono="#d0304a" signo="!" titulo="Este enlace ya no sirve" texto="Ya se autorizó o expiró. Si necesitas algo, abre Doménica 27 desde tu celular." />;
 
   // === Estado: ya procesada ===
-  if (req.status !== "EN_AUTORIZACION") {
-    return (
-      <html lang="es">
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
-        </head>
-        <body style={{ margin: 0 }}>
-          <div style={{ fontFamily: "Outfit, sans-serif", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", padding: 24, background: "linear-gradient(135deg,#040810 0%,#091525 100%)" }}>
-            <div style={{ textAlign: "center", background: "linear-gradient(135deg,#0F1A2E 0%,#091525 100%)", border: "1px solid rgba(245,158,11,0.30)", padding: "48px 36px", borderRadius: 18, maxWidth: 460, color: "#F4F8FF" }}>
-              <div style={{ width: 64, height: 64, borderRadius: 999, background: "linear-gradient(135deg,#F59E0B 0%,#D97706 100%)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", color: "#1A1206", fontSize: 28, fontWeight: 800 }}>i</div>
-              <h1 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 8px", letterSpacing: "-0.02em" }}>Requisicion procesada</h1>
-              <p style={{ color: "rgba(214,228,255,0.65)", fontSize: 13, margin: 0 }}>{req.folio} - estado: <span style={{ color: "#F4F8FF", fontWeight: 600 }}>{req.status}</span></p>
-            </div>
-          </div>
-        </body>
-      </html>
-    );
-  }
+  if (req.status !== "EN_AUTORIZACION") return <Aviso tono="#0073ea" signo="i" titulo="Esta solicitud ya se atendió" texto={`${req.folio || ""} · ${String(req.status || "").replace(/_/g, " ").toLowerCase()}`} />;
 
   // 11-Oct-2026: sin comparativa de Compras → autorización directa (antes mostraba $0.00 y no dejaba aprobar)
   if (!tieneComparativa((req as Record<string, unknown>).cotizacion_data)) {
@@ -111,39 +75,35 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
   const solicitante = req.created_by || "N/A";
 
   return (
-    <html lang="es">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      </head>
-      <body style={{ margin: 0 }}>
-        <div style={{ fontFamily: "Outfit, sans-serif", minHeight: "100vh", background: "linear-gradient(180deg,#040810 0%,#0A1830 60%,#040810 100%)", color: "#F4F8FF", padding: "28px 16px 48px" }}>
+    <>
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <div style={{ fontFamily: "var(--font-dom), ui-sans-serif, system-ui, sans-serif", minHeight: "100vh", background: "#f6f7fa", color: "#0f172a", padding: "28px 16px 48px" }}>
           <div style={{ maxWidth: 720, margin: "0 auto" }}>
-            <div style={{ background: "linear-gradient(135deg,#123E92 0%,#0F2D6E 100%)", padding: "26px 24px", borderRadius: "18px 18px 0 0", textAlign: "center" }}>
-              <span style={{ color: "rgba(214,228,255,0.65)", fontSize: 11, fontWeight: 600, letterSpacing: "0.18em" }}>ARIA27 - GRUPO AVANTE</span>
-              <h1 style={{ fontSize: 26, fontWeight: 800, margin: "8px 0 0", color: "#F4F8FF", letterSpacing: "-0.02em" }}>Autorizacion de compra</h1>
-              <div style={{ color: "rgba(214,228,255,0.70)", fontSize: 13, marginTop: 6 }}>
+            <div style={{ background: "#0060c7", padding: "26px 24px", borderRadius: "18px 18px 0 0", textAlign: "center" }}>
+              <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 11, fontWeight: 600, letterSpacing: "0.18em" }}>ARIA27 - GRUPO AVANTE</span>
+              <h1 style={{ fontSize: 26, fontWeight: 800, margin: "8px 0 0", color: "#ffffff", letterSpacing: "-0.02em" }}>Autorizacion de compra</h1>
+              <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, marginTop: 6 }}>
                 {req.folio} - {req.cost_center_name}
               </div>
             </div>
 
-            <div style={{ background: "linear-gradient(135deg,#0F1A2E 0%,#091525 100%)", borderRadius: "0 0 18px 18px", padding: 22, marginBottom: 16, border: "1px solid rgba(124,148,180,0.18)", borderTop: "1px solid rgba(124,148,180,0.10)" }}>
+            <div style={{ background: "#ffffff", borderRadius: "0 0 18px 18px", padding: 22, marginBottom: 16, border: "1px solid rgba(15,23,42,0.08)", borderTop: "1px solid rgba(15,23,42,0.06)" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 14, marginBottom: 0 }}>
                 <div>
-                  <p style={{ color: "rgba(214,228,255,0.50)", fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", margin: "0 0 4px", textTransform: "uppercase" }}>Folio</p>
-                  <p style={{ color: "#F4F8FF", fontWeight: 700, fontSize: 17, margin: 0 }}>{req.folio}</p>
+                  <p style={{ color: "#55657c", fontSize: 11, fontWeight: 700, letterSpacing: "0.10em", margin: "0 0 4px", textTransform: "uppercase" }}>Folio</p>
+                  <p style={{ color: "#0f172a", fontWeight: 700, fontSize: 17, margin: 0 }}>{req.folio}</p>
                 </div>
                 <div>
-                  <p style={{ color: "rgba(214,228,255,0.50)", fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", margin: "0 0 4px", textTransform: "uppercase" }}>Obra</p>
-                  <p style={{ color: "#F4F8FF", fontWeight: 600, fontSize: 14, margin: 0 }}>{req.cost_center_name}</p>
+                  <p style={{ color: "#55657c", fontSize: 11, fontWeight: 700, letterSpacing: "0.10em", margin: "0 0 4px", textTransform: "uppercase" }}>Obra</p>
+                  <p style={{ color: "#0f172a", fontWeight: 600, fontSize: 14, margin: 0 }}>{req.cost_center_name}</p>
                 </div>
                 <div>
-                  <p style={{ color: "rgba(214,228,255,0.50)", fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", margin: "0 0 4px", textTransform: "uppercase" }}>Solicitante</p>
-                  <p style={{ color: "#F4F8FF", fontSize: 13, fontWeight: 500, margin: 0 }}>{solicitante}</p>
+                  <p style={{ color: "#55657c", fontSize: 11, fontWeight: 700, letterSpacing: "0.10em", margin: "0 0 4px", textTransform: "uppercase" }}>Solicitante</p>
+                  <p style={{ color: "#0f172a", fontSize: 13, fontWeight: 500, margin: 0 }}>{solicitante}</p>
                 </div>
                 {req.urgency && req.urgency !== "normal" && (
                   <div style={{ display: "flex", alignItems: "flex-end" }}>
-                    <span style={{ background: req.urgency === "critico" ? "linear-gradient(135deg,#DC2626 0%,#A21D1D 100%)" : "linear-gradient(135deg,#F59E0B 0%,#D97706 100%)", color: req.urgency === "critico" ? "#F4F8FF" : "#1A1206", padding: "5px 12px", borderRadius: 999, fontSize: 10, fontWeight: 700, letterSpacing: "0.06em" }}>{String(req.urgency).toUpperCase()}</span>
+                    <span style={{ background: req.urgency === "critico" ? "#d0304a" : "#b85507", color: "#ffffff", padding: "5px 12px", borderRadius: 999, fontSize: 11, fontWeight: 700, letterSpacing: "0.06em" }}>{String(req.urgency).toUpperCase()}</span>
                   </div>
                 )}
               </div>
@@ -176,11 +136,23 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
             />
 
             <div style={{ textAlign: "center", marginTop: 28 }}>
-              <span style={{ color: "rgba(124,148,180,0.40)", fontSize: 10, letterSpacing: "0.12em" }}>ARIA27 - GRUPO CONSTRUCTOR URBANO AVANTE</span>
+              <span style={{ color: "#8a97ab", fontSize: 11, letterSpacing: "0.12em" }}>ARIA27 - GRUPO CONSTRUCTOR URBANO AVANTE</span>
             </div>
           </div>
         </div>
-      </body>
-    </html>
+    </>
+  );
+}
+
+/** Aviso claro (Doménica 27) para enlaces viejos o ya atendidos · 11-Oct-2026 */
+function Aviso({ tono, signo, titulo, texto }: { tono: string; signo: string; titulo: string; texto: string }) {
+  return (
+    <div style={{ fontFamily: "var(--font-dom), ui-sans-serif, system-ui, sans-serif", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100dvh", padding: 24, background: "#f6f7fa" }}>
+      <div style={{ textAlign: "center", background: "#ffffff", border: "1px solid rgba(15,23,42,.08)", padding: "40px 28px", borderRadius: 24, maxWidth: 420, width: "100%", color: "#0f172a", boxShadow: "0 1px 2px rgba(15,23,42,.06)" }}>
+        <div style={{ width: 64, height: 64, borderRadius: 20, background: tono, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", color: "#fff", fontSize: 30, fontWeight: 800 }}>{signo}</div>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 8px", letterSpacing: "-0.02em" }}>{titulo}</h1>
+        <p style={{ color: "#55657c", fontSize: 15, margin: 0, lineHeight: 1.45 }}>{texto}</p>
+      </div>
+    </div>
   );
 }
