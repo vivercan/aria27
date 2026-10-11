@@ -518,8 +518,8 @@ export default function RequisicionesStatusPage() {
                   <div className="shrink-0 text-right"><div className="text-[15px] font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</div><div className="font-mono text-[10.5px] text-[var(--d-faint)]">{req.folio}</div></div>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#fdab3d] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span> : null}
-                  <span className="text-[12.5px] text-[var(--d-text-2)] truncate">{queSigue(req.status)}</span>
+                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#fdab3d] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span>
+                    : <span className="text-[12.5px] text-[var(--d-text-2)] truncate">{queSigue(req.status)}</span>}
                 </div>
               </button>); })}
             {listaMovil.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({listaMovil.length - nMovil})</button>}
