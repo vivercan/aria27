@@ -127,9 +127,9 @@ export default function EntregaPage() {
       <section className="mt-4 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] p-4">
         <div className="flex items-center gap-2 mb-2"><h2 className="flex-1 text-sm font-semibold text-[var(--d-text)]">1. ¿Qué llegó?</h2>
           <input ref={notaRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { escanearNota(e.target.files?.[0] || null); e.target.value = ""; }} />
-          {items.length > 0 && !bloqueada && <button type="button" onClick={() => notaRef.current?.click()} disabled={leyendo} className="inline-flex items-center gap-1.5 rounded-xl bg-[#0f8a7e] px-3 py-2 text-[13px] font-bold text-white disabled:opacity-60">{leyendo ? <Loader2 className="w-4 h-4 animate-spin" /> : <IcoEscanear className="w-4 h-4" color="#fff" />}{leyendo ? "Leyendo…" : "Escanear nota"}</button>}
+          {items.length > 0 && !bloqueada && <button type="button" onClick={() => notaRef.current?.click()} disabled={leyendo} className="inline-flex items-center gap-1.5 rounded-xl bg-[#0086c0] px-3 py-2 text-[13px] font-bold text-white disabled:opacity-60">{leyendo ? <Loader2 className="w-4 h-4 animate-spin" /> : <IcoEscanear className="w-4 h-4" color="#fff" fondo="#0086c0" />}{leyendo ? "Leyendo…" : "Escanear nota"}</button>}
         </div>
-        {leida && <div className="mb-2 rounded-xl bg-[#0f8a7e] px-3 py-2 text-[13px] font-semibold text-white">{leida}</div>}
+        {leida && <div className="mb-2 rounded-xl bg-[#0086c0] px-3 py-2 text-[13px] font-semibold text-white">{leida}</div>}
         {items.length === 0 ? <p className="text-xs text-[var(--d-muted)]">Sin partidas registradas.</p> : (
           <ul className="divide-y divide-[var(--d-border)]">
             {items.map((it, idx) => (

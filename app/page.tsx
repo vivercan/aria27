@@ -4,6 +4,7 @@ import { landingPath, isMobileDevice } from '@/lib/device'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Eye, EyeOff, ScanFace } from 'lucide-react'
+import DomenicaLogo from '@/components/campo/DomenicaLogo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -210,11 +211,11 @@ export default function LoginPage() {
   }
 
   if (tel) return (
-    <div className="min-h-[100dvh] w-full flex flex-col bg-[#eceff4] text-slate-900" style={{ fontFamily: 'var(--font-dom), system-ui, sans-serif' }}>
+    <div className="min-h-[100dvh] w-full flex flex-col bg-[#f6f7fa] text-slate-900" style={{ fontFamily: 'var(--font-dom), system-ui, sans-serif' }}>
       <div className="flex-1 flex flex-col justify-center px-5 py-8 max-w-md w-full mx-auto">
         <div className="text-center">
-          <div className="text-[46px] font-extrabold tracking-tight leading-none text-[#0060c7]">ARIA<span className="text-[#e8760a]">27</span></div>
-          <p className="mt-2 text-[14px] text-slate-500">Grupo Constructor Urbano Avante</p>
+          <div className="flex justify-center"><DomenicaLogo grande /></div>
+          <p className="mt-2 text-[14px] text-slate-500">Grupo Constructor Urbano Avante · <span className="font-semibold text-slate-600">ARIA27</span></p>
         </div>
         <form onSubmit={handleLogin} className="mt-8 rounded-3xl bg-white p-5 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] space-y-3">
           <label className="block"><span className="text-[13px] font-semibold text-slate-600">Correo</span>

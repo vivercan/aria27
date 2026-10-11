@@ -22,7 +22,7 @@ const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[]
   ] },
   { titulo: "Obras", icon: IcoCasco, color: "#ff642e", items: [
     { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: IcoObra, color: "#ff642e" },
-    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Calidad y seguridad con foto y firma", icon: IcoRevision, color: "#0f8a7e" },
+    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Calidad y seguridad con foto y firma", icon: IcoRevision, color: "#3cde01" },
     { href: "/dashboard/domenica/planos", t: "Planos", d: "Marca pendientes encima del plano", icon: IcoPlano, color: "#0073ea" },
     { href: "/dashboard/obras/catalogo", t: "Dar de alta una obra", d: "Con su ubicación GPS", icon: IcoCasco, color: "#d9531e" },
   ] },

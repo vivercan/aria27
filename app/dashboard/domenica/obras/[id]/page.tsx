@@ -76,7 +76,7 @@ export default function ObraDomPage() {
         </div>
 
         <div className="mt-3 grid grid-cols-3 md:grid-cols-6 gap-2">
-          {([{ href: `/dashboard/domenica/obras/${o.id}/bitacora`, t: "Bitácora", icon: IcoBitacora, c: "#0f8a7e" }, { href: `/dashboard/domenica/obras/${o.id}/fotos`, t: "Fotos de avance", icon: IcoCamara, c: "#e8760a" }, { href: `/dashboard/domenica/planos?obra=${o.id}`, t: "Planos", icon: IcoPlano, c: "#0073ea" },
+          {([{ href: `/dashboard/domenica/obras/${o.id}/bitacora`, t: "Bitácora", icon: IcoBitacora, c: "#0086c0" }, { href: `/dashboard/domenica/obras/${o.id}/fotos`, t: "Fotos de avance", icon: IcoCamara, c: "#e8760a" }, { href: `/dashboard/domenica/planos?obra=${o.id}`, t: "Planos", icon: IcoPlano, c: "#0073ea" },
             { href: `/dashboard/actividades?nueva=1&obra=${o.id}`, t: "Nueva actividad", icon: IcoTarea, c: "#7e3bdd" }, { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", icon: IcoSaco, c: "#3cde01" }, { href: `/dashboard/actividades?vista=linea&obra=${o.id}`, t: "Línea de tiempo", icon: IcoCalendario, c: "#d83a6b" }] as { href: string; t: string; icon: Ico; c: string }[]).map(b => (
             <Link key={b.t} href={b.href} className="dom-card rounded-2xl py-3 px-1 flex flex-col items-center gap-1.5 active:scale-[0.98] transition"><Ficha ico={b.icon} color={b.c} size="sm" /><span className="text-[12px] font-semibold text-[var(--d-text)] leading-tight text-center">{b.t}</span></Link>))}
         </div>

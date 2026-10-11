@@ -49,12 +49,12 @@ export function useAviso() {
   return { flash, nodo };
 }
 
-export function DomHeader({ icon: Icon, from, titulo, desc, accion }: { icon: LucideIcon | React.ComponentType<{ className?: string; color?: string }>; from: string; to?: string; titulo: string; desc: string; accion?: React.ReactNode }) {
+export function DomHeader({ icon: Icon, from, titulo, desc, accion }: { icon: React.ComponentType<{ className?: string; color?: string; fondo?: string }>; from: string; to?: string; titulo: string; desc: string; accion?: React.ReactNode }) {
   return (
     <>
       <Link href="/dashboard/domenica" className="hidden md:inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />ARIA Doménica</Link>
       <div className="flex items-start gap-3 dom-in">
-        <span className="shrink-0 w-11 h-11 rounded-[14px] flex items-center justify-center" style={{ background: from }}><Icon className="w-6 h-6 text-white" color="#fff" /></span>
+        <span className="shrink-0 w-11 h-11 rounded-[14px] flex items-center justify-center" style={{ background: from }}><Icon className="w-6 h-6 text-white" color="#fff" fondo={from} /></span>
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-bold text-[var(--d-text)] tracking-tight">{titulo}</h1>
           <p className="text-[13px] text-[var(--d-muted)]">{desc}</p>

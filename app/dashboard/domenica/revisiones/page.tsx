@@ -38,10 +38,10 @@ export default function RevisionesPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-3xl mx-auto">
-        <DomHeader icon={IcoRevision} from="#0f8a7e" titulo="Revisiones" desc="Calidad y seguridad, punto por punto, con firma."
+        <DomHeader icon={IcoRevision} from="#3cde01" titulo="Revisiones" desc="Calidad y seguridad, punto por punto, con firma."
           accion={<button onClick={() => setNueva(true)} className={boton}><Plus className="w-4 h-4" />Revisar</button>} />
         {!d ? <div className="mt-5"><Esqueleto filas={4} /></div> : d.revisiones.length === 0 ? (
-          <div className="mt-6 dom-card rounded-3xl"><Vacio ico={IcoRevision} color="#0f8a7e" titulo="Aún no hay revisiones" texto="Elige una lista (antes del colado, seguridad semanal o entrega de área), revisa punto por punto y firma." accion={{ label: "Hacer la primera revisión", onClick: () => setNueva(true) }} /></div>
+          <div className="mt-6 dom-card rounded-3xl"><Vacio ico={IcoRevision} color="#3cde01" titulo="Aún no hay revisiones" texto="Elige una lista (antes del colado, seguridad semanal o entrega de área), revisa punto por punto y firma." accion={{ label: "Hacer la primera revisión", onClick: () => setNueva(true) }} /></div>
         ) : (
           <div className="mt-5 space-y-2">
             {d.revisiones.map((r, i) => (
@@ -100,7 +100,7 @@ function Nueva({ formatos, obras, emps, miEmp, onClose, onSaved, flash }: { form
       <span className={etiqueta}>¿Qué vas a revisar?</span>
       <div className="mt-2 space-y-2">{formatos.map(x => (
         <button key={x.id} type="button" onClick={() => setF(x)} className={`w-full text-left rounded-2xl border-2 p-3.5 transition ${f?.id === x.id ? "border-[#0073ea] bg-[#0073ea]/8" : "border-[var(--d-border)] bg-[var(--d-card)]"}`}>
-          <div className="flex items-center gap-2"><span className={`rounded-full px-2 py-0.5 text-[10.5px] font-bold text-white ${x.tipo === "SEGURIDAD" ? "bg-[#e8760a]" : "bg-[#0f766e]"}`}>{x.tipo === "SEGURIDAD" ? "Seguridad" : "Calidad"}</span><span className="text-[15px] font-bold text-[var(--d-text)]">{x.nombre}</span></div>
+          <div className="flex items-center gap-2"><span className={`rounded-full px-2 py-0.5 text-[10.5px] font-bold text-white ${x.tipo === "SEGURIDAD" ? "bg-[#e8760a]" : "bg-[#0086c0]"}`}>{x.tipo === "SEGURIDAD" ? "Seguridad" : "Calidad"}</span><span className="text-[15px] font-bold text-[var(--d-text)]">{x.nombre}</span></div>
           <div className="mt-0.5 text-[12.5px] text-[var(--d-muted)]">{x.puntos.length} puntos{x.descripcion ? ` · ${x.descripcion}` : ""}</div>
         </button>))}</div>
       <label className="block mt-4"><span className={etiqueta}>Obra</span><select value={obra} onChange={e => setObra(e.target.value)} className={campo}><option value="">Elige…</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select></label>

@@ -74,7 +74,7 @@ interface ReqItem {
 }
 
 /** 11-Oct-2026: color del punto de estado en la lista del celular */
-const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#e8760a", EN_COTIZACION: "#e8760a", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0086c0", ENTREGA_PARCIAL: "#0f8a7e", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#e2445c", RECHAZADA_DIRECCION: "#e2445c", CANCELADA: "#64748b" };
+const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#e8760a", EN_COTIZACION: "#e8760a", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0086c0", ENTREGA_PARCIAL: "#0086c0", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#e2445c", RECHAZADA_DIRECCION: "#e2445c", CANCELADA: "#64748b" };
 
 export default function RequisicionesStatusPage() {
   const { msg, flash, clear } = useFlashMessage();
@@ -660,7 +660,7 @@ export default function RequisicionesStatusPage() {
 
       {/* Modal Detalle */}
       {detailReq && (
-        <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setDetailReq(null)}>
+        <div className="aria-sheet fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setDetailReq(null)}>
           <div className="bg-[var(--d-surface)] md:bg-[var(--d-bg)] rounded-t-[28px] md:rounded-2xl border border-[var(--d-border)] w-full max-w-2xl max-h-[92vh] md:max-h-[85vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-[var(--d-border)]">
               <div>
@@ -740,7 +740,7 @@ export default function RequisicionesStatusPage() {
             )}
             <div className="p-3 md:p-4 border-t border-[var(--d-border)] flex justify-end gap-2 flex-wrap" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
               {accionPara(detailReq, userRole, userEmail) === "REGISTRAR_ENTREGA" && (
-                <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="w-full md:w-auto justify-center px-4 py-3 md:py-2 rounded-xl md:rounded-lg bg-[#3cde01] text-white sobre-verde text-[15px] md:text-sm font-bold transition flex items-center gap-2"><IcoCamion className="w-5 h-5" color="#fff" />Registrar entrega</Link>
+                <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="w-full md:w-auto justify-center px-4 py-3 md:py-2 rounded-xl md:rounded-lg bg-[#3cde01] text-white sobre-verde text-[15px] md:text-sm font-bold transition flex items-center gap-2"><IcoCamion className="w-5 h-5" color="#fff" fondo="#3cde01" />Registrar entrega</Link>
               )}
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
                 <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#e8760a] text-white text-sm font-semibold transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>

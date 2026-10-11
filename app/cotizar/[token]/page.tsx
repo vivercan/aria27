@@ -34,7 +34,7 @@ export default function CotizarPublico() {
 
   const campo = "mt-1 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-[16px] text-slate-900 outline-none focus:border-[#0073ea]";
   return (
-    <div className="min-h-screen bg-[#eceff4] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#f6f7fa] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
       <header className="bg-white shadow-[0_8px_24px_-16px_rgba(15,23,42,.5)] relative">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#0073ea] text-white font-extrabold italic flex items-center justify-center">GA</div>

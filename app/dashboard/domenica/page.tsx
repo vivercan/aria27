@@ -29,10 +29,10 @@ const GRUPOS: { titulo: string; piezas: Pieza[] }[] = [
     { t: "Formularios públicos", d: "Links sin cuenta: el proveedor cotiza y el destajista sube fotos de avance", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#3cde01", estado: "listo" },
   ] },
   { titulo: "En la obra", piezas: [
-    { t: "Bitácora diaria", d: "Se arma sola con avances, fotos y entregas; se comparte en PDF", href: "/dashboard/domenica/obras", icon: BookOpen, color: "#0f766e", estado: "listo" },
-    { t: "Revisiones con firma", d: "Calidad y seguridad punto por punto, con foto y firma", href: "/dashboard/domenica/revisiones", icon: ShieldCheck, color: "#0f766e", estado: "listo" },
-    { t: "Planos con marcas", d: "Pendientes, notas y fotos encima del plano", href: "/dashboard/domenica/planos", icon: MapIcon, color: "#0f766e", estado: "listo" },
-    { t: "Dictar por voz", d: "Botón + del celular: dilo y se arma la actividad o el pedido", icon: Mic, color: "#0f766e", estado: "listo" },
+    { t: "Bitácora diaria", d: "Se arma sola con avances, fotos y entregas; se comparte en PDF", href: "/dashboard/domenica/obras", icon: BookOpen, color: "#0086c0", estado: "listo" },
+    { t: "Revisiones con firma", d: "Calidad y seguridad punto por punto, con foto y firma", href: "/dashboard/domenica/revisiones", icon: ShieldCheck, color: "#0086c0", estado: "listo" },
+    { t: "Planos con marcas", d: "Pendientes, notas y fotos encima del plano", href: "/dashboard/domenica/planos", icon: MapIcon, color: "#0086c0", estado: "listo" },
+    { t: "Dictar por voz", d: "Botón + del celular: dilo y se arma la actividad o el pedido", icon: Mic, color: "#0086c0", estado: "listo" },
   ] },
   { titulo: "Controlar", piezas: [
     { t: "Automatizaciones", d: "Si pasa esto, haz aquello", href: "/dashboard/domenica/automatizaciones", icon: Zap, color: "#fdab3d", estado: "listo" },

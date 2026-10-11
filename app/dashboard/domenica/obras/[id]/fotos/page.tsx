@@ -62,7 +62,7 @@ export default function FotosObra() {
 
         <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { const f = e.target.files?.[0] || null; e.target.value = ""; if (f) setNueva(f); }} />
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <button onClick={() => camRef.current?.click()} className="rounded-2xl bg-[#e8760a] py-3.5 text-[15px] font-bold text-white inline-flex items-center justify-center gap-2"><IcoCamara className="w-5 h-5" color="#fff" />Tomar foto</button>
+          <button onClick={() => camRef.current?.click()} className="rounded-2xl bg-[#e8760a] py-3.5 text-[15px] font-bold text-white inline-flex items-center justify-center gap-2"><IcoCamara className="w-5 h-5" color="#fff" fondo="#e8760a" />Tomar foto</button>
           <button onClick={() => { setElegir(e => !e); setSel([]); }} disabled={(d?.fotos.length || 0) < 2} className={`rounded-2xl py-3.5 text-[15px] font-bold inline-flex items-center justify-center gap-2 disabled:opacity-40 ${elegir ? "bg-[#0f172a] text-white" : "bg-[var(--d-card)] text-[var(--d-text)] border border-[var(--d-border)]"}`}><IcoComparar className="w-5 h-5" color={elegir ? "#fff" : "#0073ea"} />{elegir ? `Elige ${2 - sel.length} foto${2 - sel.length === 1 ? "" : "s"}` : "Comparar"}</button>
         </div>
 

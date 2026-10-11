@@ -32,10 +32,10 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#eceff4] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#f6f7fa] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
       <header className="bg-white relative">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center gap-3">
-          <span className="w-10 h-10 rounded-xl bg-[#3cde01] flex items-center justify-center"><IcoSello className="w-6 h-6" color="#fff" /></span>
+          <span className="w-10 h-10 rounded-xl bg-[#3cde01] flex items-center justify-center"><IcoSello className="w-6 h-6" color="#fff" fondo="#3cde01" /></span>
           <div><div className="font-bold leading-tight">Autorizar solicitud</div><div className="text-[12px] text-slate-500">Grupo Constructor Urbano Avante</div></div>
         </div>
         <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#e2445c 78%,#fdab3d)" }} />
@@ -64,7 +64,7 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
             )}
             <div className="mt-4 flex items-end justify-between gap-3">
               <div><div className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Total</div><div className="text-[30px] font-bold leading-none">{$(d.total)}</div></div>
-              <div className="text-right text-[12.5px] text-slate-600">{d.efectivo && <span className="inline-block mb-1 rounded-md bg-[#0f8a7e] px-2 py-0.5 text-[11px] font-bold text-white">EFECTIVO</span>}<div>{d.proveedor || ""}</div>{d.banco && <div className="text-slate-400">{d.banco}</div>}</div>
+              <div className="text-right text-[12.5px] text-slate-600">{d.efectivo && <span className="inline-block mb-1 rounded-md bg-[#3cde01] px-2 py-0.5 text-[11px] font-bold text-white sobre-verde">EFECTIVO</span>}<div>{d.proveedor || ""}</div>{d.banco && <div className="text-slate-400">{d.banco}</div>}</div>
             </div>
           </div>
 

@@ -48,7 +48,7 @@ export default function BitacoraPage() {
     <div className="dom-page h-full overflow-y-auto print:overflow-visible">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-3xl mx-auto">
         <Link href={`/dashboard/domenica/obras/${id}`} className="print:hidden inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />Obra</Link>
-        <div className="dom-in rounded-3xl p-5 text-white relative overflow-hidden" style={{ background: "#0f8a7e" }}>
+        <div className="dom-in rounded-3xl p-5 text-white relative overflow-hidden" style={{ background: "#0086c0" }}>
           <div className="relative text-[12px] font-bold uppercase tracking-wider text-white/80">Bitácora de obra</div>
           <h1 className="relative text-2xl font-bold leading-tight">{b?.obra.nombre || "…"}</h1>
           <div className="relative mt-3 flex items-center gap-2 print:hidden">
@@ -81,7 +81,7 @@ export default function BitacoraPage() {
           {b.registro?.incidentes && <div className="mt-3 rounded-2xl bg-[#e2445c]/10 border border-[#e2445c]/30 p-3 text-[14px] text-[var(--d-danger)] flex gap-2"><AlertTriangle className="w-5 h-5 shrink-0" /><div><b>Incidentes:</b> {b.registro.incidentes}</div></div>}
 
           {!b.registro && !b.terminadas.length && !b.avances.length && !b.fotos.length && !b.entregas.length && !b.solicitudes.length ? (
-            <div className="mt-4 dom-card rounded-3xl"><Vacio ico={IcoBitacora} color="#0f8a7e" titulo="Aún no hay nada este día" texto="Se llena sola con los avances, fotos y entregas que registren en Doménica. Tú solo agrega clima y gente." accion={{ label: "Agregar clima y gente", onClick: () => setEditar(true) }} /></div>
+            <div className="mt-4 dom-card rounded-3xl"><Vacio ico={IcoBitacora} color="#0086c0" titulo="Aún no hay nada este día" texto="Se llena sola con los avances, fotos y entregas que registren en Doménica. Tú solo agrega clima y gente." accion={{ label: "Agregar clima y gente", onClick: () => setEditar(true) }} /></div>
           ) : (<>
             {b.terminadas.length > 0 && <Seccion icono={<CheckCircle2 className="w-5 h-5 text-[var(--c-verde)]" />} titulo={`Terminado (${b.terminadas.length})`}>
               {b.terminadas.map(t => <li key={t.id} className="px-4 py-3 text-[14px] text-[var(--d-text)]"><b>✓</b> {t.titulo}{t.quien ? <span className="text-[var(--d-muted)]"> · {t.quien}</span> : null}</li>)}

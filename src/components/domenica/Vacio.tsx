@@ -13,7 +13,7 @@ export function Vacio({ dibujo = "listo", ico, color, titulo, texto, accion }: {
   const btn = "mt-5 inline-flex items-center justify-center rounded-xl bg-[#0073ea] px-5 py-3 text-[15px] font-bold text-white";
   return (
     <div className="dom-in flex flex-col items-center text-center px-6 py-10">
-      <span className="w-[72px] h-[72px] rounded-[22px] flex items-center justify-center" style={{ background: c }}><I className="w-10 h-10" color="#fff" /></span>
+      <span className="w-[72px] h-[72px] rounded-[22px] flex items-center justify-center" style={{ background: c }}><I className="w-10 h-10" color="#fff" fondo={c} /></span>
       <div className="mt-4 text-[17px] font-bold text-[var(--d-text)]">{titulo}</div>
       {texto && <div className="mt-1 max-w-xs text-[13.5px] text-[var(--d-muted)]">{texto}</div>}
       {accion && (accion.href ? <Link href={accion.href} className={btn}>{accion.label}</Link> : <button type="button" onClick={accion.onClick} className={btn}>{accion.label}</button>)}

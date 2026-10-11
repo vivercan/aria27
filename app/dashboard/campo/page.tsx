@@ -124,17 +124,17 @@ export default function CampoHome() {
 
         {/* Voz primero: un toque y le dices lo que necesitas */}
         <button type="button" onClick={() => { try { window.dispatchEvent(new Event("dom:hablar")); } catch { /* */ } }} className="dom-in mt-3 w-full flex items-center gap-3 rounded-2xl bg-[#6d35c9] px-3.5 py-3 text-left text-white active:scale-[0.99] transition">
-          <span className="shrink-0 w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center"><IcoMicro className="w-6 h-6" color="#fff" /></span>
+          <span className="shrink-0 w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center"><IcoMicro className="w-6 h-6" color="#fff" fondo="#6d35c9" /></span>
           <span className="flex-1 min-w-0"><span className="block text-[16px] font-bold leading-tight">Toca y dime qué necesitas</span><span className="block text-[12.5px] text-white/85 truncate">“Haz una requisición” · “Anota mis pendientes”</span></span>
         </button>
 
         {/* Estás en una obra (geocerca): lo de esa obra primero */}
         {aqui ? (
-          <div className="dom-in mt-3 flex items-center gap-3 rounded-2xl px-3.5 py-3" style={{ background: "#0f8a7e" }}>
+          <div className="dom-in mt-3 flex items-center gap-3 rounded-2xl px-3.5 py-3" style={{ background: "#3cde01" }}>
             <MapPin className="w-6 h-6 text-white shrink-0" />
-            <div className="flex-1 min-w-0 text-white"><div className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Estás en</div><div className="text-[15px] font-bold truncate">{aqui.nombre}</div></div>
+            <div className="flex-1 min-w-0 text-white sobre-verde"><div className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Estás en</div><div className="text-[15px] font-bold truncate">{aqui.nombre}</div></div>
             <Link href={`/dashboard/domenica/obras/${aqui.id}/bitacora`} className="shrink-0 rounded-xl bg-white/20 px-3 py-2 text-[12.5px] font-bold text-white">Bitácora</Link>
-            <Link href={`/dashboard/domenica/obras/${aqui.id}`} className="shrink-0 rounded-xl bg-white px-3 py-2 text-[12.5px] font-bold text-[#0f766e]">Obra</Link>
+            <Link href={`/dashboard/domenica/obras/${aqui.id}`} className="shrink-0 rounded-xl bg-white px-3 py-2 text-[12.5px] font-bold text-[#1f8f00]">Obra</Link>
           </div>
         ) : geoEstado === "preguntar" ? (
           <button onClick={detectarObra} className="mt-3 w-full flex items-center gap-2 rounded-2xl border border-dashed border-[var(--d-border)] px-3.5 py-2.5 text-left text-[13px] font-semibold text-[var(--d-link)]"><MapPin className="w-4 h-4" />¿Estás en una obra? Toca para que te muestre lo de ahí</button>

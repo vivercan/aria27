@@ -105,7 +105,7 @@ export default function AutorizarPage() {
                 <div className="mt-3 flex items-end justify-between gap-2">
                   <div className="min-w-0">
                     <div className="text-[24px] font-bold leading-none text-[var(--d-text)]">{$(p.total)}</div>
-                    <div className="mt-1 flex flex-wrap gap-1">{p.efectivo && <span className="rounded-md bg-[#0f8a7e] px-1.5 py-0.5 text-[10.5px] font-bold text-white">EFECTIVO</span>}{p.proveedor && <span className="text-[11.5px] text-[var(--d-muted)] truncate">{p.proveedor}</span>}</div>
+                    <div className="mt-1 flex flex-wrap gap-1">{p.efectivo && <span className="rounded-md bg-[#3cde01] px-1.5 py-0.5 text-[10.5px] font-bold text-white sobre-verde">EFECTIVO</span>}{p.proveedor && <span className="text-[11.5px] text-[var(--d-muted)] truncate">{p.proveedor}</span>}</div>
                   </div>
                 </div>
                 {!varias && (p.comparativa ? (

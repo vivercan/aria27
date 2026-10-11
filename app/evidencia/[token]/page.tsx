@@ -27,7 +27,7 @@ export default function EvidenciaPublica() {
     catch { setMsg("Sin conexión. Intenta de nuevo."); } finally { setEnviando(false); }
   };
   return (
-    <div className="min-h-screen bg-[#eceff4] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#f6f7fa] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
       <header className="bg-white shadow-[0_8px_24px_-16px_rgba(15,23,42,.5)] relative">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#3cde01] text-white font-extrabold italic flex items-center justify-center sobre-verde">GA</div>
@@ -50,7 +50,7 @@ export default function EvidenciaPublica() {
             <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { agregar(e.target.files); e.target.value = ""; }} />
             <input ref={galRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => { agregar(e.target.files); e.target.value = ""; }} />
             <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => camRef.current?.click()} className="rounded-2xl bg-[#0073ea] py-5 text-white font-bold"><div className="flex justify-center mb-1"><IcoCamara className="w-8 h-8" color="#fff" /></div>Tomar foto</button>
+              <button type="button" onClick={() => camRef.current?.click()} className="rounded-2xl bg-[#0073ea] py-5 text-white font-bold"><div className="flex justify-center mb-1"><IcoCamara className="w-8 h-8" color="#fff" fondo="#0073ea" /></div>Tomar foto</button>
               <button type="button" onClick={() => galRef.current?.click()} className="rounded-2xl bg-slate-100 py-5 font-bold text-slate-700"><div className="flex justify-center mb-1"><IcoComparar className="w-8 h-8" color="#334155" /></div>De la galería</button>
             </div>
             {fotos.length > 0 && <div className="mt-3 grid grid-cols-5 gap-2">{fotos.map((f, i) => (

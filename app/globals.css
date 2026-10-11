@@ -1315,7 +1315,7 @@ body {
   --d-shadow: none; --c-naranja: #ff642e; --c-amarillo: #ffcb00; --c-azul: #579bfc; --c-morado: #a25ddc; --c-verde: #00c875; --c-rojo: #e2445c; --c-ambar: #fdab3d; --d-field: rgba(255,255,255,.05); --d-input: rgba(0,0,0,.3); --d-sunken: rgba(0,0,0,.2); --d-nav: rgba(7,17,34,.96);
 }
 body.dom-ruta:not(.dom-oscuro) {
-  --d-bg: #eceff4; --d-surface: #ffffff; --d-card: #ffffff; --d-card-2: #e9edf4; --d-hover: #f3f5f9;
+  --d-bg: #f6f7fa; --d-surface: #ffffff; --d-card: #ffffff; --d-card-2: #edf0f5; --d-hover: #f3f5f9;
   --d-border: rgba(15,23,42,.09); --d-text: #0f172a; --d-text-2: #334155; --d-muted: #55657c; --d-faint: #6b7a90;
   --d-link: #0060d0; --d-ok: #037f4c; --d-warn: #b45309; --d-danger: #d0213d; --d-purple: #6d28d9;
   --c-naranja: #c2410c; --c-amarillo: #a16207; --c-azul: #1d4ed8; --c-morado: #7e22ce; --c-verde: #047857; --c-rojo: #c2182b; --c-ambar: #b45309;
@@ -1333,7 +1333,7 @@ body.dom-ruta:not(.dom-oscuro) main > header.sticky button, body.dom-ruta:not(.d
 body.dom-ruta.dom-oscuro main > header.sticky { background: linear-gradient(180deg, #13284a 0%, #0b1830 100%) !important; box-shadow: 0 1px 0 rgba(255,255,255,.04), 0 14px 30px -14px rgba(0,0,0,.8); }
 /* Pantallas ARIA que usa el celular (Solicitudes, Pedir material, Entrega) en claro */
 body.dom-ruta:not(.dom-oscuro) {
-  --aria-bg: #eceff4; --aria-card: #ffffff; --aria-card-border: rgba(15,23,42,.09); --aria-text: #0f172a; --aria-muted: #5b6b82; --aria-muted-2: #94a3b8; --aria-text-secondary: #334155;
+  --aria-bg: #f6f7fa; --aria-card: #ffffff; --aria-card-border: rgba(15,23,42,.09); --aria-text: #0f172a; --aria-muted: #5b6b82; --aria-muted-2: #94a3b8; --aria-text-secondary: #334155;
   --aria-accent: #0060d0; --aria-accent-bg: rgba(0,115,234,.08); --aria-primary: #0073ea; --aria-primary-hover: #0060c0; --aria-primary-light: rgba(0,115,234,.14);
   color-scheme: light;
 }
@@ -1370,7 +1370,7 @@ body.dom-ruta { background: var(--d-bg); }
 }
 
 /* 11-Oct-2026: en teléfono, la espera del login ya es clara (sin pantallazo oscuro) */
-html.es-tel .login-espera { background: #eceff4 !important; }
+html.es-tel .login-espera { background: #f6f7fa !important; }
 
 /* 11-Oct-2026: en teléfono, la vista de computadora no se pinta (se cambia a la de Doménica al cargar). ?web=1 la muestra */
 html.es-tel:not(.ver-web) .vista-web { display: none !important; }
@@ -1392,3 +1392,6 @@ body.dom-ruta .aria-sheet [style*="background"]::after { content: none !importan
 .rango { -webkit-appearance: none; appearance: none; height: 10px; border-radius: 999px; background: linear-gradient(to right, #3cde01 var(--p, 0%), var(--d-card-2) var(--p, 0%)); outline: none; }
 .rango::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; box-shadow: 0 1px 4px rgba(15,23,42,.25); }
 .rango::-moz-range-thumb { width: 22px; height: 22px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; }
+
+/* 11-Oct-2026: con una hoja abierta en el celular, la barra de abajo se esconde (el + ya no "muerde" la hoja) */
+@media (max-width: 767px) { body:has(.aria-sheet) nav[aria-label="Navegación"] { display: none; } }
