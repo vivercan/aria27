@@ -380,9 +380,9 @@ export default function ActividadesPage() {
 
         {/* Vistas + filtros */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-xl bg-white/[0.05] p-1 border border-white/[0.06]">
+          <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-white/[0.05] p-1 border border-white/[0.06]">
             {([["mi", "Mi trabajo", Sun], ["tablero", "Tablero", LayoutGrid], ["lista", "Lista", List], ["linea", "Línea", GanttChart]] as const).map(([v, l, I]) => (
-              <button key={v} onClick={() => setVista(v)} className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-white text-[#0a1628] shadow" : "text-[#c9d8ed] hover:text-white"}`}><I className="w-3.5 h-3.5" />{l}</button>
+              <button key={v} onClick={() => setVista(v)} className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-white text-[#0a1628] shadow" : "text-[#c9d8ed] hover:text-white"}`}><I className="w-3.5 h-3.5 hidden sm:block" />{l}</button>
             ))}
           </div>
           <div className="inline-flex rounded-xl bg-white/[0.05] p-1 border border-white/[0.06]">
