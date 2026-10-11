@@ -22,7 +22,7 @@ import { registrarSW } from "@/lib/push-client";
 const menuItems = [
   { name: "Inbox", icon: Bell, href: "/dashboard/inbox" },
   // 10-Oct-2026: tablero de actividades tipo Monday (para todos; cada quien ve las suyas)
-  { name: "Actividades", icon: ListChecks, href: "/dashboard/actividades" },
+  { name: "ARIA Domingo", icon: Sun, href: "/dashboard/domingo" },
   { name: "Obras", icon: HardHat, href: "/dashboard/obras" },
   { name: "Talento", icon: Users, href: "/dashboard/talento" },
   { name: "Requisiciones", icon: Package, href: "/dashboard/requisiciones" },
@@ -54,6 +54,8 @@ const searchableItems = [
   { name: "Concreto", icon: ChevronRight, href: "/dashboard/obras/concreto" },
   { name: "Planos", icon: ChevronRight, href: "/dashboard/obras/planos" },
   { name: "Actividades (tablero)", icon: ChevronRight, href: "/dashboard/actividades" },
+  { name: "Automatizaciones", icon: ChevronRight, href: "/dashboard/domingo/automatizaciones" },
+  { name: "Linea de tiempo (Gantt)", icon: ChevronRight, href: "/dashboard/actividades?vista=linea" },
   { name: "Fotos de Avance", icon: ChevronRight, href: "/dashboard/obras/fotos" },
   { name: "Personal", icon: ChevronRight, href: "/dashboard/talento/personal" },
   { name: "Usuarios", icon: ChevronRight, href: "/dashboard/talento/usuarios" },
@@ -463,7 +465,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 py-3 overflow-y-auto" style={{ overflowX: "hidden" }}>
           <div className="px-2" style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
             {menuItems.filter((item) => {
-              if (item.href === "#pulso" || item.href === "/dashboard/actividades") return true;
+              if (item.href === "#pulso" || item.href === "/dashboard/domingo") return true;
               const moduleKey = item.href.replace("/dashboard/", "");
               return canAccessModule(userRole, userPermissions, moduleKey);
             }).map((item) => {
