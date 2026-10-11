@@ -37,7 +37,7 @@ export default function CampoNav() {
               </li>);
             const active = t.match(path); const Icon = t.icon;
             return (
-              <li key={i}><Link href={t.href} className={`flex flex-col items-center gap-0.5 pt-1.5 pb-2 text-[11px] font-semibold ${active ? "text-[#0073ea]" : "text-[var(--d-muted)]"}`} aria-current={active ? "page" : undefined}>
+              <li key={i}><Link href={t.href} className={`flex flex-col items-center gap-0.5 pt-1.5 pb-2 text-[11px] font-semibold ${active ? "text-[var(--d-nav-on)]" : "text-[var(--d-muted)]"}`} aria-current={active ? "page" : undefined}>
                 <span className={`flex items-center justify-center h-8 w-12 rounded-full transition-all duration-200 `}><Icon activo={active} className="w-[24px] h-[24px]" /></span>{t.label}</Link></li>);
           })}
         </ul>

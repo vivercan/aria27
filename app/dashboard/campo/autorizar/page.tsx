@@ -112,7 +112,7 @@ export default function AutorizarPage() {
                   <a href={p.comparativa} className="mt-3 w-full inline-flex items-center justify-center gap-1 rounded-2xl bg-[#0073ea] py-3 text-[15px] font-bold text-white">Ver comparativa y elegir<ChevronRight className="w-4 h-4" /></a>
                 ) : (
                   <div className="mt-3 grid grid-cols-[1fr_2fr] gap-2">
-                    <button onClick={() => setRechazo([p])} className="rounded-2xl border-2 border-[#d0304a] py-3 text-[15px] font-bold text-[#d0304a] active:scale-[0.98]">Rechazar</button>
+                    <button onClick={() => setRechazo([p])} className="rounded-2xl border-2 border-[#d0304a] py-3 text-[15px] font-bold text-[var(--d-danger)] active:scale-[0.98]">Rechazar</button>
                     <button disabled={!!busy} onClick={() => confirmar === p.id ? autorizar([p]) : setConfirmar(p.id)} className={`rounded-2xl py-3 text-[15px] font-bold text-white active:scale-[0.98] inline-flex items-center justify-center gap-1.5 ${confirmar === p.id ? "bg-[#2fb800]" : "bg-[#3cde01]"} sobre-verde`}>
                       {busy === p.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}{confirmar === p.id ? "Toca para confirmar" : "Autorizar"}
                     </button>
@@ -126,7 +126,7 @@ export default function AutorizarPage() {
       {varias && selLista.length > 0 && (
         <div className="fixed left-0 right-0 z-30 px-3" style={{ bottom: "calc(5.4rem + env(safe-area-inset-bottom))" }}>
           <div className="max-w-2xl mx-auto grid grid-cols-[1fr_2fr] gap-2 rounded-2xl bg-[var(--d-card)] p-2 shadow-[0_10px_30px_-10px_rgba(15,23,42,.45)] border border-[var(--d-border)]">
-            <button onClick={() => setRechazo(selLista)} className="rounded-xl border-2 border-[#d0304a] py-3 text-[14px] font-bold text-[#d0304a]">Rechazar {selLista.length}</button>
+            <button onClick={() => setRechazo(selLista)} className="rounded-xl border-2 border-[#d0304a] py-3 text-[14px] font-bold text-[var(--d-danger)]">Rechazar {selLista.length}</button>
             <button disabled={!!busy} onClick={() => { if (window.confirm(`¿Autorizar ${selLista.length} solicitudes por ${$(selLista.reduce((s, x) => s + x.total, 0))}?`)) autorizar(selLista); }} className="rounded-xl bg-[#3cde01] py-3 text-[14px] font-bold text-white inline-flex items-center justify-center gap-1.5 sobre-verde">{busy === "lote" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Autorizar {selLista.length} · {$(selLista.reduce((s, x) => s + x.total, 0))}</button>
           </div>
         </div>

@@ -334,7 +334,7 @@ export default function ActividadesPage() {
               <div style={{ width: LBL }} className="shrink-0 sticky left-0 z-20 bg-[var(--d-surface)] px-3 py-2 text-[11px] font-semibold text-[var(--d-muted)]">Actividad</div>
               {dias.map((d, i) => { const fin_ = d.getDay() === 0 || d.getDay() === 6; const esHoy = Math.round((d.getTime() - hoyT) / DAY) === 0; return (
                 <div key={i} style={{ width: W }} className={`shrink-0 text-center py-1 border-l border-[var(--d-border)] ${fin_ ? "bg-[var(--d-card)]" : ""}`}>
-                  {(d.getDate() === 1 || i === 0) && <div className="text-[11px] uppercase text-[#0073ea] font-bold leading-none">{d.toLocaleDateString("es-MX", { month: "short" })}</div>}
+                  {(d.getDate() === 1 || i === 0) && <div className="text-[11px] uppercase text-[var(--d-link)] font-bold leading-none">{d.toLocaleDateString("es-MX", { month: "short" })}</div>}
                   <div className={`text-[11px] leading-tight ${esHoy ? "text-[var(--d-text)] font-bold" : "text-[var(--d-muted)]"}`}>{d.getDate()}</div>
                 </div>); })}
             </div>
@@ -483,7 +483,7 @@ export default function ActividadesPage() {
                 className={`snap-start shrink-0 w-[84vw] sm:w-[340px] md:w-auto rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] flex flex-col max-h-[calc(100dvh-300px)] min-h-[260px] ${dragId ? "ring-1 ring-[var(--d-border)]" : ""}`}>
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-t-2xl" style={{ background: c.color }}>
                   <span className={`text-sm font-bold text-white ${c.id === "TERMINADA" ? "sobre-verde" : ""}`}>{c.label}</span>
-                  <span className="text-xs font-bold text-[var(--d-text)] bg-white rounded-full px-2">{list.length}</span>
+                  <span className="text-xs font-bold text-[#0f172a] bg-white rounded-full px-2">{list.length}</span>
                   {c.id === "POR_HACER" && <button onClick={() => setNueva(true)} className="ml-auto p-2 -m-1 rounded-md text-white" aria-label="Nueva actividad"><Plus className="w-4 h-4" /></button>}
                   {c.id === "TERMINADA" && <button onClick={() => setVerTerminadas(v => !v)} className="ml-auto text-[11px] font-semibold text-white underline sobre-verde">{verTerminadas ? "Solo 7 días" : "Ver todas"}</button>}
                 </div>

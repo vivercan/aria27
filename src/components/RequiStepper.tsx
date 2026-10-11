@@ -19,9 +19,9 @@ export default function RequiStepper({ req, compact = false }: { req: RequiLike;
                 </div>
                 <div className={`h-[2px] flex-1 ${i === pasos.length - 1 ? "bg-transparent" : line}`} />
               </div>
-              <div className={`mt-1 text-[10px] leading-tight text-center ${p.estado === "actual" ? "text-amber-300 font-semibold" : p.estado === "hecho" ? "text-[var(--d-text)]" : p.estado === "omitido" ? "text-[var(--d-faint)] line-through" : "text-[var(--d-muted)]"}`}>
+              <div className={`mt-1 text-[11px] leading-tight text-center ${p.estado === "actual" ? "text-amber-300 font-semibold" : p.estado === "hecho" ? "text-[var(--d-text)]" : p.estado === "omitido" ? "text-[var(--d-faint)] line-through" : "text-[var(--d-muted)]"}`}>
                 {p.label}
-                {p.fecha && !compact && <div className="text-[9px] text-[var(--d-muted)] font-normal">{new Date(p.fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}</div>}
+                {p.fecha && !compact && <div className="text-[11px] text-[var(--d-muted)] font-normal">{new Date(p.fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}</div>}
               </div>
             </div>
           </li>

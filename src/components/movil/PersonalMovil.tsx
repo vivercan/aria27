@@ -49,7 +49,7 @@ export default function PersonalMovil() {
             {[["Obra", obraDe(ver)], ["Empresa", ver.empresa_id ? emp[ver.empresa_id] : null], ["Ingreso", f(ver.fecha_ingreso)], ["Estado", activo(ver) ? "Activo" : "De baja"], ["Correo", ver.email], ["WhatsApp", ver.whatsapp]].map(([k, v]) => (
               <div key={String(k)} className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5 min-w-0"><dt className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">{k}</dt><dd className="text-[14px] font-semibold text-[var(--d-text)] truncate">{v || "—"}</dd></div>))}
           </dl>
-          <a href={`/dashboard/talento/personal?web=1`} className="mt-4 block text-center text-[13px] font-semibold text-[var(--d-link)]">Editar expediente en modo completo</a>
+          <a href={`/dashboard/talento/personal?web=1`} className="mt-2 block py-3 text-center text-[13px] font-semibold text-[var(--d-link)]">Editar expediente en modo completo</a>
         </Hoja>)}
     </Pagina>
   );

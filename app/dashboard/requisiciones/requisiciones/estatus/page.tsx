@@ -668,7 +668,7 @@ export default function RequisicionesStatusPage() {
                 <p className="text-[var(--d-muted)] text-sm">{detailReq.cost_center_name}</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`px-3 py-1 rounded-full text-[11px] font-bold ${getStatusColor(detailReq.status)}`}>{statusLabel(detailReq.status).toUpperCase()}</span>
+                <span className={`px-3 py-1 rounded-full text-[11px] font-bold text-white ${detailReq.status === "ENTREGADA" ? "sobre-verde" : ""}`} style={{ background: COLOR_ESTADO[detailReq.status] || "#64748b" }}>{statusLabel(detailReq.status).toUpperCase()}</span>
                 <button onClick={() => setDetailReq(null)} aria-label="Cerrar" className="w-10 h-10 -mr-1 inline-flex items-center justify-center rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-muted)] hover:text-[var(--d-text)] transition"><svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
               </div>
             </div>
