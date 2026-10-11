@@ -26,7 +26,7 @@ const GRUPOS: { titulo: string; piezas: Pieza[] }[] = [
     { t: "Espacio por obra", d: "Todo de una obra junto", href: "/dashboard/domenica/obras", icon: Building2, color: "#00c875", estado: "listo" },
     { t: "Menciones", d: "Escribe @Daisy en un comentario y le avisa", href: "/dashboard/actividades", icon: AtSign, color: "#00c875", estado: "listo" },
     { t: "Carga de trabajo", d: "Quién está saturado", href: "/dashboard/domenica/carga", icon: Users, color: "#00c875", estado: "listo" },
-    { t: "Formularios públicos", d: "Proveedor sin usuario", icon: FileInput, color: "#00c875", estado: "pronto" },
+    { t: "Formularios públicos", d: "Link para que el proveedor cotice sin cuenta (en el detalle de cada solicitud)", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#00c875", estado: "listo" },
   ] },
   { titulo: "Controlar", piezas: [
     { t: "Automatizaciones", d: "Si pasa esto, haz aquello", href: "/dashboard/domenica/automatizaciones", icon: Zap, color: "#fdab3d", estado: "listo" },
