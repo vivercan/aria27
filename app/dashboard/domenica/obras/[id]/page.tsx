@@ -6,7 +6,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { BookOpen, ArrowLeft, Building2, Loader2, Plus, LayoutTemplate, GanttChart, PlusCircle, LayoutGrid, AlertTriangle, ChevronRight, MapPin } from "lucide-react";
+import { ArrowLeft, Building2, Loader2, LayoutGrid, AlertTriangle, ChevronRight, MapPin } from "lucide-react";
+import { Ficha, IcoBitacora, IcoCamara, IcoPlano, IcoTarea, IcoSaco, IcoCalendario, type Ico } from "@/components/domenica/IconosObra";
 import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, fechaCorta, iniciales, colorPersona, COLUMNAS, type Actividad } from "@/lib/actividades";
 import { statusLabel } from "@/lib/requi-stepper";
@@ -69,9 +70,10 @@ export default function ObraDomPage() {
           {!x.presupuesto && <div className="mt-2 text-[11.5px] text-[var(--d-muted)]">Captura el presupuesto en Obras › Catálogo para ver el porcentaje.</div>}
         </div>
 
-        <div className="mt-3 grid grid-cols-2 md:grid-cols-5 gap-2">
-          {[{ href: `/dashboard/domenica/obras/${o.id}/bitacora`, t: "Bitácora de hoy", icon: BookOpen, c: "#0f766e" }, { href: `/dashboard/actividades?nueva=1&obra=${o.id}`, t: "Nueva actividad", icon: Plus, c: "#7e3bdd" }, { href: `/dashboard/domenica/plantillas?obra=${o.id}`, t: "Usar plantilla", icon: LayoutTemplate, c: "#a25ddc" }, { href: `/dashboard/actividades?vista=linea&obra=${o.id}`, t: "Línea de tiempo", icon: GanttChart, c: "#0073ea" }, { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", icon: PlusCircle, c: "#00a35c" }].map(b => (
-            <Link key={b.t} href={b.href} className="dom-card rounded-2xl p-3 flex items-center gap-2.5 active:scale-[0.98] transition"><span className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${b.c}1f` }}><b.icon className="w-5 h-5" style={{ color: b.c }} /></span><span className="text-[13px] font-semibold text-[var(--d-text)] leading-tight">{b.t}</span></Link>))}
+        <div className="mt-3 grid grid-cols-3 md:grid-cols-6 gap-2">
+          {([{ href: `/dashboard/domenica/obras/${o.id}/bitacora`, t: "Bitácora", icon: IcoBitacora, c: "#0f8a7e" }, { href: `/dashboard/domenica/obras/${o.id}/fotos`, t: "Fotos de avance", icon: IcoCamara, c: "#e8760a" }, { href: `/dashboard/domenica/planos?obra=${o.id}`, t: "Planos", icon: IcoPlano, c: "#0073ea" },
+            { href: `/dashboard/actividades?nueva=1&obra=${o.id}`, t: "Nueva actividad", icon: IcoTarea, c: "#7e3bdd" }, { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", icon: IcoSaco, c: "#00a35c" }, { href: `/dashboard/actividades?vista=linea&obra=${o.id}`, t: "Línea de tiempo", icon: IcoCalendario, c: "#d83a6b" }] as { href: string; t: string; icon: Ico; c: string }[]).map(b => (
+            <Link key={b.t} href={b.href} className="dom-card rounded-2xl py-3 px-1 flex flex-col items-center gap-1.5 active:scale-[0.98] transition"><Ficha ico={b.icon} color={b.c} size="sm" /><span className="text-[12px] font-semibold text-[var(--d-text)] leading-tight text-center">{b.t}</span></Link>))}
         </div>
 
         <section className="mt-6">

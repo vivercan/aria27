@@ -2,9 +2,9 @@
  * - Notificaciones del telefono (Web Push)
  * - Sin senal: abre las pantallas y muestra lo ultimo que se cargo
  * Nunca guarda respuestas de /api (sesion, escrituras). */
-const VERSION = "aria27-v2"; // subir en cada cambio visual grande: borra lo guardado de la version anterior
+const VERSION = "aria27-v3"; // subir en cada cambio visual grande: borra lo guardado de la version anterior
 const PAGES = `${VERSION}-pages`, ASSETS = `${VERSION}-assets`, DATA = `${VERSION}-data`;
-const PRECACHE = ["/dashboard/campo", "/dashboard/actividades", "/manifest.webmanifest", "/icons/icon-192.png"];
+const PRECACHE = ["/dashboard/campo", "/dashboard/actividades", "/dashboard/campo/evidencia", "/dashboard/campo/mas", "/manifest.webmanifest", "/icons/icon-192.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(PAGES).then((c) => c.addAll(PRECACHE).catch(() => {})).then(() => self.skipWaiting()));
@@ -14,7 +14,7 @@ self.addEventListener("activate", (e) => {
 });
 
 const offlineHtml = () => new Response(
-  '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#0a1628;color:#c9d8ed;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center"><div><div style="font-size:42px">📶</div><h2 style="color:#fff">Sin señal</h2><p>Abre ARIA27 cuando tengas conexión.<br>Lo que ya habías visto sigue disponible.</p><button onclick="location.reload()" style="margin-top:12px;padding:12px 22px;border:0;border-radius:12px;background:#0073ea;color:#fff;font-weight:700">Reintentar</button></div></body>',
+  '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#eceff4;color:#334155;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:24px"><div style="background:#fff;border-radius:24px;padding:32px 24px;max-width:340px"><div style="width:56px;height:56px;border-radius:16px;background:#0f172a;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px">D</div><h2 style="color:#0f172a;margin:0 0 6px">Sin señal</h2><p style="margin:0">Lo que ya habías abierto sigue disponible. Lo que captures se guarda en el teléfono y se manda solo.</p><button onclick="location.reload()" style="margin-top:16px;padding:12px 22px;border:0;border-radius:12px;background:#0073ea;color:#fff;font-weight:700">Reintentar</button></div></body>',
   { headers: { "Content-Type": "text/html; charset=utf-8" } });
 
 self.addEventListener("fetch", (e) => {

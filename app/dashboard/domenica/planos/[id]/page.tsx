@@ -10,28 +10,19 @@ import { useParams } from "next/navigation";
 import { ArrowLeft, Plus, Minus, MapPin, Camera, Loader2, Check, RotateCcw, Trash2 } from "lucide-react";
 import { Hoja, api, useAviso, useBase, etiqueta, campo, boton, ymdLocal } from "@/components/domenica/ui";
 import { supabase } from "@/lib/supabase";
+import { pdfAImagen } from "@/lib/pdf-imagen";
+import { IcoCamara, IcoComparar } from "@/components/domenica/IconosObra";
 
 type Marca = { id: string; x: number; y: number; titulo: string; tipo: string; nota: string | null; foto_url: string | null; tarea_id: string | null; estado: string; creado_nombre: string | null; created_at: string };
 type Plano = { id: string; obra_id: string | null; obra_nombre: string | null; nombre: string; url: string; tipo_archivo: string | null };
 const COLOR: Record<string, string> = { PENDIENTE: "#e2445c", NOTA: "#0073ea", FOTO: "#a25ddc" };
 
-async function pdfAImagen(url: string): Promise<string> {
-  const v = "4.4.168";
-  // import dinámico desde la red (sin pasar por el empaquetador)
-  const importar = new Function("u", "return import(u)") as (u: string) => Promise<unknown>;
-  const pdfjs = await importar(`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${v}/pdf.min.mjs`) as { getDocument: (u: string) => { promise: Promise<{ getPage: (n: number) => Promise<{ getViewport: (o: { scale: number }) => { width: number; height: number }; render: (o: { canvasContext: CanvasRenderingContext2D; viewport: unknown }) => { promise: Promise<void> } }> }> }; GlobalWorkerOptions: { workerSrc: string } };
-  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${v}/pdf.worker.min.mjs`;
-  const doc = await pdfjs.getDocument(url).promise; const page = await doc.getPage(1);
-  const vp = page.getViewport({ scale: 2 }); const c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height;
-  await page.render({ canvasContext: c.getContext("2d")!, viewport: vp }).promise;
-  return c.toDataURL("image/jpeg", 0.85);
-}
 
 export default function PlanoVisor() {
   const { id } = useParams<{ id: string }>(); const base = useBase(); const { flash, nodo } = useAviso();
   const [plano, setPlano] = useState<Plano | null>(null); const [marcas, setMarcas] = useState<Marca[]>([]); const [img, setImg] = useState(""); const [err, setErr] = useState("");
   const [zoom, setZoom] = useState(1); const [marcando, setMarcando] = useState(false); const [nueva, setNueva] = useState<{ x: number; y: number } | null>(null); const [ver, setVer] = useState<Marca | null>(null);
-  const [verResueltas, setVerResueltas] = useState(false);
+  const [verResueltas, setVerResueltas] = useState(false); const [versiones, setVersiones] = useState(false);
   const cargar = useCallback(async () => {
     try { const r = await api<{ plano: Plano; marcas: Marca[] }>(`/api/planos/${id}/marcas`); setPlano(r.plano); setMarcas(r.marcas);
       if (!img) { if (r.plano.tipo_archivo === "PDF" || r.plano.url.toLowerCase().endsWith(".pdf")) { try { setImg(await pdfAImagen(r.plano.url)); } catch { setErr("No se pudo abrir el PDF en este teléfono. Súbelo como foto."); } } else setImg(r.plano.url); }
@@ -50,6 +41,7 @@ export default function PlanoVisor() {
       <div className="px-4 pt-3 pb-2 flex items-center gap-2 border-b border-[var(--d-border)]">
         <Link href="/dashboard/domenica/planos" className="p-2 -m-1 rounded-xl text-[var(--d-link)]" aria-label="Planos"><ArrowLeft className="w-5 h-5" /></Link>
         <div className="flex-1 min-w-0"><div className="text-[15px] font-bold text-[var(--d-text)] truncate">{plano?.nombre || "Plano"}</div><div className="text-[12px] text-[var(--d-muted)] truncate">{plano?.obra_nombre} · {abiertas} pendiente{abiertas === 1 ? "" : "s"}</div></div>
+        <button onClick={() => setVersiones(true)} className="rounded-xl px-2.5 py-1.5 text-[12px] font-semibold bg-[var(--d-card-2)] text-[var(--d-text-2)] inline-flex items-center gap-1"><IcoComparar className="w-3.5 h-3.5" color="#0073ea" />Versiones</button>
         <button onClick={() => setVerResueltas(v => !v)} className={`rounded-xl px-2.5 py-1.5 text-[12px] font-semibold ${verResueltas ? "bg-[#0073ea] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>Resueltas</button>
       </div>
       <div className="relative flex-1 overflow-auto bg-[var(--d-card-2)]">
@@ -59,7 +51,7 @@ export default function PlanoVisor() {
             {visibles.map(m => (
               <button key={m.id} onClick={e => { e.stopPropagation(); setVer(m); }} className="absolute -translate-x-1/2 -translate-y-full" style={{ left: `${m.x * 100}%`, top: `${m.y * 100}%` }} aria-label={m.titulo}>
                 <span className="block w-8 h-8 rounded-full rounded-br-none rotate-45 border-2 border-white shadow-lg flex items-center justify-center" style={{ background: m.estado === "RESUELTA" ? "#00a35c" : COLOR[m.tipo] || "#e2445c" }}>
-                  <span className="-rotate-45 text-white text-[13px] font-extrabold">{m.estado === "RESUELTA" ? "✓" : m.tipo === "FOTO" ? "📷" : m.tipo === "NOTA" ? "i" : "!"}</span></span>
+                  <span className="-rotate-45 text-white text-[13px] font-extrabold">{m.estado === "RESUELTA" ? "✓" : m.tipo === "FOTO" ? <IcoCamara className="w-4 h-4" color="#fff" /> : m.tipo === "NOTA" ? "i" : "!"}</span></span>
               </button>))}
             {nueva && <span className="absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#e2445c] ring-4 ring-[#e2445c]/30 animate-pulse" style={{ left: `${nueva.x * 100}%`, top: `${nueva.y * 100}%` }} />}
           </div>)}
@@ -68,8 +60,9 @@ export default function PlanoVisor() {
       <div className="px-4 py-3 flex items-center gap-2 border-t border-[var(--d-border)] bg-[var(--d-surface)] mb-[calc(64px+env(safe-area-inset-bottom))] md:mb-0">
         <button onClick={() => setZoom(z => Math.max(1, z - 0.5))} className="w-11 h-11 rounded-xl bg-[var(--d-card-2)] flex items-center justify-center text-[var(--d-text)]" aria-label="Alejar"><Minus className="w-5 h-5" /></button>
         <button onClick={() => setZoom(z => Math.min(4, z + 0.5))} className="w-11 h-11 rounded-xl bg-[var(--d-card-2)] flex items-center justify-center text-[var(--d-text)]" aria-label="Acercar"><Plus className="w-5 h-5" /></button>
-        <button onClick={() => setMarcando(m => !m)} className={`flex-1 h-11 rounded-xl inline-flex items-center justify-center gap-1.5 text-[15px] font-bold ${marcando ? "bg-[#0f172a] text-white" : "bg-gradient-to-r from-[#e2445c] to-[#ff642e] text-white"}`}><MapPin className="w-5 h-5" />{marcando ? "Cancelar" : "Marcar un punto"}</button>
+        <button onClick={() => setMarcando(m => !m)} className={`flex-1 h-11 rounded-xl inline-flex items-center justify-center gap-1.5 text-[15px] font-bold ${marcando ? "bg-[#0f172a] text-white" : "bg-[#e2445c] text-white"}`}><MapPin className="w-5 h-5" />{marcando ? "Cancelar" : "Marcar un punto"}</button>
       </div>
+      {versiones && <Versiones planoId={id} onClose={() => setVersiones(false)} flash={flash} />}
       {nueva && <NuevaMarca planoId={id} pos={nueva} emps={base.emps} onClose={() => setNueva(null)} onSaved={m => { setNueva(null); setMarcas(x => [...x, m]); flash("ok", m.tarea_id ? "Marcado y asignado" : "Marcado"); }} flash={flash} />}
       {ver && <Hoja titulo={ver.titulo} onClose={() => setVer(null)} pie={<div className="flex gap-2">
         <button onClick={async () => { try { const r = await api<{ marca: Marca }>(`/api/planos/marcas/${ver.id}`, "PATCH", { estado: ver.estado === "ABIERTA" ? "RESUELTA" : "ABIERTA" }); setMarcas(x => x.map(m => m.id === ver.id ? r.marca : m)); setVer(null); } catch (e) { flash("err", (e as Error).message); } }} className={`${boton} flex-1 py-3`}>{ver.estado === "ABIERTA" ? <><Check className="w-4 h-4" />Ya quedó</> : <><RotateCcw className="w-4 h-4" />Reabrir</>}</button>
@@ -102,6 +95,45 @@ function NuevaMarca({ planoId, pos, emps, onClose, onSaved, flash }: { planoId: 
         <select value={asignar} onChange={e => setAsignar(e.target.value)} className={campo}><option value="">Nadie por ahora</option>{emps.map(x => <option key={x.id} value={x.id}>{x.full_name}</option>)}</select>
         {asignar && <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className={campo} />}
       </div>}
+    </Hoja>
+  );
+}
+
+type Ver = { id: string; revision: number; url: string; tipo_archivo: string | null; actual: boolean; fecha: string };
+/** Versiones del plano: ver historial, comparar dos, subir una nueva (los pendientes abiertos se pasan solos) */
+function Versiones({ planoId, onClose, flash }: { planoId: string; onClose: () => void; flash: (t: "ok" | "err", m: string) => void }) {
+  const [lista, setLista] = useState<Ver[] | null>(null); const [busy, setBusy] = useState(false); const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => { api<{ versiones: Ver[] }>(`/api/planos/${planoId}/version`).then(r => setLista(r.versiones)).catch(e => { flash("err", (e as Error).message); setLista([]); }); }, [planoId, flash]);
+  const actual = lista?.find(v => v.actual) || lista?.[0];
+  const subir = async (f: File | null) => {
+    if (!f) return; if (f.size > 25 * 1024 * 1024) { flash("err", "El archivo pesa más de 25 MB"); return; }
+    setBusy(true);
+    try {
+      const ext = f.type === "application/pdf" ? "pdf" : (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const path = `planos/version/${planoId}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("expedientes").upload(path, f, { contentType: f.type || undefined, upsert: false });
+      if (error) throw new Error(error.message);
+      const url = supabase.storage.from("expedientes").getPublicUrl(path).data.publicUrl;
+      const r = await api<{ id: string; revision: number; pendientes_pasados: number }>(`/api/planos/${planoId}/version`, "POST", { url });
+      flash("ok", `Rev ${r.revision} lista${r.pendientes_pasados ? ` · ${r.pendientes_pasados} pendiente${r.pendientes_pasados === 1 ? "" : "s"} pasaron` : ""}`);
+      window.location.href = `/dashboard/domenica/planos/${r.id}/comparar?con=${planoId}`;
+    } catch (e) { flash("err", (e as Error).message); } finally { setBusy(false); }
+  };
+  return (
+    <Hoja titulo="Versiones del plano" onClose={onClose} pie={<>
+      <input ref={ref} type="file" accept="image/*,application/pdf" className="hidden" onChange={e => { subir(e.target.files?.[0] || null); e.target.value = ""; }} />
+      <button onClick={() => ref.current?.click()} disabled={busy} className="w-full rounded-2xl bg-[#0073ea] py-3.5 text-[15px] font-bold text-white inline-flex items-center justify-center gap-2 disabled:opacity-60">{busy ? <Loader2 className="w-5 h-5 animate-spin" /> : null}Subir versión nueva</button></>}>
+      {lista === null ? <div className="py-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-[var(--d-muted)]" /></div> : (
+        <ul className="divide-y divide-[var(--d-border)]">
+          {lista.map(v => (
+            <li key={v.id} className="py-3 flex items-center gap-3">
+              <span className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-[14px] font-bold text-white ${v.actual ? "bg-[#0073ea]" : "bg-[#64748b]"}`}>R{v.revision}</span>
+              <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">{v.actual ? "Vigente" : `Rev ${v.revision}`}</div><div className="text-[12px] text-[var(--d-muted)]">{new Date(v.fecha).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}</div></div>
+              {actual && v.id !== actual.id && <Link href={`/dashboard/domenica/planos/${actual.id}/comparar?con=${v.id}`} className="shrink-0 rounded-xl bg-[var(--d-card-2)] px-3 py-2 text-[13px] font-bold text-[var(--d-text)]">Comparar</Link>}
+              {!v.actual && <Link href={`/dashboard/domenica/planos/${v.id}`} className="shrink-0 text-[13px] font-semibold text-[var(--d-link)]">Ver</Link>}
+            </li>))}
+          {lista.length <= 1 && <li className="py-3 text-[13px] text-[var(--d-muted)]">Solo hay una versión. Cuando llegue el plano corregido, súbelo aquí y podrás ver qué cambió.</li>}
+        </ul>)}
     </Hoja>
   );
 }

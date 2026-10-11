@@ -290,16 +290,17 @@ export default function ActividadesPage() {
         const sw = swipe.current; if (!sw || sw.id !== a.id || !sw.el) return;
         const dx = e.clientX - sw.x0, dy = e.clientY - sw.y0;
         if (sw.lock === null) { if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) sw.lock = true; else if (Math.abs(dy) > 12) { sw.lock = false; } }
-        if (sw.lock) { sw.dx = dx; sw.el.style.transition = "none"; sw.el.style.transform = `translateX(${Math.max(-140, Math.min(140, dx))}px)`; }
+        if (sw.lock) { const fo = (e.currentTarget as HTMLElement).querySelector("[data-fondo]") as HTMLElement | null; if (fo) fo.style.opacity = "1"; sw.dx = dx; sw.el.style.transition = "none"; sw.el.style.transform = `translateX(${Math.max(-140, Math.min(140, dx))}px)`; }
       }}
-      onPointerUp={() => {
+      onPointerUp={e => {
+        const fo = (e.currentTarget as HTMLElement).querySelector("[data-fondo]") as HTMLElement | null; if (fo) setTimeout(() => { fo.style.opacity = "0"; }, 230);
         const sw = swipe.current; swipe.current = null; if (!sw || !sw.el) return;
         sw.el.style.transition = "transform .22s ease"; sw.el.style.transform = "translateX(0)";
         if (sw.lock) { suprimirClick.current = true; setTimeout(() => { suprimirClick.current = false; }, 350);
           if (sw.dx > 90) mover(a.id, "TERMINADA"); else if (sw.dx < -90) mover(a.id, "BLOQUEADA"); }
       }}
       onPointerCancel={() => { const sw = swipe.current; swipe.current = null; if (sw?.el) { sw.el.style.transition = "transform .22s ease"; sw.el.style.transform = "translateX(0)"; } }}>
-      <div className="absolute inset-0 flex items-center justify-between px-4 text-sm font-bold">
+      <div data-fondo className="absolute inset-0 flex items-center justify-between px-4 text-sm font-bold opacity-0">
         <span className="text-[#06281a] bg-[#00c875] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4">✓ Terminar</span>
         <span className="text-white bg-[#e2445c] absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-4">Atorada ⚠</span>
       </div>
@@ -377,6 +378,8 @@ export default function ActividadesPage() {
     );
   };
 
+  const [pistaVista, setPistaVista] = useState(false);
+  useEffect(() => { try { const n = Number(localStorage.getItem("dom:pista-act-n") || 0); if (localStorage.getItem("dom:pista-act") === "1" || n >= 3) setPistaVista(true); else localStorage.setItem("dom:pista-act-n", String(n + 1)); } catch { /* */ } }, []);
   const kpiBtn = (label: string, n: number, color: string, onClick?: () => void) => (
     <button key={label} onClick={onClick} className="flex-1 min-w-[96px] rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2.5 text-left hover:bg-[var(--d-hover)] transition">
       <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[var(--d-muted)]"><span className="w-2 h-2 rounded-full" style={{ background: color }} />{label}</div>
@@ -406,13 +409,18 @@ export default function ActividadesPage() {
             <h1 className="text-2xl md:text-[26px] font-bold text-[var(--d-text)] tracking-tight">Actividades</h1>
             <p className="text-xs text-[var(--d-muted)]">{loading ? "Cargando…" : `${kpi.abiertas} abiertas · ${kpi.terminadas} terminadas`}</p>
           </div>
-          <button onClick={() => setNueva(true)} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(0,115,234,0.35)] active:scale-95 transition">
+          <button onClick={() => setNueva(true)} className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-[#0073ea] px-4 py-2.5 text-sm font-semibold text-white active:scale-95 transition">
             <Plus className="w-4 h-4" /> Nueva
           </button>
         </div>
 
         {/* KPIs */}
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+        {/* Celular: solo lo que urge, en chips de color sólido (si es 0 no aparece) */}
+        <div className="md:hidden mt-3 flex flex-wrap gap-1.5">
+          {([["Atrasadas", kpi.atrasadas, "#e2445c"], ["Atoradas", kpi.atoradas, "#c2410c"], ["Vencen hoy", kpi.hoy, "#e8760a"], ["En proceso", kpi.enProceso, "#0073ea"]] as const).filter(([, n]) => n > 0).map(([l, n, c]) => (
+            <button key={l} onClick={() => setVista("mi")} className="rounded-full px-3 py-1.5 text-[12.5px] font-bold text-white" style={{ background: c }}>{n} {l.toLowerCase()}</button>))}
+        </div>
+        <div className="hidden md:flex mt-4 gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                     {kpiBtn("En proceso", kpi.enProceso, "#fdab3d", () => setVista("tablero"))}
           {kpiBtn("Atoradas", kpi.atoradas, "#e2445c", () => setVista("tablero"))}
           {kpiBtn("Atrasadas", kpi.atrasadas, "#ff642e", () => setVista("mi"))}
@@ -424,7 +432,7 @@ export default function ActividadesPage() {
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
             {([["mi", "Mi trabajo", Sun], ["tablero", "Tablero", LayoutGrid], ["lista", "Lista", List], ["linea", "Línea", GanttChart]] as const).map(([v, l, I]) => (
-              <button key={v} onClick={() => setVista(v)} className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-white text-[#0a1628] shadow" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}><I className="w-3.5 h-3.5 hidden sm:block" />{l}</button>
+              <button key={v} onClick={() => setVista(v)} className={`${v === "lista" || v === "linea" ? "hidden md:inline-flex" : ""} shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-white text-[#0a1628] shadow" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}><I className="w-3.5 h-3.5 hidden sm:block" />{l}</button>
             ))}
           </div>
           <div className="inline-flex rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
@@ -443,7 +451,7 @@ export default function ActividadesPage() {
           </div>
         </div>
 
-        {!loading && visibles.length > 0 && <p className="mt-3 text-[11.5px] text-[var(--d-muted)]">{vista === "mi" ? "Desliza a la derecha para terminar, a la izquierda si está atorada · toca para ver, comentar o subir foto." : vista === "tablero" ? "Toca el círculo para terminarla · en computadora arrastra la tarjeta de columna." : vista === "linea" ? "Cada barra va del inicio a la entrega · la línea azul es hoy." : "Toca una fila para abrirla."}</p>}
+        {!loading && visibles.length > 0 && !pistaVista && <p className="mt-3 text-[11.5px] text-[var(--d-muted)]" onClick={() => { setPistaVista(true); try { localStorage.setItem("dom:pista-act", "1"); } catch { /* */ } }}>{vista === "mi" ? "Desliza a la derecha para terminar, a la izquierda si está atorada · toca para ver, comentar o subir foto." : vista === "tablero" ? "Toca el círculo para terminarla · en computadora arrastra la tarjeta de columna." : vista === "linea" ? "Cada barra va del inicio a la entrega · la línea azul es hoy." : "Toca una fila para abrirla."}</p>}
 
         {loading ? (
           <div className="mt-5"><Esqueleto filas={5} alto={96} /></div>
@@ -806,7 +814,7 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
           <textarea value={f.pasos} onChange={e => setF({ ...f, pasos: e.target.value })} rows={3} placeholder={"Pasos (opcional, uno por renglón)\nEj. Medir\nCotizar\nComprar"} className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
         </div>
         <div className="px-5 py-3 border-t border-[var(--d-border)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-          <button onClick={crear} disabled={busy} className="w-full rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3 text-sm font-bold text-white shadow-[0_6px_20px_rgba(0,115,234,0.35)] disabled:opacity-60">{busy ? "Creando…" : f.asignado_id && f.asignado_id === miEmp ? "Crear" : "Crear y avisar por WhatsApp"}</button>
+          <button onClick={crear} disabled={busy} className="w-full rounded-xl bg-[#0073ea] py-3 text-sm font-bold text-white disabled:opacity-60">{busy ? "Creando…" : f.asignado_id && f.asignado_id === miEmp ? "Crear" : "Crear y avisar por WhatsApp"}</button>
         </div>
       </div>
     </div>

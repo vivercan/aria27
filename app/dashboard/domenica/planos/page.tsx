@@ -14,6 +14,7 @@ type Plano = { id: string; obra_nombre: string | null; nombre: string; disciplin
 export default function PlanosPage() {
   const base = useBase(); const { flash, nodo } = useAviso();
   const [lista, setLista] = useState<Plano[] | null>(null); const [obra, setObra] = useState(""); const [subir, setSubir] = useState(false);
+  useEffect(() => { try { const q = new URLSearchParams(window.location.search).get("obra"); if (q) setObra(q); } catch { /* */ } }, []);
   const cargar = useCallback(async () => { try { const r = await api<{ planos: Plano[] }>(`/api/planos${obra ? `?obra_id=${obra}` : ""}`); setLista(r.planos); } catch (e) { flash("err", (e as Error).message); setLista([]); } }, [obra, flash]);
   useEffect(() => { cargar(); }, [cargar]);
   return (

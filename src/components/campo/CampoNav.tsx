@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IcoInicio, IcoSolicitudes, IcoActividades, IcoMas, IcoMasGrande } from "@/components/domenica/Iconos";
 import AccionRapida from "@/components/campo/AccionRapida";
+import SinSenal from "@/components/campo/SinSenal";
 
 const TABS = [
   { href: "/dashboard/campo", label: "Inicio", icon: IcoInicio, match: (p: string) => p === "/dashboard/campo" },
@@ -22,12 +23,13 @@ export default function CampoNav() {
   const [abierto, setAbierto] = useState(false);
   return (
     <>
+      <SinSenal />
       <nav aria-label="Navegación" className="md:hidden fixed left-0 right-0 bottom-0 z-40 border-t backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom)", background: "var(--d-nav)", borderColor: "var(--d-border)" }}>
         <ul className="grid grid-cols-5 items-end">
           {TABS.map((t, i) => {
             if (!t) return (
               <li key="mas-accion" className="flex justify-center">
-                <button onClick={() => setAbierto(true)} aria-label="Crear algo nuevo" className="-mt-6 mb-1 w-[60px] h-[60px] rounded-full flex items-center justify-center text-white active:scale-95 transition" style={{ background: "linear-gradient(135deg,#0073ea,#7e3bdd)", boxShadow: "0 12px 24px -10px #4f46e5, 0 0 0 5px var(--d-bg)" }}>
+                <button onClick={() => setAbierto(true)} aria-label="Crear algo nuevo" className="-mt-6 mb-1 w-[60px] h-[60px] rounded-full flex items-center justify-center text-white active:scale-95 transition" style={{ background: "#0060c7", boxShadow: "0 10px 20px -10px #0060c7, 0 0 0 5px var(--d-bg)" }}>
                   <IcoMasGrande />
                 </button>
               </li>);

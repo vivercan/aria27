@@ -7,6 +7,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Camera, MapPin, Check, Loader2, AlertTriangle, RefreshCw } from "lucide-react";
+import { IcoEscanear } from "@/components/domenica/IconosObra";
+import { guardarPendiente, esSinSenal } from "@/lib/cola-offline";
 import { supabase } from "@/lib/supabase";
 import AriaBackButton from "@/components/AriaBackButton";
 import RequiStepper from "@/components/RequiStepper";
@@ -32,6 +34,26 @@ export default function EntregaPage() {
   const [recibidoPor, setRecibidoPor] = useState<string>(""); const [nota, setNota] = useState<string>("");
   const [sending, setSending] = useState(false); const [done, setDone] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
+  // Escanear la nota de remisión: la IA lee la nota y llena cuánto llegó de cada partida
+  const notaRef = useRef<HTMLInputElement>(null); const [leyendo, setLeyendo] = useState(false); const [leida, setLeida] = useState("");
+  const escanearNota = async (f: File | null) => {
+    if (!f || !req) return; setLeyendo(true); setError(""); setLeida("");
+    try {
+      const blob = await comprimir(f, 1800, 0.85);
+      const path = `entregas/notas/${req.folio}_${Date.now()}.jpg`;
+      const { data: up, error: upErr } = await supabase.storage.from("expedientes").upload(path, blob, { contentType: "image/jpeg", upsert: false });
+      if (upErr) throw new Error("No se pudo subir la foto de la nota");
+      const url = supabase.storage.from("expedientes").getPublicUrl(up.path).data.publicUrl;
+      const r = await fetch("/api/requisicion/leer-nota", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ requisition_id: req.id, url }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || "No pude leer la nota");
+      const porIdx = new Map<number, number>((j.items as { i: number; recibida: number }[]).map(x => [x.i, x.recibida]));
+      setItems(p => p.map((x, i) => porIdx.has(i) ? { ...x, recibida: porIdx.get(i)! } : { ...x, recibida: 0 }));
+      setNota(n => [n, `Nota de remisión${j.folio_nota ? ` ${j.folio_nota}` : ""}${j.proveedor ? ` (${j.proveedor})` : ""}: ${url}`].filter(Boolean).join("\n"));
+      setLeida(`Leí la nota: ${j.leidas} de ${j.total} partidas. Revisa las cantidades.`);
+      try { navigator.vibrate?.(30); } catch { /* */ }
+    } catch (e) { setError((e as Error).message); } finally { setLeyendo(false); }
+  };
 
   useEffect(() => {
     setRecibidoPor(localStorage.getItem("userDisplayName") || localStorage.getItem("userName") || "");
@@ -58,6 +80,16 @@ export default function EntregaPage() {
 
   const enviar = async () => {
     if (!req) return; setSending(true); setError("");
+    const completa0 = items.every(i => i.recibida >= i.quantity);
+    const cuerpo = { requisition_id: req.id, items: items.map(i => ({ product_name: i.product_name, unit: i.unit, quantity: i.quantity, recibida: i.recibida })), recibido_por: recibidoPor, nota, lat: gps?.lat ?? null, lng: gps?.lng ?? null, foto_url: null as string | null, completa: completa0 };
+    // Sin señal: se guarda en el teléfono (con la foto) y se manda sola al volver la señal
+    const guardarSinSenal = async () => {
+      const blob = foto ? await comprimir(foto) : undefined;
+      await guardarPendiente({ tipo: "entrega", titulo: `Entrega ${req.folio}`, url: "/api/requisicion/entrega", body: cuerpo, foto: blob ? { blob, path: `entregas/${req.folio}_${Date.now()}.jpg`, campo: "foto_url" } : undefined });
+      setDone("Sin señal: la entrega quedó guardada en tu teléfono y se manda sola en cuanto haya señal.");
+      setTimeout(() => router.push("/dashboard/campo"), 2500);
+    };
+    if (typeof navigator !== "undefined" && navigator.onLine === false) { try { await guardarSinSenal(); } catch (e) { setError((e as Error).message); } finally { setSending(false); } return; }
     try {
       let foto_url: string | null = null;
       if (foto) {
@@ -74,7 +106,7 @@ export default function EntregaPage() {
       if (!res.ok) throw new Error(j.error || `Error ${res.status}`);
       setDone(j.status === "ENTREGADA" ? "Entrega completa registrada." : "Entrega parcial registrada.");
       setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 1800);
-    } catch (e) { setError((e as Error).message); } finally { setSending(false); }
+    } catch (e) { if (esSinSenal(e)) { try { await guardarSinSenal(); } catch (e2) { setError((e2 as Error).message); } } else setError((e as Error).message); } finally { setSending(false); }
   };
 
   if (loading) return <div className="aria-page-canon flex items-center justify-center min-h-[50dvh]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
@@ -93,7 +125,11 @@ export default function EntregaPage() {
       {done && <div className="mt-3 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-200 flex gap-2"><Check className="w-4 h-4" />{done}</div>}
 
       <section className="mt-4 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] p-4">
-        <h2 className="text-sm font-semibold text-[var(--d-text)] mb-2">1. ¿Qué llegó?</h2>
+        <div className="flex items-center gap-2 mb-2"><h2 className="flex-1 text-sm font-semibold text-[var(--d-text)]">1. ¿Qué llegó?</h2>
+          <input ref={notaRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { escanearNota(e.target.files?.[0] || null); e.target.value = ""; }} />
+          {items.length > 0 && !bloqueada && <button type="button" onClick={() => notaRef.current?.click()} disabled={leyendo} className="inline-flex items-center gap-1.5 rounded-xl bg-[#0f8a7e] px-3 py-2 text-[13px] font-bold text-white disabled:opacity-60">{leyendo ? <Loader2 className="w-4 h-4 animate-spin" /> : <IcoEscanear className="w-4 h-4" color="#fff" />}{leyendo ? "Leyendo…" : "Escanear nota"}</button>}
+        </div>
+        {leida && <div className="mb-2 rounded-xl bg-[#0f8a7e] px-3 py-2 text-[13px] font-semibold text-white">{leida}</div>}
         {items.length === 0 ? <p className="text-xs text-[var(--d-muted)]">Sin partidas registradas.</p> : (
           <ul className="divide-y divide-[var(--d-border)]">
             {items.map((it, idx) => (
