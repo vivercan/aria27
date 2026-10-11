@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FileText, PlusCircle, ListTodo, CalendarDays, PackageCheck, HardHat, Truck, Package, Users, UserCog, Fingerprint, Zap, Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone } from "lucide-react";
+import { FileText, PlusCircle, ListTodo, CalendarDays, PackageCheck, HardHat, Truck, Package, Users, UserCog, Fingerprint, Zap, Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone, Building2, LayoutTemplate, Repeat, BarChart3 } from "lucide-react";
 import { guardarTema, useTemaDom, type TemaDom } from "@/lib/dom-tema";
 import { estadoPush, activarPush } from "@/lib/push-client";
 import { iniciales, colorPersona } from "@/lib/actividades";
@@ -33,6 +33,10 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
     { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: Fingerprint, color: "#bb3354", roles: ["admin", "rh", "direccion", "validador"] },
   ] },
   { titulo: "Doménica", items: [
+    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, atrasos y gasto de cada obra", icon: Building2, color: "#ff642e" },
+    { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate, color: "#a25ddc" },
+    { href: "/dashboard/domenica/recurrentes", t: "Recurrentes", d: "Lo que se repite se crea solo", icon: Repeat, color: "#579bfc" },
+    { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3, color: "#00c875", roles: ["admin", "rh", "direccion", "validador", "compras"] },
     { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap, color: "#fdab3d", roles: ["admin", "rh", "direccion", "validador", "compras"] },
   ] },
 ];

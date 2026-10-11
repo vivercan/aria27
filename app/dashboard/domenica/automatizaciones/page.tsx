@@ -77,7 +77,7 @@ export default function AutomatizacionesPage() {
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <Link href="/dashboard/domenica" className="inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />ARIA Doménica</Link>
         <div className="flex items-start gap-3">
-          <span className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-[#fdab3d] to-[#ff642e] flex items-center justify-center"><Zap className="w-6 h-6 text-[var(--d-text)]" /></span>
+          <span className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-[#fdab3d] to-[#ff642e] flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></span>
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-[var(--d-text)] tracking-tight">Automatizaciones</h1>
             <p className="text-[13px] text-[var(--d-muted)]">Reglas que vigilan por ti: cuando pasa algo, avisan por WhatsApp y al teléfono, o crean una actividad. Se revisan cada 30 minutos, de 7:00 a 20:00.</p>

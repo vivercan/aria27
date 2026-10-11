@@ -1351,3 +1351,8 @@ body.dom-ruta:not(.dom-oscuro) .aria-back-btn { background: #ffffff !important; 
 /* Tipografía propia de Doménica (Plus Jakarta Sans); ARIA27 web sigue con la suya */
 body.dom-ruta, body.dom-ruta main { font-family: var(--font-dom), ui-sans-serif, system-ui, sans-serif; }
 body.dom-ruta { background: var(--d-bg); }
+
+/* Doménica 27 · animaciones suaves (11-Oct-2026). Respeta "reducir movimiento" del teléfono */
+@keyframes domIn { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+.dom-in { animation: domIn .42s cubic-bezier(.2,.8,.2,1) both; }
+@media (prefers-reduced-motion: reduce) { .dom-in { animation: none; } }

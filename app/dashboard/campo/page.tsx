@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PlusCircle, ClipboardCheck, PackageCheck, CalendarDays, FileText, ChevronRight, Loader2, X, Share, ListTodo, BellRing } from "lucide-react";
 import { estadoPush, activarPush } from "@/lib/push-client";
+import { Contador } from "@/components/domenica/ui";
 import { supabase } from "@/lib/supabase";
 import { accionPara, statusLabel } from "@/lib/requi-stepper";
 import { columnaDe, diasAtraso, venceHoy, esMia, fechaCorta, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
@@ -91,7 +92,7 @@ export default function CampoHome() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-28 max-w-2xl mx-auto">
         {/* Saludo */}
-        <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-[#0073ea] via-[#4f46e5] to-[#7e3bdd] shadow-[0_14px_34px_rgba(79,70,229,0.35)]">
+        <div className="dom-in relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-[#0073ea] via-[#4f46e5] to-[#7e3bdd] shadow-[0_14px_34px_rgba(79,70,229,0.35)]">
           <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-[#579bfc]/20 blur-2xl" />
           <div className="relative flex items-center gap-3">
             <div className="flex-1 min-w-0">
@@ -105,7 +106,7 @@ export default function CampoHome() {
 
         {/* Notificaciones del telefono */}
         {(push === "pendiente" || ((push === "instalar-primero" || push === "bloqueado") && !pushOculto) || pushMsg) && (
-          <div className="mt-3 rounded-2xl bg-gradient-to-r from-[#a25ddc] to-[#579bfc] shadow-[0_8px_24px_rgba(162,93,220,0.3)] p-4">
+          <div className="dom-in mt-3 rounded-2xl bg-gradient-to-r from-[#a25ddc] to-[#579bfc] shadow-[0_8px_24px_rgba(162,93,220,0.3)] p-4">
             <div className="flex items-center gap-3">
               <span className="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><BellRing className="w-5 h-5 text-white" /></span>
               <div className="flex-1 min-w-0">
@@ -124,9 +125,9 @@ export default function CampoHome() {
             { n: pendReq.length, l: "Solicitudes por atender", c: "#fdab3d", href: "/dashboard/requisiciones/requisiciones/estatus?chip=mis_pendientes" },
             { n: acts.length, l: "Mis actividades", c: "#579bfc", href: "/dashboard/actividades?vista=mi" },
             { n: atrasadas.length, l: "Atrasadas", c: "#e2445c", href: "/dashboard/actividades?vista=mi" },
-          ].map(k => (
-            <Link key={k.l} href={k.href} className="dom-card rounded-2xl p-3 active:scale-[0.97] transition">
-              <div className="text-[26px] font-bold leading-none" style={{ color: k.n > 0 ? k.c : "var(--d-faint)" }}>{loading ? "–" : k.n}</div>
+          ].map((k, ki) => (
+            <Link key={k.l} href={k.href} style={{ animationDelay: `${80 + ki * 60}ms` }} className="dom-card dom-in rounded-2xl p-3 active:scale-[0.97] transition">
+              <div className="text-[26px] font-bold leading-none" style={{ color: k.n > 0 ? k.c : "var(--d-faint)" }}>{loading ? "–" : <Contador n={k.n} />}</div>
               <div className="mt-1.5 text-[11px] leading-tight text-[var(--d-muted)]">{k.l}</div>
             </Link>
           ))}
@@ -134,8 +135,8 @@ export default function CampoHome() {
 
         {/* Acciones grandes */}
         <div className="mt-4 grid grid-cols-2 gap-3">
-          {acciones.map(({ href, t, d, icon: Icon, from, to }) => (
-            <Link key={href} href={href} className="relative overflow-hidden rounded-2xl p-4 min-h-[118px] flex flex-col justify-between active:scale-[0.97] transition" style={{ background: `linear-gradient(135deg, ${from}, ${to})`, boxShadow: `inset 0 1px 0 rgba(255,255,255,.28), 0 12px 24px -12px ${from}` }}>
+          {acciones.map(({ href, t, d, icon: Icon, from, to }, ai) => (
+            <Link key={href} href={href} className="dom-in relative overflow-hidden rounded-2xl p-4 min-h-[118px] flex flex-col justify-between active:scale-[0.97] transition" style={{ animationDelay: `${260 + ai * 70}ms`, background: `linear-gradient(135deg, ${from}, ${to})`, boxShadow: `inset 0 1px 0 rgba(255,255,255,.28), 0 12px 24px -12px ${from}` }}>
               <span aria-hidden className="pointer-events-none absolute -right-8 -bottom-10 w-28 h-28 rounded-full bg-white/[0.12]" />
               <span className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center"><Icon className="w-6 h-6 text-white" /></span>
               <div><div className="text-[15px] font-bold text-white">{t}</div><div className="text-[11.5px] text-white/80">{d}</div></div>
@@ -157,9 +158,9 @@ export default function CampoHome() {
             </div>
           )}
           <ul className="space-y-2">
-            {items.slice(0, 12).map(it => (
-              <li key={it.key}>
-                <Link href={it.href} className="flex items-center gap-3 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 active:scale-[0.99] transition">
+            {items.slice(0, 12).map((it, ii) => (
+              <li key={it.key} className="dom-in" style={{ animationDelay: `${420 + ii * 45}ms` }}>
+                <Link href={it.href} className="dom-card flex items-center gap-3 rounded-2xl p-3 active:scale-[0.99] transition">
                   <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${it.color}26` }}>
                     {it.icon === "req" ? <FileText className="w-5 h-5" style={{ color: it.color }} /> : <ListTodo className="w-5 h-5" style={{ color: it.color }} />}
                   </span>

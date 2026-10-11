@@ -700,7 +700,7 @@ function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[];
   const hoy = new Date();
   const dia = (n: number) => { const d = new Date(hoy); d.setDate(hoy.getDate() + n); return ymd(d); };
   const viernes = (() => { const d = new Date(hoy); const k = (5 - d.getDay() + 7) % 7 || 7; d.setDate(d.getDate() + k); return ymd(d); })();
-  const [f, setF] = useState({ titulo: "", asignado_id: "", fecha_compromiso: dia(1), obra_id: "", prioridad: "MEDIA", descripcion: "", pasos: "" });
+  const [f, setF] = useState(() => { let obra = ""; try { obra = new URLSearchParams(window.location.search).get("obra") || ""; } catch { /* */ } return { titulo: "", asignado_id: "", fecha_compromiso: dia(1), obra_id: obra, prioridad: "MEDIA", descripcion: "", pasos: "" }; });
   const [busy, setBusy] = useState(false);
   const [buscaP, setBuscaP] = useState("");
   const personas = useMemo(() => { const n = norm(buscaP); return emps.filter(e => !n || norm(e.full_name).includes(n)); }, [emps, buscaP]);
