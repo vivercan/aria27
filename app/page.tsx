@@ -267,7 +267,7 @@ export default function LoginPage() {
         ) : (
           <div className="rounded-[28px] bg-[#0b1830] border border-[#22406e] p-5">
             <button type="button" onClick={tocarHuella} disabled={loading} className="w-full h-14 flex items-center justify-center gap-3 rounded-[18px] bg-[#2aa300] active:bg-[#239000] text-white text-[19px] font-bold disabled:opacity-70">
-              <Fingerprint size={26} strokeWidth={2.2} />{loading && hAct && !pass ? 'Verificando…' : 'Entrar con huella o rostro'}</button>
+              <Fingerprint size={26} strokeWidth={2.2} className="shrink-0" /><span className="whitespace-nowrap">{loading && hAct && !pass ? 'Verificando…' : <><span className="max-[359px]:hidden">Entrar con huella o rostro</span><span className="min-[360px]:hidden">Huella o rostro</span></>}</span></button>
             {aviso && <div role="status" className="mt-3 rounded-xl bg-[#13284a] px-3 py-2.5 text-[14px] text-[#dbe7f7]">{aviso}</div>}
             <div className="flex items-center gap-3 my-3.5"><i className="flex-1 h-px bg-[#22406e]" /><span className="text-[12.5px] text-[#9cb3d6]">o con tu correo o usuario</span><i className="flex-1 h-px bg-[#22406e]" /></div>
             <form onSubmit={handleLogin} className="space-y-2.5">
@@ -279,14 +279,14 @@ export default function LoginPage() {
                 <button type="button" onClick={() => setShowPass(v => !v)} aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-[#9cb3d6]">{showPass ? <EyeOff size={20} /> : <Eye size={20} />}</button>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <label className="flex items-center gap-2 py-1.5 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[13.5px] text-[#c3d3ea]">Recordarme</span></label>
-                <button type="button" onClick={() => setVerOlvido(v => !v)} className="py-1.5 text-[13.5px] font-semibold text-[#8ec2ff]">¿Olvidaste tu contraseña?</button>
+                <label className="flex items-center gap-2 py-1.5 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[13.5px] max-[359px]:text-[12.5px] text-[#c3d3ea]">Recordarme</span></label>
+                <button type="button" onClick={() => setVerOlvido(v => !v)} className="py-1.5 text-[13.5px] max-[359px]:text-[12.5px] whitespace-nowrap font-semibold text-[#8ec2ff]">¿Olvidaste tu contraseña?</button>
               </div>
               {verOlvido && <div className="rounded-xl bg-[#13284a] px-3 py-2.5 text-[13.5px] text-[#dbe7f7]">Tu contraseña es la de tu correo de trabajo. Pide a tu administrador que la restablezca.</div>}
               {error && <div role="alert" className="rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
               <button type="submit" disabled={loading} className={`w-full h-12 rounded-[15px] text-[16px] font-bold disabled:opacity-70 ${email && pass ? 'bg-[#0073ea] text-white' : 'border-[1.5px] border-[#3a5c8f] text-white'}`}>{loading && pass ? 'Entrando…' : 'Entrar'}</button>
             </form>
-            <a href="https://104.248.119.60.nip.io/checador.html" target="_blank" rel="noopener noreferrer" className="mt-2 min-h-11 flex items-center justify-center gap-2 text-[13.5px] text-[#c3d3ea]">
+            <a href="https://104.248.119.60.nip.io/checador.html" target="_blank" rel="noopener noreferrer" className="mt-2 min-h-11 flex items-center justify-center gap-2 whitespace-nowrap text-[13.5px] max-[359px]:text-[12px] text-[#c3d3ea]">
               <ScanFace size={18} strokeWidth={2.2} color="#8ec2ff" />¿Solo checar asistencia? <b className="font-bold text-[#8ec2ff]">Abrir checador</b></a>
           </div>
         )}
