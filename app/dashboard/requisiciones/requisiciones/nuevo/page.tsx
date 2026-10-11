@@ -610,14 +610,14 @@ export default function NewRequisitionPage() {
           <h2 className="mb-4 text-lg font-semibold"><span className="md:hidden">1. ¿Para qué obra y para cuándo?</span><span className="hidden md:inline">1. CONFIGURACIÓN</span></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--d-text-2)]">Obra / Centro</label>
+              <label className="text-xs font-medium text-[var(--d-text-2)]"><span className="md:hidden">Obra</span><span className="hidden md:inline">Obra / Centro</span></label>
               <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={selectedCostCenterId??""} onChange={e => setSelectedCostCenterId(e.target.value||null)}>
                 <option value="">Seleccione...</option>
                 {costCenters.map((c,i) => <option key={c.id} value={c.id}>{i+1}. {c.name}</option>)}
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--d-text-2)]">Fecha Requerida *</label>
+              <label className="text-xs font-medium text-[var(--d-text-2)]"><span className="md:hidden">¿Para cuándo lo necesitas?</span><span className="hidden md:inline">Fecha Requerida *</span></label>
               <input type="date" required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
             </div>
             {tipoSolicitud !== "DESTAJO" && <div className={`space-y-1 ${avz}`}>
@@ -1048,16 +1048,29 @@ export default function NewRequisitionPage() {
           })()}
         </div>
 
-        <div className="flex-1 overflow-auto rounded-xl border border-[var(--d-border)] bg-[var(--d-sunken)] max-h-60">
+        <div className="flex-1 overflow-auto rounded-xl border border-[var(--d-border)] bg-[var(--d-sunken)] max-h-[60vh] md:max-h-60">
           {formMode === "catalogo" && (
             <>
-              <div className="grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 border-b border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[11px] font-medium uppercase text-[var(--d-text-2)] sticky top-0">
+              <div className="hidden md:grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 border-b border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[11px] font-medium uppercase text-[var(--d-text-2)] sticky top-0">
                 <div>Descripcion</div><div>Unidad</div><div>Cantidad</div><div className="text-right">P.U.</div><div className="text-right">Subtotal</div><div>Observaciones</div><div></div>
               </div>
               {materials.length === 0 ? (
                 <div className="px-3 py-8 text-center text-sm text-[var(--d-faint)]"><ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-30" />Busca y agrega materiales arriba.</div>
               ) : materials.map(m => (
-                <div key={m.id} className="grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 items-center px-3 py-2 text-xs">
+                <div key={m.id}>
+                {/* Celular: tarjeta simple (qué, cuánto y nota) */}
+                <div className="md:hidden border-b border-[var(--d-border)] px-3 py-3">
+                  <div className="flex items-start gap-2"><div className="flex-1 text-[14px] font-semibold text-[var(--d-text)]">{m.name}</div>
+                    <button onClick={() => setMaterials(prev => prev.filter(x => x.id !== m.id))} className="shrink-0 rounded-lg p-2 text-[var(--d-danger)]" aria-label="Quitar"><Trash2 className="h-4 w-4" /></button></div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <button type="button" onClick={() => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Math.max(1, (Number(x.qty) || 0) - 1)} : x))} className="w-10 h-10 rounded-xl bg-[var(--d-card-2)] text-lg font-bold text-[var(--d-text)]" aria-label="Menos">−</button>
+                    <input type="number" inputMode="decimal" className="w-20 h-10 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] text-center text-base font-bold text-[var(--d-text)] outline-none" value={m.qty} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Number(e.target.value)} : x))} aria-label="Cantidad" />
+                    <button type="button" onClick={() => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: (Number(x.qty) || 0) + 1} : x))} className="w-10 h-10 rounded-xl bg-[var(--d-card-2)] text-lg font-bold text-[var(--d-text)]" aria-label="Más">+</button>
+                    <span className="text-[13px] text-[var(--d-muted)]">{m.unit}</span>
+                  </div>
+                  <input type="text" className="mt-2 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm text-[var(--d-text)] outline-none" placeholder="Nota (medida, marca, color…) opcional" value={m.observations} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, observations: e.target.value} : x))} />
+                </div>
+                <div className="hidden md:grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 items-center px-3 py-2 text-xs">
                   <div className="truncate font-medium">{m.name}</div>
                   <div className="text-[var(--d-muted)]">{m.unit}</div>
                   <input ref={el => { if(el) qtyInputRefs.current.set(m.id, el); }} type="number" className="w-full rounded-lg bg-[var(--d-input)] px-2 py-1 text-center outline-none" value={m.qty} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Number(e.target.value)} : x))} title="Acepta negativos para anticipos descontados" />
@@ -1065,6 +1078,7 @@ export default function NewRequisitionPage() {
                   <div className="text-right text-aria-accent font-medium">${(((m.price ?? 0) * m.qty) || 0).toLocaleString("es-MX", {minimumFractionDigits: 2})}</div>
                   <input type="text" className="w-full rounded-lg bg-[var(--d-input)] px-2 py-1 outline-none" placeholder="Opcional..." value={m.observations} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, observations: e.target.value} : x))} />
                   <button onClick={() => setMaterials(prev => prev.filter(x => x.id !== m.id))} className="rounded-full bg-red-500/70 p-1.5 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
+                </div>
                 </div>
               ))}
             </>
@@ -1118,7 +1132,7 @@ export default function NewRequisitionPage() {
         <div className="mt-4 flex justify-end">
           <button onClick={handleSubmit} disabled={sending || isEmpty}
             className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isEmpty ? "bg-gray-600 text-[var(--d-muted)] cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
-            {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Generando...</> : <><Check className="h-4 w-4" />Generar Requisición</>}
+            {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Generando...</> : <><Check className="h-4 w-4" /><span className="md:hidden">Enviar solicitud</span><span className="hidden md:inline">Generar Requisición</span></>}
           </button>
         </div>
       </section>)}
