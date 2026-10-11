@@ -37,7 +37,7 @@ export default function ChecadasMovil() {
           <div key={String(l)} className="dom-card rounded-2xl px-2 py-2.5 text-center"><div className="text-[22px] font-bold leading-none" style={{ color: Number(n) ? String(c) : "var(--d-faint)" }}>{lista ? n : "–"}</div><div className="mt-1 text-[11px] leading-tight text-[var(--d-muted)]">{l}</div></div>))}
       </div>
       <div className="mt-4 space-y-4">
-        {lista === null ? <Esqueleto filas={5} alto={60} /> : !lista.length ? <div className="dom-card rounded-3xl"><Vacio dibujo="listo" titulo="Sin checadas" texto={rango === "hoy" ? "Todavía nadie ha checado hoy." : "No hay registros en estos días."} /></div>
+        {lista === null ? <Esqueleto filas={5} alto={60} /> : !lista.length ? <div className="dom-card rounded-3xl"><Vacio ico={IcoChecada} color="#64748b" titulo="Sin checadas" texto={rango === "hoy" ? "Todavía nadie ha checado hoy." : "No hay registros en estos días."} /></div>
           : porDia.map(([dia, l]) => (
             <section key={dia}>
               {rango === "semana" && <h2 className="mb-1.5 text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)] first-letter:uppercase">{diaTxt(dia)}</h2>}

@@ -1,7 +1,7 @@
 "use client";
 /** Proveedores en el teléfono (Doménica 27 · 11-Oct-2026): buscar, llamar/WhatsApp y ver datos bancarios en un toque. Alta y edición: modo completo. */
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Copy } from "lucide-react";
+import { Plus, Copy, ChevronRight } from "lucide-react";
 import { IcoBodega } from "@/components/domenica/IconosObra";
 import { Hoja, useAviso } from "@/components/domenica/ui";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
@@ -29,7 +29,7 @@ export default function ProveedoresMovil() {
         {lista === null ? <div className="p-3"><Esqueleto filas={6} alto={56} /></div> : vis.length === 0 ? <p className="p-6 text-center text-[var(--d-muted)]">Sin resultados.</p> : vis.map(s => (
           <div key={s.id} role="button" tabIndex={0} onClick={() => setVer(s)} className="flex items-center gap-3 px-3.5 py-3 active:bg-[var(--d-hover)]">
             <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{s.name}</div><div className="text-[12.5px] text-[var(--d-muted)] truncate">{[s.contact_name, cats(s.categories)[0]].filter(Boolean).join(" · ") || "Sin contacto"}</div></div>
-            <Contacto tel={tel(s)} />
+            <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />
           </div>))}
       </div>
       {lista && vis.length === 150 && <p className="mt-2 text-center text-[12px] text-[var(--d-muted)]">Escribe para encontrar más.</p>}

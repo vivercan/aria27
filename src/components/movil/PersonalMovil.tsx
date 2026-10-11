@@ -37,7 +37,7 @@ export default function PersonalMovil() {
           <div key={e.id} role="button" tabIndex={0} onClick={() => setVer(e)} className="flex items-center gap-3 px-3.5 py-3 active:bg-[var(--d-hover)]">
             <span className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-[15px]" style={{ background: colorPersona(e.full_name) }}>{iniciales(e.full_name)}</span>
             <span className="flex-1 min-w-0"><span className="block text-[15px] font-semibold text-[var(--d-text)] truncate">{e.full_name}</span><span className="block text-[12.5px] text-[var(--d-muted)] truncate">{[e.position, obraDe(e)].filter(Boolean).join(" · ") || "Sin puesto"}</span></span>
-            {e.whatsapp ? <Contacto tel={e.whatsapp} /> : <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />}
+            <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />
           </div>))}
       </div>
       <ModoCompleto texto="Alta, expediente y nómina: modo completo" />
