@@ -15,7 +15,7 @@ const log = logger("BACKUP-RESTORE");
 
 const ALLOWED_EMAILS = [
   "juanviverosv@gmail.com",          // JJ — administrador principal
-  "recursos.humanos@gcuavante.com",   // Deya Montalvo — Recursos Humanos
+  "recursos.humanos@gcuavante.com",   // Deyanira Montalvo — Recursos Humanos
 ];
 
 async function resolveUserEmail(req: NextRequest): Promise<string | null> {
