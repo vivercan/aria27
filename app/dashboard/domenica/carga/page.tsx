@@ -11,7 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
 
 type Fila = { id: string; nombre: string; abiertas: number; atrasadas: number; semana: number; atoradas: number; obras: Set<string> };
-const nivel = (n: number) => n >= 15 ? { t: "Saturado", c: "#e2445c" } : n >= 8 ? { t: "Cargado", c: "#fdab3d" } : n === 0 ? { t: "Libre", c: "#94a3b8" } : { t: "Bien", c: "#00c875" };
+const nivel = (n: number, atr = 0) => n >= 15 || atr >= 5 ? { t: n >= 15 ? "Saturado" : "Muy atrasado", c: "#e2445c" } : n >= 8 || atr >= 2 ? { t: n >= 8 ? "Cargado" : "Con atrasos", c: "#fdab3d" } : n === 0 ? { t: "Libre", c: "#94a3b8" } : { t: "Bien", c: "#00c875" };
 
 export default function CargaPage() {
   const [acts, setActs] = useState<Actividad[] | null>(null);
@@ -53,11 +53,11 @@ export default function CargaPage() {
         {acts === null ? <div className="py-16 text-center"><Loader2 className="w-7 h-7 mx-auto animate-spin text-[var(--d-muted)]" /></div> : (
           <>
             <div className="mt-5 grid grid-cols-3 gap-2">
-              {[{ n: conTrabajo.length, l: "Con actividades", c: "#0073ea" }, { n: saturados, l: "Saturados", c: "#e2445c" }, { n: libres.length, l: "Sin actividades", c: "#94a3b8" }].map((k, i) => (
+              {[{ n: conTrabajo.length, l: "Con actividades", c: "#0073ea" }, { n: saturados, l: "Saturados o muy atrasados", c: "#e2445c" }, { n: libres.length, l: "Sin actividades", c: "#94a3b8" }].map((k, i) => (
                 <div key={k.l} className="dom-card dom-in rounded-2xl p-3" style={{ animationDelay: `${i * 60}ms` }}><div className="text-[26px] font-bold leading-none" style={{ color: k.c }}>{k.n}</div><div className="mt-1.5 text-[11.5px] text-[var(--d-muted)]">{k.l}</div></div>))}
             </div>
             <div className="mt-5 space-y-2">
-              {conTrabajo.map((f, i) => { const nv = nivel(f.abiertas); return (
+              {conTrabajo.map((f, i) => { const nv = nivel(f.abiertas, f.atrasadas); return (
                 <Link key={f.id} href={`/dashboard/actividades?vista=lista&persona=${f.id}`} className="dom-card dom-in rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition" style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}>
                   <span className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: colorPersona(f.nombre) }}>{iniciales(f.nombre)}</span>
                   <div className="flex-1 min-w-0">
