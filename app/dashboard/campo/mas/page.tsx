@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FileText, CalendarDays, PackageCheck, HardHat, Truck, Package, Users, UserCog, Fingerprint, Zap, Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone, Building2, LayoutTemplate, Repeat, BarChart3 } from "lucide-react";
+import { ShieldCheck, Map as MapIcon, FileText, CalendarDays, PackageCheck, HardHat, Truck, Package, Users, UserCog, Fingerprint, Zap, Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone, Building2, LayoutTemplate, Repeat, BarChart3 } from "lucide-react";
 import { guardarTema, useTemaDom, type TemaDom } from "@/lib/dom-tema";
 import { estadoPush, activarPush } from "@/lib/push-client";
 import { iniciales, colorPersona } from "@/lib/actividades";
@@ -18,7 +18,9 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
     { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: PackageCheck, color: "#00c875" },
   ] },
   { titulo: "Obras", items: [
-    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, atrasos y gasto de cada obra", icon: Building2, color: "#ff642e" },
+    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: Building2, color: "#ff642e" },
+    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Calidad y seguridad con foto y firma", icon: ShieldCheck, color: "#0f766e" },
+    { href: "/dashboard/domenica/planos", t: "Planos", d: "Marca pendientes encima del plano", icon: MapIcon, color: "#0073ea" },
     { href: "/dashboard/obras/catalogo", t: "Dar de alta una obra", d: "Con su ubicación GPS", icon: HardHat, color: "#ff642e" },
   ] },
   { titulo: "Compras", items: [

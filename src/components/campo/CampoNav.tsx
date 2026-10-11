@@ -6,15 +6,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, FileText, ClipboardList, MoreHorizontal, Plus } from "lucide-react";
+import { IcoInicio, IcoSolicitudes, IcoActividades, IcoMas, IcoMasGrande } from "@/components/domenica/Iconos";
 import AccionRapida from "@/components/campo/AccionRapida";
 
 const TABS = [
-  { href: "/dashboard/campo", label: "Inicio", icon: Home, match: (p: string) => p === "/dashboard/campo" },
-  { href: "/dashboard/requisiciones/requisiciones/estatus", label: "Solicitudes", icon: FileText, match: (p: string) => p.startsWith("/dashboard/requisiciones/requisiciones") },
+  { href: "/dashboard/campo", label: "Inicio", icon: IcoInicio, match: (p: string) => p === "/dashboard/campo" },
+  { href: "/dashboard/requisiciones/requisiciones/estatus", label: "Solicitudes", icon: IcoSolicitudes, match: (p: string) => p.startsWith("/dashboard/requisiciones/requisiciones") },
   null,
-  { href: "/dashboard/actividades", label: "Actividades", icon: ClipboardList, match: (p: string) => p.startsWith("/dashboard/actividades") || p.startsWith("/dashboard/campo/calendario") },
-  { href: "/dashboard/campo/mas", label: "Más", icon: MoreHorizontal, match: (p: string) => p.startsWith("/dashboard/campo/mas") || p.startsWith("/dashboard/domenica") },
+  { href: "/dashboard/actividades", label: "Actividades", icon: IcoActividades, match: (p: string) => p.startsWith("/dashboard/actividades") || p.startsWith("/dashboard/campo/calendario") },
+  { href: "/dashboard/campo/mas", label: "Más", icon: IcoMas, match: (p: string) => p.startsWith("/dashboard/campo/mas") || p.startsWith("/dashboard/domenica") },
 ];
 
 export default function CampoNav() {
@@ -28,13 +28,13 @@ export default function CampoNav() {
             if (!t) return (
               <li key="mas-accion" className="flex justify-center">
                 <button onClick={() => setAbierto(true)} aria-label="Crear algo nuevo" className="-mt-6 mb-1 w-[60px] h-[60px] rounded-full flex items-center justify-center text-white active:scale-95 transition" style={{ background: "linear-gradient(135deg,#0073ea,#7e3bdd)", boxShadow: "0 12px 24px -10px #4f46e5, 0 0 0 5px var(--d-bg)" }}>
-                  <Plus className="w-8 h-8" strokeWidth={2.6} />
+                  <IcoMasGrande />
                 </button>
               </li>);
             const active = t.match(path); const Icon = t.icon;
             return (
               <li key={i}><Link href={t.href} className={`flex flex-col items-center gap-0.5 pt-1.5 pb-2 text-[10.5px] font-semibold ${active ? "text-[var(--d-text)]" : "text-[var(--d-faint)]"}`} aria-current={active ? "page" : undefined}>
-                <span className={`flex items-center justify-center h-8 w-12 rounded-full transition-all duration-200 ${active ? "bg-[#0073ea]/[0.12]" : ""}`}><Icon className="w-[22px] h-[22px]" style={active ? { color: "#0073ea" } : undefined} strokeWidth={active ? 2.3 : 1.9} /></span>{t.label}</Link></li>);
+                <span className={`flex items-center justify-center h-8 w-12 rounded-full transition-all duration-200 ${active ? "bg-[#0073ea]/[0.12]" : ""}`}><Icon activo={active} className="w-[24px] h-[24px]" /></span>{t.label}</Link></li>);
           })}
         </ul>
       </nav>
