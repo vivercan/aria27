@@ -237,7 +237,10 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col justify-center px-5 py-8 max-w-md w-full mx-auto">
         <div className="text-center">
           <div className="flex justify-center scale-[1.35] origin-bottom"><DomenicaLogo grande /></div>
-          <p className="mt-3 text-[13px] font-semibold tracking-[0.22em] uppercase text-slate-500">by <span className="text-[#0060c7] font-extrabold">ARIA</span><span className="text-[#b85507] font-extrabold">27</span></p>
+          <div className="mt-3 flex flex-col items-center gap-1">
+            <div className="flex items-baseline gap-1.5"><span className="text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-500">by</span><span className="text-[19px] font-black tracking-[-0.04em] text-[#2563EB]">ARIA</span><span className="-ml-1.5 text-[19px] font-black tracking-[-0.04em] text-[#1e293b]">27</span></div>
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500"><svg width="18" height="9" viewBox="0 0 36 18" aria-hidden="true"><path d="M9 3c3.5 0 6 3 9 6s5.5 6 9 6a6 6 0 0 0 0-12c-3.5 0-6 3-9 6s-5.5 6-9 6A6 6 0 0 1 9 3Z" fill="none" stroke="#2563EB" strokeWidth="3" /></svg>Infinity Loop</div>
+          </div>
         </div>
         {ofrecer ? (
           <div className="mt-8 rounded-3xl bg-white p-6 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] text-center">
