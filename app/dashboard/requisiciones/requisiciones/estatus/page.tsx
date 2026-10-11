@@ -526,7 +526,7 @@ export default function RequisicionesStatusPage() {
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   {toca && acc ? <span className="shrink-0 rounded-full bg-[#e8760a] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span>
-                    : <span className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--d-text-2)] truncate"><i className="shrink-0 w-2 h-2 rounded-full" style={{ background: COLOR_ESTADO[req.status] || "#64748b" }} />{queSigue(req.status)}</span>}
+                    : <span className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--d-text-2)] truncate"><i className="shrink-0 inline-block w-2.5 h-2.5 rounded-full" style={{ background: COLOR_ESTADO[req.status] || "#64748b" }} />{queSigue(req.status)}</span>}
                 </div>
               </button>); })}
             {listaMovil.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({listaMovil.length - nMovil})</button>}
@@ -660,7 +660,7 @@ export default function RequisicionesStatusPage() {
 
       {/* Modal Detalle */}
       {detailReq && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setDetailReq(null)}>
+        <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setDetailReq(null)}>
           <div className="bg-[var(--d-surface)] md:bg-[var(--d-bg)] rounded-t-[28px] md:rounded-2xl border border-[var(--d-border)] w-full max-w-2xl max-h-[92vh] md:max-h-[85vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-[var(--d-border)]">
               <div>

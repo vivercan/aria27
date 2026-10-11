@@ -1380,3 +1380,10 @@ html.es-tel:not(.ver-web) .vista-web { display: none !important; }
 /* 11-Oct-2026: controles nativos (barras, fechas, selects) en claro cuando Doménica está en claro */
 body.dom-ruta:not(.dom-oscuro) { color-scheme: light; }
 body.dom-ruta.dom-oscuro { color-scheme: dark; }
+
+/* 11-Oct-2026 · Doménica: sin efecto "botón 3D" (pared negra y degradado). El selector viejo de botones
+   tenía un salto de línea que lo volvía "cualquier cosa con fondo DENTRO de un botón" (avatares, íconos). */
+body.dom-ruta button[style*="background"], body.dom-ruta button [style*="background"],
+body.dom-ruta a [style*="background"], body.dom-ruta .aria-sheet [style*="background"] { box-shadow: none !important; transform: none !important; }
+body.dom-ruta button[style*="background"]::after, body.dom-ruta button [style*="background"]::after,
+body.dom-ruta .aria-sheet [style*="background"]::after { content: none !important; }
