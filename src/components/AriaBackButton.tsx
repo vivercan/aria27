@@ -37,7 +37,8 @@ export default function AriaBackButton({
         if (onClick) { onClick(); return; }
         // 10-Oct-2026: en celular, regresar nunca abre un menu de la web
         if (isMobileDevice()) {
-          if (typeof window !== "undefined" && window.history.length > 1) { router.back(); return; }
+          let pasos = 0; try { pasos = Number(sessionStorage.getItem("dom:nav") || 0); } catch { /* */ }
+          if (pasos > 1 && window.history.length > 1) { router.back(); return; }
           router.push(rutaRegresoMovil(href) || "/dashboard/campo"); return;
         }
         if (href) { router.push(href); return; }

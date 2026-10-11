@@ -17,7 +17,7 @@ import {
 import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
 import DomenicaLogo from "@/components/campo/DomenicaLogo";
-import { esRutaDomenica, leerTema, aplicarTema } from "@/lib/dom-tema";
+import { esRutaDomenica, leerTema, aplicarTema, guardarTema, useTemaDom } from "@/lib/dom-tema";
 import { isMobileDevice, HUBS_WEB } from "@/lib/device";
 import { registrarSW } from "@/lib/push-client";
 
@@ -173,6 +173,16 @@ function ThemeToggle() {
   );
 }
 
+/** Doménica.27: en celular el sol/luna del encabezado cambia el tema claro/oscuro de Doménica */
+function DomTemaToggle() {
+  const t = useTemaDom();
+  return (
+    <button onClick={() => { const n = t === "claro" ? "oscuro" : "claro"; guardarTema(n); }} className="p-2 rounded-lg" aria-label={t === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}>
+      {t === "claro" ? <Moon className="w-5 h-5" style={{ color: "#334155" }} /> : <Sun className="w-5 h-5" style={{ color: "#fdab3d" }} />}
+    </button>
+  );
+}
+
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const log = clientLogger("DASHBOARD");
   const { theme, season, colors } = useTheme();
@@ -189,7 +199,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   useEffect(() => { try { setModoCampo(localStorage.getItem("aria:modo") === "campo"); } catch {} }, [pathname]);
   useEffect(() => { try { document.body.classList.toggle("aria-campo", modoCampo); } catch {} }, [modoCampo]);
   // Doménica: diseño claro (u oscuro si el usuario lo eligio) en sus pantallas
-  useEffect(() => { try { document.body.classList.toggle("dom-ruta", esRutaDomenica(pathname)); aplicarTema(leerTema()); } catch {} }, [pathname]);
+  useEffect(() => { try { document.body.classList.toggle("dom-ruta", esRutaDomenica(pathname)); aplicarTema(leerTema()); sessionStorage.setItem("dom:nav", String(Number(sessionStorage.getItem("dom:nav") || 0) + 1)); } catch {} }, [pathname]);
   // 10-Oct-2026: service worker (notificaciones del telefono + abrir sin senal) y aviso de "Sin senal"
   const [sinSenal, setSinSenal] = useState(false);
   useEffect(() => {
@@ -760,7 +770,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
             {/* Right group */}
             <div className="flex items-center gap-3 ml-auto">
-              <ThemeToggle />
+              {esMovil ? <DomTemaToggle /> : <ThemeToggle />}
 
               {/* Date + Avatar — grouped pill container */}
               <div

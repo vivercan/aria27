@@ -7,8 +7,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileText, PlusCircle, ListTodo, CalendarDays, PackageCheck, HardHat, Truck, Package, Users, UserCog, Fingerprint, Zap, Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone } from "lucide-react";
-import DomenicaLogo from "@/components/campo/DomenicaLogo";
-import { leerTema, guardarTema, type TemaDom } from "@/lib/dom-tema";
+import { guardarTema, useTemaDom, type TemaDom } from "@/lib/dom-tema";
 import { estadoPush, activarPush } from "@/lib/push-client";
 import { iniciales, colorPersona } from "@/lib/actividades";
 
@@ -41,14 +40,13 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
 export default function MasPage() {
   const router = useRouter();
   const [me, setMe] = useState<{ email: string; role: string; name: string } | null>(null);
-  const [tema, setTema] = useState<TemaDom>("claro");
+  const tema = useTemaDom();
   const [push, setPush] = useState(""); const [pushMsg, setPushMsg] = useState("");
   useEffect(() => {
-    setTema(leerTema());
     estadoPush().then(setPush).catch(() => setPush("no-soportado"));
     fetch("/api/auth/me", { credentials: "include", cache: "no-store" }).then(r => r.ok ? r.json() : null).then(u => { if (u) setMe({ email: String(u.email || ""), role: String(u.role || "").toLowerCase(), name: u.display_name || u.name || u.email }); }).catch(() => {});
   }, []);
-  const cambiarTema = (t: TemaDom) => { setTema(t); guardarTema(t); };
+  const cambiarTema = (t: TemaDom) => guardarTema(t);
   const salir = async () => { try { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); } catch { /* */ } try { localStorage.removeItem("userEmail"); } catch { /* */ } router.replace("/"); };
   const visible = (i: Item) => !i.roles || (me && (i.roles.includes(me.role) || me.role === "administrador"));
 
@@ -61,7 +59,6 @@ export default function MasPage() {
             <div className="text-lg font-bold text-[var(--d-text)] truncate">{me?.name || "…"}</div>
             <div className="text-[12.5px] text-[var(--d-muted)] truncate">{me?.email}</div>
           </div>
-          <DomenicaLogo />
         </div>
 
         {SECCIONES.map(sec => { const items = sec.items.filter(visible); if (!items.length) return null; return (

@@ -7,8 +7,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PlusCircle, ClipboardCheck, PackageCheck, CalendarDays, FileText, ChevronRight, Loader2, X, Share, ListTodo, BellRing, Sun, Moon } from "lucide-react";
-import { leerTema, guardarTema, type TemaDom } from "@/lib/dom-tema";
+import { PlusCircle, ClipboardCheck, PackageCheck, CalendarDays, FileText, ChevronRight, Loader2, X, Share, ListTodo, BellRing } from "lucide-react";
 import { estadoPush, activarPush } from "@/lib/push-client";
 import { supabase } from "@/lib/supabase";
 import { accionPara, statusLabel } from "@/lib/requi-stepper";
@@ -23,8 +22,6 @@ export default function CampoHome() {
   const [reqs, setReqs] = useState<R[]>([]);
   const [acts, setActs] = useState<Actividad[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tema, setTema] = useState<TemaDom>("claro");
-  useEffect(() => { setTema(leerTema()); const h = () => setTema(leerTema()); window.addEventListener("dom:tema", h); return () => window.removeEventListener("dom:tema", h); }, []);
   const [saludo, setSaludo] = useState("Hola"); const [hoyTxt, setHoyTxt] = useState("");
   const [isIos, setIsIos] = useState(false); const [verInstalar, setVerInstalar] = useState(false);
   const [push, setPush] = useState<string>(""); const [pushBusy, setPushBusy] = useState(false); const [pushMsg, setPushMsg] = useState("");
@@ -101,7 +98,6 @@ export default function CampoHome() {
               <h1 className="text-[26px] font-bold text-white leading-tight">{saludo}{nombre ? `, ${nombre}` : ""}</h1>
               <p className="mt-1 text-[13px] text-white/85">{loading ? "Revisando tus pendientes…" : items.length === 0 ? "Todo al día. No tienes nada pendiente 🎉" : `Tienes ${items.length} cosa${items.length === 1 ? "" : "s"} por atender`}</p>
             </div>
-            <button onClick={() => { const t = tema === "claro" ? "oscuro" : "claro"; setTema(t); guardarTema(t); }} className="shrink-0 w-10 h-10 rounded-full bg-white/15 flex items-center justify-center active:scale-90 transition" aria-label={tema === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}>{tema === "claro" ? <Moon className="w-5 h-5 text-white" /> : <Sun className="w-5 h-5 text-white" />}</button>
             {me && <span className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/30" style={{ background: colorPersona(me.name) }}>{iniciales(me.name)}</span>}
           </div>
         </div>
