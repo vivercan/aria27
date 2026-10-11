@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
 
 type Fila = { id: string; nombre: string; abiertas: number; atrasadas: number; semana: number; atoradas: number; obras: Set<string> };
-const nivel = (n: number, atr = 0) => n >= 15 || atr >= 5 ? { t: n >= 15 ? "Saturado" : "Muy atrasado", c: "#c2182b" } : n >= 8 || atr >= 2 ? { t: n >= 8 ? "Cargado" : "Con atrasos", c: "#b45309" } : n === 0 ? { t: "Libre", c: "#64748b" } : { t: "Bien", c: "#047857" };
+const nivel = (n: number, atr = 0) => n >= 15 || atr >= 5 ? { t: n >= 15 ? "Saturado" : "Muy atrasado", c: "#c2182b" } : n >= 8 || atr >= 2 ? { t: n >= 8 ? "Cargado" : "Con atrasos", c: "#b45309" } : n === 0 ? { t: "Libre", c: "#64748b" } : { t: "Bien", c: "#2fb800" };
 
 export default function CargaPage() {
   const [acts, setActs] = useState<Actividad[] | null>(null);
@@ -51,7 +51,7 @@ export default function CargaPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-4xl mx-auto">
-        <DomHeader icon={IcoEquipo} from="#00a35c" titulo="Carga de trabajo" desc="Quién está saturado y quién tiene espacio. Toca a una persona para ver sus actividades." />
+        <DomHeader icon={IcoEquipo} from="#3cde01" titulo="Carga de trabajo" desc="Quién está saturado y quién tiene espacio. Toca a una persona para ver sus actividades." />
         {acts === null ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (
           <>
             <div className="mt-5 grid grid-cols-3 gap-2">

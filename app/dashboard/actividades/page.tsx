@@ -256,7 +256,7 @@ export default function ActividadesPage() {
                 onClick={e => { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); }}
                 onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); } }}
                 className="-m-2 p-2 shrink-0 inline-flex">
-                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#00c875] border-[#00c875] text-[#06281a]" : "border-[var(--d-faint)] hover:border-[#00c875] hover:bg-[#00c875]/15"}`}>
+                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#3cde01] border-[#3cde01] text-white" : "border-[var(--d-faint)] hover:border-[#3cde01] hover:bg-[#3cde01]/15"}`}>
                   {col === "TERMINADA" ? <span className="text-[13px] font-black">✓</span> : null}
                 </span>
               </span>
@@ -301,7 +301,7 @@ export default function ActividadesPage() {
       }}
       onPointerCancel={() => { const sw = swipe.current; swipe.current = null; if (sw?.el) { sw.el.style.transition = "transform .22s ease"; sw.el.style.transform = "translateX(0)"; } }}>
       <div data-fondo className="absolute inset-0 flex items-center justify-between px-4 text-sm font-bold opacity-0">
-        <span className="text-[#06281a] bg-[#00c875] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4">✓ Terminar</span>
+        <span className="text-white bg-[#3cde01] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4">✓ Terminar</span>
         <span className="text-white bg-[#e2445c] absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-4">Atorada ⚠</span>
       </div>
       <div className="relative">{tarjeta(a)}</div>
@@ -530,7 +530,7 @@ export default function ActividadesPage() {
 
       {nueva && me && <Nueva emps={emps} obras={obras} miEmp={miEmp} carga={carga} onClose={() => setNueva(false)} onCreated={async (id, notif) => { setNueva(false); await cargar(); setAbierta(id); flash("ok", notif ? "Creada y avisada por WhatsApp" : "Actividad creada"); }} flash={flash} />}
 
-      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#00c875] text-[#06281a]" : "bg-[#e2445c] text-white"}`}>{toast.m}</div>}
+      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#e2445c] text-white"}`}>{toast.m}</div>}
     </div>
   );
 }
@@ -653,9 +653,9 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
           <div>
             <div className="flex items-center justify-between mb-2"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Avance</span><span className="text-2xl font-bold text-[var(--d-text)]">{avance}%</span></div>
             <input type="range" min={0} max={100} step={5} value={avance} disabled={!puedeEditar} onChange={e => setAvance(Number(e.target.value))} onMouseUp={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }} onTouchEnd={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }}
-              className="w-full accent-[#00c875]" />
+              className="w-full accent-[#3cde01]" />
             <div className="mt-2 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => (
-              <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#00c875] text-[#06281a]" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}>{p}%</button>))}</div>
+              <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#3cde01] text-white" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}>{p}%</button>))}</div>
           </div>
 
           </div>
@@ -692,10 +692,10 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
           {/* Checklist */}
           <div>
             <div className="flex items-center justify-between mb-2"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Pasos</span>{checklist.length > 0 && <span className="text-xs text-[var(--d-text-2)]">{hechos} de {checklist.length}</span>}</div>
-            {checklist.length > 0 && <div className="mb-2 h-1.5 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full bg-[#00c875] transition-all" style={{ width: `${(hechos / checklist.length) * 100}%` }} /></div>}
+            {checklist.length > 0 && <div className="mb-2 h-1.5 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full bg-[#3cde01] transition-all" style={{ width: `${(hechos / checklist.length) * 100}%` }} /></div>}
             <div className="space-y-1">{checklist.map(c => (
               <div key={c.id} className="group flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-[var(--d-hover)]">
-                <button onClick={() => toggleChk(c)} className="shrink-0" aria-label={c.hecho ? "Desmarcar" : "Marcar"}>{c.hecho ? <CheckSquare className="w-5 h-5 text-[#00c875]" /> : <Square className="w-5 h-5 text-[var(--d-muted)]" />}</button>
+                <button onClick={() => toggleChk(c)} className="shrink-0" aria-label={c.hecho ? "Desmarcar" : "Marcar"}>{c.hecho ? <CheckSquare className="w-5 h-5 text-[#1f8f00]" /> : <Square className="w-5 h-5 text-[var(--d-muted)]" />}</button>
                 <span className={`flex-1 text-sm ${c.hecho ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"}`}>{c.texto}</span>
                 <button onClick={() => delChk(c)} className="opacity-60 md:opacity-0 group-hover:opacity-100 p-1 text-[var(--d-muted)] hover:text-[var(--d-danger)]" aria-label="Quitar paso"><X className="w-3.5 h-3.5" /></button>
               </div>))}</div>
@@ -739,7 +739,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
 
         <div className="px-5 py-3 border-t border-[var(--d-border)] flex items-center gap-2" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
           {puedeBorrar && <button onClick={borrar} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-[var(--d-danger)] hover:bg-[#e2445c]/10"><Trash2 className="w-4 h-4" />Borrar</button>}
-          {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#00c875] px-5 py-2.5 text-sm font-bold text-[#06281a] active:scale-95">✓ Terminada</button>}
+          {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#3cde01] px-5 py-2.5 text-sm font-bold text-white active:scale-95">✓ Terminada</button>}
         </div>
       </div>
     </div>

@@ -4,8 +4,8 @@ import Link from "next/link";
 const DIBUJOS = {
   listo: (
     <svg viewBox="0 0 120 120" className="w-28 h-28" aria-hidden>
-      <circle cx="60" cy="60" r="52" fill="#00c875" opacity=".12" /><circle cx="60" cy="60" r="38" fill="#00c875" opacity=".18" />
-      <path d="M42 61l12 12 25-27" fill="none" stroke="#00a35c" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="60" cy="60" r="52" fill="#3cde01" opacity=".12" /><circle cx="60" cy="60" r="38" fill="#3cde01" opacity=".18" />
+      <path d="M42 61l12 12 25-27" fill="none" stroke="#3cde01" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="96" cy="26" r="5" fill="#fdab3d" /><circle cx="22" cy="34" r="3.5" fill="#a25ddc" /><circle cx="100" cy="88" r="3" fill="#579bfc" />
     </svg>),
   caja: (

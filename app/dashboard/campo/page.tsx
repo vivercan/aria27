@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, X, Share, BellRing, MapPin } from "lucide-react";
-import { Ficha, IcoCalendario, IcoObra, IcoCamion, IcoSello, IcoTarea, IcoSaco, type Ico } from "@/components/domenica/IconosObra";
+import { Ficha, IcoCalendario, IcoObra, IcoCamion, IcoSello, IcoTarea, IcoSaco, IcoMicro, type Ico } from "@/components/domenica/IconosObra";
 import { obraAqui, type ObraGeo } from "@/lib/geo";
 import { enRiesgo } from "@/lib/riesgo";
 import { normObra } from "@/lib/obras-dom";
@@ -94,7 +94,7 @@ export default function CampoHome() {
       const a = accionPara(r, me.role, me.email);
       const boton = a === "AUTORIZAR_RESPONSABLE" ? "Autorizar" : a === "COTIZAR" ? "Cotizar" : a === "APROBAR_DIRECCION" ? "Aprobar" : a === "PAGAR" ? "Pagar" : "Ver";
       const autoriza = a === "AUTORIZAR_RESPONSABLE" || a === "APROBAR_DIRECCION";
-      out.push({ obra: r.cost_center_name, key: "r" + r.id, href: autoriza ? "/dashboard/campo/autorizar" : `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, titulo: `${r.folio} · ${r.cost_center_name || ""}`, sub: statusLabel(r.status) + (r.proveedor ? ` · ${r.proveedor}` : ""), boton, color: autoriza ? "#00a35c" : "#e8760a", icon: "req", urg: 2 });
+      out.push({ obra: r.cost_center_name, key: "r" + r.id, href: autoriza ? "/dashboard/campo/autorizar" : `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, titulo: `${r.folio} · ${r.cost_center_name || ""}`, sub: statusLabel(r.status) + (r.proveedor ? ` · ${r.proveedor}` : ""), boton, color: autoriza ? "#3cde01" : "#e8760a", icon: "req", urg: 2 });
     }
     for (const a of acts) {
       const d = diasAtraso(a); const h = venceHoy(a); const col = columnaDe(a); const rg = enRiesgo(a, hoyIso);
@@ -121,6 +121,12 @@ export default function CampoHome() {
             {me && <span className="shrink-0 w-10 h-10 text-base rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/30" style={{ background: colorPersona(me.name) }}>{iniciales(me.name)}</span>}
           </div>
         </div>
+
+        {/* Voz primero: un toque y le dices lo que necesitas */}
+        <button type="button" onClick={() => { try { window.dispatchEvent(new Event("dom:hablar")); } catch { /* */ } }} className="dom-in mt-3 w-full flex items-center gap-3 rounded-2xl bg-[#6d35c9] px-3.5 py-3 text-left text-white active:scale-[0.99] transition">
+          <span className="shrink-0 w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center"><IcoMicro className="w-6 h-6" color="#fff" /></span>
+          <span className="flex-1 min-w-0"><span className="block text-[16px] font-bold leading-tight">Toca y dime qué necesitas</span><span className="block text-[12.5px] text-white/85 truncate">“Haz una requisición” · “Anota mis pendientes”</span></span>
+        </button>
 
         {/* Estás en una obra (geocerca): lo de esa obra primero */}
         {aqui ? (
@@ -192,7 +198,7 @@ export default function CampoHome() {
         {/* Atajos discretos (lo demás está en el botón +) */}
         <div className="mt-4 grid grid-cols-3 gap-2">
           {(porAutorizar > 0 ? [
-            { href: "/dashboard/campo/autorizar", t: `Por autorizar (${porAutorizar})`, icon: IcoSello, c: "#00a35c" },
+            { href: "/dashboard/campo/autorizar", t: `Por autorizar (${porAutorizar})`, icon: IcoSello, c: "#3cde01" },
             { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#ff642e" },
             { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#e8760a" },
           ] : [

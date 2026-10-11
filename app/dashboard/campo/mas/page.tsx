@@ -15,7 +15,7 @@ import { iniciales, colorPersona } from "@/lib/actividades";
 type Item = { href: string; t: string; d: string; icon: Ico; color: string; roles?: string[] };
 const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[] = [
   { titulo: "Mi día", items: [
-    { href: "/dashboard/campo/autorizar", t: "Por autorizar", d: "Autoriza o rechaza en un toque", icon: IcoSello, color: "#00a35c", roles: ["admin", "direccion", "validador", "residente"] },
+    { href: "/dashboard/campo/autorizar", t: "Por autorizar", d: "Autoriza o rechaza en un toque", icon: IcoSello, color: "#3cde01", roles: ["admin", "direccion", "validador", "residente"] },
     { href: "/dashboard/campo/pregunta", t: "Pregúntale a Doménica", d: "“¿Qué está atrasado en Tanque?”", icon: IcoPregunta, color: "#7e3bdd" },
     { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: IcoCalendario, color: "#e8760a" },
     { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: IcoCamion, color: "#0086c0" },
@@ -38,7 +38,7 @@ const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[]
   { titulo: "Organizar el trabajo", icon: IcoOrganizar, color: "#7e3bdd", items: [
     { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
     { href: "/dashboard/domenica/recurrentes", t: "Recurrentes", d: "Lo que se repite se crea solo", icon: Repeat as unknown as Ico, color: "#0073ea" },
-    { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3 as unknown as Ico, color: "#00a35c", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+    { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3 as unknown as Ico, color: "#3cde01", roles: ["admin", "rh", "direccion", "validador", "compras"] },
     { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#e8760a", roles: ["admin", "rh", "direccion", "validador", "compras"] },
   ] },
 ];

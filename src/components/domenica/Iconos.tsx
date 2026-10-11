@@ -22,7 +22,7 @@ export function IcoActividades({ activo, className = "w-6 h-6" }: P) {
   const c = base(activo);
   return <svg viewBox="0 0 24 24" className={className} fill="none" strokeWidth={activo ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
     <rect x="4" y="4" width="16" height="16" rx="4.5" stroke={c.stroke} fill={c.fill} />
-    <path d="m8 12.2 2.6 2.6L16 9.4" stroke={activo ? "#00a35c" : "currentColor"} strokeWidth={activo ? 2.6 : 2} />
+    <path d="m8 12.2 2.6 2.6L16 9.4" stroke={activo ? "#3cde01" : "currentColor"} strokeWidth={activo ? 2.6 : 2} />
   </svg>;
 }
 export function IcoMas({ activo, className = "w-6 h-6" }: P) {

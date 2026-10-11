@@ -1368,3 +1368,6 @@ body.dom-ruta { background: var(--d-bg); }
   body, body.dom-ruta { background: #fff !important; }
   .dom-page { background: #fff !important; }
 }
+
+/* 11-Oct-2026: en teléfono, la espera del login ya es clara (sin pantallazo oscuro) */
+html.es-tel .login-espera { background: #eceff4 !important; }

@@ -3,7 +3,7 @@
  * Doménica 27 · barra inferior del celular (11-Oct-2026): Inicio · Solicitudes · [+] · Actividades · Más
  * Un solo botón "+" para crear cualquier cosa (menos botones en pantalla = más fácil para todos).
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IcoInicio, IcoSolicitudes, IcoActividades, IcoMas, IcoMasGrande } from "@/components/domenica/Iconos";
@@ -20,7 +20,9 @@ const TABS = [
 
 export default function CampoNav() {
   const path = usePathname() || "";
-  const [abierto, setAbierto] = useState(false);
+  const [abierto, setAbierto] = useState(false); const [auto, setAuto] = useState(false);
+  // El micrófono grande de Inicio abre la hoja escuchando de una vez
+  useEffect(() => { const f = () => { setAuto(true); setAbierto(true); }; window.addEventListener("dom:hablar", f); return () => window.removeEventListener("dom:hablar", f); }, []);
   return (
     <>
       <SinSenal />
@@ -40,7 +42,7 @@ export default function CampoNav() {
           })}
         </ul>
       </nav>
-      {abierto && <AccionRapida onClose={() => setAbierto(false)} />}
+      {abierto && <AccionRapida auto={auto} onClose={() => { setAbierto(false); setAuto(false); }} />}
     </>
   );
 }

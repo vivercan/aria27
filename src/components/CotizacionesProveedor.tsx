@@ -45,7 +45,7 @@ export default function CotizacionesProveedor({ reqId, puedePedir }: { reqId: st
               <div className="text-[12.5px] font-semibold text-[var(--d-text)]">Link listo. Mándalo al proveedor:</div>
               <div className="mt-1 break-all text-[12px] text-[var(--d-link)]">{nuevo.url}</div>
               <div className="mt-2 flex gap-2">
-                <a href={`https://wa.me/?text=${encodeURIComponent(nuevo.mensaje)}`} target="_blank" rel="noreferrer" className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#25d366] px-3 py-2 text-[13px] font-bold text-[#06281a]"><MessageCircle className="w-4 h-4" />WhatsApp</a>
+                <a href={`https://wa.me/?text=${encodeURIComponent(nuevo.mensaje)}`} target="_blank" rel="noreferrer" className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#25d366] px-3 py-2 text-[13px] font-bold text-white"><MessageCircle className="w-4 h-4" />WhatsApp</a>
                 <button onClick={async () => { try { await navigator.clipboard.writeText(nuevo.mensaje); setCopiado(true); setTimeout(() => setCopiado(false), 2000); } catch { /* */ } }} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--d-card-2)] px-3 py-2 text-[13px] font-semibold text-[var(--d-text)]"><Copy className="w-4 h-4" />{copiado ? "Copiado" : "Copiar"}</button>
               </div>
               <button onClick={() => setNuevo(null)} className="mt-2 text-[12px] text-[var(--d-muted)] underline">Pedir a otro proveedor</button>

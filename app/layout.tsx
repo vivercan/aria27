@@ -26,14 +26,28 @@ export const viewport: Viewport = {
   themeColor: "#0a1628",
 };
 
+// Misma regla que src/lib/device.ts (isMobileDevice), dom-tema.ts (esRutaDomenica/Movil) y HUBS_WEB, pero corre antes de React.
+const MODO_TELEFONO = `(function(){try{var n=navigator,u=n.userAgent||"",t=n.maxTouchPoints||0,w=innerWidth;
+var m=(n.userAgentData&&n.userAgentData.mobile)||/Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(u)||(/Macintosh/i.test(u)&&t>1)||(matchMedia("(pointer: coarse)").matches&&t>0&&w<900)||w<600;
+var p=location.pathname,d=document.documentElement,b=document.body;if(p.length>1&&p.charAt(p.length-1)==="/")p=p.slice(0,-1);
+if(!m){return}
+d.classList.add("es-tel");
+var hubs=["/dashboard","/dashboard/requisiciones","/dashboard/obras","/dashboard/talento","/dashboard/finanzas","/dashboard/activos","/dashboard/administracion","/dashboard/configuracion","/dashboard/comunicacion","/dashboard/reportes","/dashboard/clientes","/dashboard/admin","/dashboard/plantillas"];
+if(hubs.indexOf(p)>=0){location.replace("/dashboard/campo");return}
+var pre=["/dashboard/campo","/dashboard/actividades","/dashboard/domenica","/dashboard/domingo","/dashboard/requisiciones/requisiciones/nuevo","/dashboard/requisiciones/requisiciones/estatus","/dashboard/requisiciones/requisiciones/entrega"],dom=false;for(var i=0;i<pre.length;i++){if(p.indexOf(pre[i])===0)dom=true}
+if(dom){b.classList.add("dom-ruta");if(localStorage.getItem("dom:tema")==="oscuro")b.classList.add("dom-oscuro")}
+}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={fontDom.variable}>
-      <body className="antialiased bg-[#040810] text-white selection:bg-slate-600 selection:text-white">
+    <html lang="es" className={fontDom.variable} suppressHydrationWarning>
+      <body className="antialiased bg-[#040810] text-white selection:bg-slate-600 selection:text-white" suppressHydrationWarning>
+        {/* 11-Oct-2026: antes de pintar nada, el teléfono ya sabe que es teléfono (sin saltos de diseño al entrar ni al cambiar de pantalla) */}
+        <script dangerouslySetInnerHTML={{ __html: MODO_TELEFONO }} />
         {children}
       </body>
     </html>
