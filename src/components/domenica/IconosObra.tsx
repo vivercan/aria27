@@ -21,10 +21,10 @@ const suave = { fillOpacity: 0.3 } as const;
 
 /** Casco de obra — Obras / alta de obra */
 export const IcoCasco: Ico = p => <S {...p}>{(_, f) => <>
-  <path d="M4 16.5a8 8 0 0 1 16 0z" fill={f} {...suave} />
-  <path d="M10 8.9V6.6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2.3" />
-  <path d="M3 16.5h18v1.2a1.3 1.3 0 0 1-1.3 1.3H4.3A1.3 1.3 0 0 1 3 17.7z" />
-  <path d="M8 16.5v-3M16 16.5v-3" />
+  <path d="M4.5 16C4.5 11.2 7.8 7.6 12 7.6s7.5 3.6 7.5 8.4z" fill={f} {...suave} />
+  <path d="M10.4 7.8V6.2a1.6 1.6 0 0 1 3.2 0v1.6" />
+  <path d="M8.6 9.3 9.3 16M15.4 9.3 14.7 16" />
+  <path d="M2.5 16h19v1.4a1.6 1.6 0 0 1-1.6 1.6H4.1a1.6 1.6 0 0 1-1.6-1.6z" />
 </>}</S>;
 
 /** Edificio con grúa — Mis obras */
@@ -123,11 +123,12 @@ export const IcoPregunta: Ico = p => <S {...p}>{(_, f) => <>
   <path d="M10 7.5v5.5h1.6a2.75 2.75 0 0 0 0-5.5z" />
 </>}</S>;
 
-/** Equipo (dos cascos) */
+/** Equipo (dos personas) */
 export const IcoEquipo: Ico = p => <S {...p}>{(_, f) => <>
-  <path d="M3 12.5a5 5 0 0 1 10 0z" fill={f} {...suave} />
-  <path d="M2.5 12.5h11M11 9.7a5 5 0 0 1 9.5 2.8h1" />
-  <path d="M5 16.5c.6 2 2 3 3 3s2.4-1 3-3M15 16.5c.6 2 2 3 3 3s2.4-1 3-3" />
+  <circle cx="9" cy="8" r="3.2" />
+  <path d="M3 20.5a6 6 0 0 1 12 0z" fill={f} {...suave} />
+  <circle cx="17" cy="9" r="2.5" />
+  <path d="M16.4 14.1a4.8 4.8 0 0 1 4.6 4.9" />
 </>}</S>;
 
 /** Proveedor (tienda/bodega) */
@@ -144,10 +145,11 @@ export const IcoOrganizar: Ico = p => <S {...p}>{(_, f) => <>
   <path d="M17 13.5v7M13.5 17h7" />
 </>}</S>;
 
-/** Huella — checadas */
+/** Reloj con palomita — checadas / asistencia */
 export const IcoChecada: Ico = p => <S {...p}>{(_, f) => <>
-  <circle cx="12" cy="12" r="8.5" fill={f} {...suave} />
-  <path d="M8.5 15.5c.7-1.2 1-2.4 1-3.6a2.5 2.5 0 0 1 5 0c0 1.8-.4 3.4-1.2 4.8M12 12c0 1.6-.4 3-1.1 4.2" />
+  <circle cx="11" cy="12" r="8" fill={f} {...suave} />
+  <path d="M11 7.5V12l3 2" />
+  <path d="m15.5 19 2 2 4-4.2" />
 </>}</S>;
 
 /** Sin señal (antena tachada) */
