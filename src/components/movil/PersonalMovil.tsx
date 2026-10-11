@@ -9,7 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { colorPersona } from "@/lib/actividades";
 import { Encabezado, Buscador, Pestanas, Contacto, iniciales, ModoCompleto, Pagina } from "./base";
 
-type E = { id: string; employee_number: string | null; full_name: string; position: string | null; project_site: string | null; email: string | null; status: string | null; whatsapp: string | null; fecha_ingreso: string | null; empresa_id: string | null; centro_trabajo_id: string | null };
+type E = { id: string; employee_number: string | null; full_name: string; position: string | null; project_site: string | null; email: string | null; usuario_email: string | null; status: string | null; whatsapp: string | null; fecha_ingreso: string | null; empresa_id: string | null; centro_trabajo_id: string | null };
 const f = (d: string | null) => d ? new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" }) : "—";
 
 export default function PersonalMovil() {
@@ -17,7 +17,7 @@ export default function PersonalMovil() {
   const [q, setQ] = useState(""); const [tab, setTab] = useState<"activos" | "baja">("activos"); const [ver, setVer] = useState<E | null>(null);
   useEffect(() => { (async () => {
     const [{ data: p }, { data: e }, { data: o }] = await Promise.all([
-      supabase.from("Personal").select("id, employee_number, full_name, position, project_site, email, status, whatsapp, fecha_ingreso, empresa_id, centro_trabajo_id").order("full_name"),
+      supabase.from("Personal").select("id, employee_number, full_name, position, project_site, email, usuario_email, status, whatsapp, fecha_ingreso, empresa_id, centro_trabajo_id").order("full_name"),
       supabase.from("empresas").select("id, nombre"), supabase.from("centros_trabajo").select("id, nombre")]);
     setLista((p || []) as E[]); setEmp(Object.fromEntries(((e || []) as { id: string; nombre: string }[]).map(x => [x.id, x.nombre]))); setObras(Object.fromEntries(((o || []) as { id: string; nombre: string }[]).map(x => [x.id, x.nombre])));
   })(); }, []);
@@ -46,7 +46,7 @@ export default function PersonalMovil() {
           <div className="flex items-center gap-3"><span className="shrink-0 w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-[18px]" style={{ background: colorPersona(ver.full_name) }}>{iniciales(ver.full_name)}</span>
             <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">{ver.position || "Sin puesto"}</div><div className="text-[12.5px] text-[var(--d-muted)]">{ver.employee_number || ""}</div></div><Contacto tel={ver.whatsapp} /></div>
           <dl className="mt-4 grid grid-cols-2 gap-2">
-            {[["Obra", obraDe(ver)], ["Empresa", ver.empresa_id ? emp[ver.empresa_id] : null], ["Ingreso", f(ver.fecha_ingreso)], ["Estado", activo(ver) ? "Activo" : "De baja"], ["Correo", ver.email], ["WhatsApp", ver.whatsapp]].map(([k, v]) => (
+            {[["Obra", obraDe(ver)], ["Empresa", ver.empresa_id ? emp[ver.empresa_id] : null], ["Ingreso", f(ver.fecha_ingreso)], ["Estado", activo(ver) ? "Activo" : "De baja"], ["Correo", ver.usuario_email || ver.email], ["WhatsApp", ver.whatsapp]].map(([k, v]) => (
               <div key={String(k)} className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5 min-w-0"><dt className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">{k}</dt><dd className="text-[14px] font-semibold text-[var(--d-text)] truncate">{v || "—"}</dd></div>))}
           </dl>
           <a href={`/dashboard/talento/personal?web=1`} className="mt-2 block py-3 text-center text-[13px] font-semibold text-[var(--d-link)]">Editar expediente en modo completo</a>
