@@ -1346,6 +1346,8 @@ body.dom-ruta:not(.dom-oscuro) :is(.text-red-200,.text-red-300,.text-red-400) { 
 body.dom-ruta:not(.dom-oscuro) :is(.text-emerald-200,.text-emerald-300,.text-emerald-400,.text-green-300,.text-green-400) { color: #047857; }
 body.dom-ruta:not(.dom-oscuro) :is(.text-amber-200,.text-amber-300,.text-amber-400,.text-yellow-300,.text-orange-300) { color: #b45309; }
 body.dom-ruta:not(.dom-oscuro) :is(.text-indigo-300,.text-sky-300,.text-blue-300) { color: #3730a3; }
+body.dom-ruta { color: var(--d-text); }
+body.dom-ruta:not(.dom-oscuro) .aria-back-btn { background: #ffffff !important; color: #334155 !important; border: 1px solid rgba(15,23,42,.10) !important; box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 4px 12px -6px rgba(15,23,42,.25) !important; }
 /* Tipografía propia de Doménica (Plus Jakarta Sans); ARIA27 web sigue con la suya */
 body.dom-ruta, body.dom-ruta main { font-family: var(--font-dom), ui-sans-serif, system-ui, sans-serif; }
 body.dom-ruta { background: var(--d-bg); }

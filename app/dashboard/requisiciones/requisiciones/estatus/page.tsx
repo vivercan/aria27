@@ -92,6 +92,7 @@ export default function RequisicionesStatusPage() {
   }
   const [requisiciones, setRequisiciones] = useState<Requisition[]>([]);
   const [loading, setLoading] = useState(true);
+  const [nMovil, setNMovil] = useState(40); // celular: tarjetas por tandas
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -430,7 +431,7 @@ export default function RequisicionesStatusPage() {
         {canDelete && requisiciones.length > 0 && selectedIds.length === 0 && !lf.isActive && (
           <button
             onClick={() => openDeleteModal("all")}
-            className="aria-btn aria-btn-danger"
+            className="aria-btn aria-btn-danger hidden md:inline-flex"
           >
             <Trash2 className="w-4 h-4" />
             Eliminar todas
@@ -475,7 +476,27 @@ export default function RequisicionesStatusPage() {
           <Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" />
         </div>
       ) : (
-        <div className="rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] overflow-hidden flex flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>
+        <>
+        {/* Celular: tarjetas (Doménica 27) */}
+        <div className="md:hidden space-y-2 pb-24">
+          {visibles.slice(0, nMovil).map(req => (
+            <button key={req.id} type="button" onClick={() => openDetail(req)} className="dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-mono text-[13px] font-semibold text-aria-accent">{req.folio}</span>
+                <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>{statusLabel(req.status)}</span>
+              </div>
+              <div className="mt-1 text-[15px] font-semibold text-[var(--d-text)] truncate">{req.cost_center_name || "Sin obra"}</div>
+              <div className="text-[12.5px] text-[var(--d-muted)] truncate">{req.proveedor || (nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by || "")}</div>
+              <div className="mt-2 flex items-center justify-between text-[12.5px]">
+                <span className="text-[var(--d-faint)]">Para {formatDate(req.required_date)}</span>
+                <span className="font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</span>
+              </div>
+            </button>
+          ))}
+          {visibles.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({visibles.length - nMovil})</button>}
+          {visibles.length === 0 && <div className="py-12 text-center text-sm text-[var(--d-muted)]">{requisiciones.length === 0 ? "No hay requisiciones." : "Nada coincide con tu búsqueda."}</div>}
+        </div>
+        <div className="hidden md:flex rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] overflow-hidden flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>
           <div className="overflow-auto flex-1">
             <table className="w-full">
               <thead className="bg-[var(--d-card)] sticky top-0">
@@ -595,6 +616,7 @@ export default function RequisicionesStatusPage() {
             )}
           </div>
         </div>
+        </>
       )}
 
       {/* Modal Detalle */}
