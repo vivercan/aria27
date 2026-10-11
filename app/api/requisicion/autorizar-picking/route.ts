@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
     if (reqError) throw new Error(`Error actualizando requisición: ${reqError?.message}`);
 
     // Notify Compras
-    const { data: compras } = await supabase.from("Users").select("*").eq("role", "compras").single();
+    const { data: compras } = await supabase.from("Users").select("*").eq("role", "compras").is("usuario_prueba", null).single();
 
     // WhatsApp — template oc_generada (6 params: Req, OC, Obra, Proveedor, Total, FormaPago)
     if (compras?.phone) {

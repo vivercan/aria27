@@ -10,7 +10,7 @@ import { colorPersona } from "@/lib/actividades";
 import { Encabezado, Buscador, Pestanas, Contacto, iniciales, ModoCompleto, Pagina } from "./base";
 
 type U = { id: string; email: string; name?: string | null; display_name?: string | null; role: string; phone?: string | null; active?: boolean | null };
-const ROLES = [["residente", "Residente de obra"], ["validador", "Superintendencia"], ["compras", "Compras"], ["rh", "Recursos Humanos"], ["direccion", "Dirección"], ["usuario", "Caja y pagos"], ["almacen", "Almacén"], ["operador", "Operador"], ["admin", "Administrador"]] as const;
+const ROLES = [["residente", "Residente de obra"], ["validador", "Superintendencia"], ["compras", "Compras"], ["rh", "Recursos Humanos"], ["direccion", "Dirección"], ["usuario", "Ejecutivo de administración"], ["almacen", "Almacén"], ["operador", "Operador"], ["admin", "Administrador"]] as const;
 const rol = (r: string) => ROLES.find(x => x[0] === r)?.[1] || r;
 const nom = (u: U) => u.display_name || u.name || u.email;
 

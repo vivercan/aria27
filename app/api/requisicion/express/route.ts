@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     const mejor = Math.min(...quotes.map(q => q.total));
 
-    const { data: director } = await sb.from("Users").select("email").eq("role", "direccion").single();
+    const { data: director } = await sb.from("Users").select("email").eq("role", "direccion").is("usuario_prueba", null).single();
     if ((director as { email?: string })?.email) {
       const html = ariaEmailWrapper(
         ariaEmailHeader("[EXPRESS] Comparativa directa de Compras") +

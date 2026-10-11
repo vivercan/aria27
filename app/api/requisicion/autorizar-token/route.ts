@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (!r) return NextResponse.json({ error: "Este link ya no es válido" }, { status: 404 });
   if (r.status !== "EN_AUTORIZACION") return NextResponse.json({ error: "Esta solicitud ya fue atendida" }, { status: 409 });
   if (tieneComparativa(r.cotizacion_data)) return NextResponse.json({ error: "Esta solicitud trae comparativa: elige proveedor" }, { status: 409 });
-  const { data: dir } = await db.from("Users").select("email").eq("role", "direccion").eq("active", true).limit(1).maybeSingle();
+  const { data: dir } = await db.from("Users").select("email").eq("role", "direccion").is("usuario_prueba", null).eq("active", true).limit(1).maybeSingle();
   const actor = `${(dir as { email?: string } | null)?.email || "direccion"} (link)`;
   const res = await resolverDireccion(db, [r.id as string], action, comentario, actor);
   if (res.error) return NextResponse.json({ error: res.error }, { status: 500 });

@@ -35,10 +35,11 @@ export async function destinoPrueba(): Promise<Destino | null> {
   const k = String(email).toLowerCase();
   const cd = cacheDest.get(k);
   if (cd && Date.now() - cd.t < 60_000) return cd.d || null;
-  const { data } = await getSupabaseAdmin().from("users").select("email, phone, modo_prueba").eq("email", k).maybeSingle();
-  const u = data as { phone?: string | null; modo_prueba?: boolean | null } | null;
+  const { data } = await getSupabaseAdmin().from("users").select("email, phone, modo_prueba, prueba_avisos_email, prueba_avisos_tel").eq("email", k).maybeSingle();
+  const u = data as { phone?: string | null; modo_prueba?: boolean | null; prueba_avisos_email?: string | null; prueba_avisos_tel?: string | null } | null;
   const activo = u?.modo_prueba === true || (u?.modo_prueba == null && esActorPrueba(k));
-  const d: Destino | null = activo ? { email: k, phone: u?.phone || process.env.E2E_TEST_OVERRIDE_PHONE || null } : null;
+  // Perfiles de prueba de JJ (admin, direccion, rh…): sus avisos van al correo y teléfono reales de JJ
+  const d: Destino | null = activo ? { email: (u?.prueba_avisos_email || k).toLowerCase(), phone: u?.prueba_avisos_tel || u?.phone || process.env.E2E_TEST_OVERRIDE_PHONE || null } : null;
   cacheDest.set(k, { d: d as Destino, t: Date.now() });
   return d;
 }
@@ -56,3 +57,8 @@ export async function correoPrueba(to: string | string[]): Promise<{ to: string 
   if (!d || lista.every(x => String(x).toLowerCase() === d.email)) return { to, iba: null };
   return { to: d.email, iba: lista.join(", ") };
 }
+
+/** Cuentas de prueba (perfiles de JJ): sus direcciones no existen; lo que se les mande llega al correo de JJ */
+export const DOMINIO_PRUEBA = "@prueba.jjcrm27.com";
+export const CORREO_JJ = (process.env.MODO_PRUEBA_EMAILS || "juanviverosv@gmail.com").split(",")[0].trim().toLowerCase();
+export const esCorreoPrueba = (e?: string | null) => !!e && String(e).toLowerCase().trim().endsWith(DOMINIO_PRUEBA);

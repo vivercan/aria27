@@ -67,7 +67,7 @@ async function loadDestinatarios(): Promise<DestinatarioOps[]> {
   const { data, error } = await supabase
     .from("Users")
     .select("email, phone, name, display_name, role, active, notif_email")
-    .in("role", ["direccion", "rh"]);
+    .in("role", ["direccion", "rh"]).is("usuario_prueba", null);
   if (error) {
     log.warn("[NOTIFY-OPS] Users query fallo", { err: error.message });
     return [];

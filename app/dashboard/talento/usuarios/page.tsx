@@ -51,7 +51,7 @@ const ROLES = [
   { v: "compras", l: "Compras" },
   { v: "rh", l: "Recursos Humanos" },
   { v: "direccion", l: "Dirección" },
-  { v: "usuario", l: "Usuario (caja/pagos)" },
+  { v: "usuario", l: "Ejecutivo de administración" },
   { v: "almacen", l: "Almacén" },
   { v: "operador", l: "Operador" },
   { v: "admin", l: "Administrador" },

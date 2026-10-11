@@ -47,7 +47,7 @@ interface Usuario {
 
 // Obtener usuario por ROL (dinamico)
 async function getUserByRole(role: string): Promise<Usuario | null> {
-  const { data, error } = await supabase.from("Users").select("email,phone").eq("role", role).limit(1).maybeSingle();
+  const { data, error } = await supabase.from("Users").select("email,phone").eq("role", role).is("usuario_prueba", null).limit(1).maybeSingle();
   if (error) { log.error("getUserByRole error:", error?.message); return null; }
   return data;
 }

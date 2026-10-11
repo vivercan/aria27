@@ -69,7 +69,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ token: str
   if (!/^QA\b/i.test(x.e.supplier_name)) try {
     const { data: r } = await x.db.from("requisitions").select("folio, cost_center_name").eq("id", x.e.requisition_id).maybeSingle();
     const folio = (r as { folio?: string } | null)?.folio || "";
-    const { data: compras } = await x.db.from("users").select("email").eq("role", "compras").eq("active", true);
+    const { data: compras } = await x.db.from("users").select("email").eq("role", "compras").is("usuario_prueba", null).eq("active", true);
     const correos = [...new Set([x.e.creado_por, ...((compras || []) as { email: string }[]).map(c => c.email)].map(e => String(e || "").toLowerCase()).filter(Boolean))];
     const monto = total.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
     for (const em of correos) {

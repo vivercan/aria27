@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   // Lista de destinatarios: empleados activos + Users direccion + rh
   const { data: emps } = await sb.from("employees").select("full_name, whatsapp").eq("status", "ACTIVO");
-    const { data: users } = await sb.from("Users").select("name, phone, role").in("role", ["direccion", "rh", "admin"]);
+    const { data: users } = await sb.from("Users").select("name, phone, role").in("role", ["direccion", "rh", "admin"]).is("usuario_prueba", null);
 
   type Recipient = { nombre: string; phone: string; tipo: string };
     const recipients: Recipient[] = [];

@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     const notificados: string[] = [];
 
     if (flujo === "compras") {
-      const { data: cU } = await db.from("Users").select("email, role, phone, name, display_name, notif_email").eq("role", "compras").eq("active", true).limit(1).maybeSingle();
+      const { data: cU } = await db.from("Users").select("email, role, phone, name, display_name, notif_email").eq("role", "compras").is("usuario_prueba", null).eq("active", true).limit(1).maybeSingle();
       const compras = cU as U | null;
       if (compras?.phone) { await sendWhatsAppLogged("requisicion_compras", [folio, obra, urg, resumen.slice(0, 300)], compras.phone, { origen: "responsable-ok-compras", enviadoPor: me }); notificados.push(`Compras WA`); }
       if (compras?.email && emailAllowed("compras", compras.notif_email)) {
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         notificados.push(`Compras email`);
       }
     } else {
-      const { data: dU } = await db.from("Users").select("email, role, phone, name, display_name, notif_email").eq("role", "direccion").eq("active", true).limit(1).maybeSingle();
+      const { data: dU } = await db.from("Users").select("email, role, phone, name, display_name, notif_email").eq("role", "direccion").is("usuario_prueba", null).eq("active", true).limit(1).maybeSingle();
       const dir = dU as U | null; const token = r.authorization_comments as string;
       if (dir?.phone) { await sendWhatsAppLogged("requisicion_creada", [folio, creador, obra, fechaReq], dir.phone, { origen: "responsable-ok-direccion", enviadoPor: me }); notificados.push(`Dirección WA`); }
       if (dir?.email && emailAllowed("direccion_accion", dir.notif_email)) {
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
       }
     }
     // Admin (solo WA por política) + notifyOps global
-    const { data: aU } = await db.from("Users").select("email, role, phone, notif_email").eq("role", "admin").eq("active", true).limit(1).maybeSingle();
+    const { data: aU } = await db.from("Users").select("email, role, phone, notif_email").eq("role", "admin").is("usuario_prueba", null).eq("active", true).limit(1).maybeSingle();
     const admin = aU as U | null;
     if (admin?.phone && admin.email.toLowerCase() !== creadorEmail.toLowerCase()) await sendWhatsAppLogged("requisicion_creada", [folio, creador, obra, fechaReq], admin.phone, { origen: "responsable-ok-admin", enviadoPor: me });
     void notifyOps({ evento: "REQUISICION_CREADA", resumen: `${folio} ${obra} - ${creador} (autorizó ${me})`, detalle: `Folio: ${folio}\nObra: ${obra}\nSolicitante: ${creador}\nFlujo: ${flujo}\nUrgencia: ${urg}`, actor: me, metadata: { folio, obra, flujo, urgency: urg, nivel1: true } }).catch(() => {});

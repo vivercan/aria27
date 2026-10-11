@@ -186,7 +186,7 @@ export async function POST(req: NextRequest) {
     else if (typeof role === "string") {
       // 10-Oct-2026: sin permisos explicitos, copia los de un usuario activo del mismo rol (plantilla).
       // Evita que un alta nueva quede con {} (que para roles de sistema equivale a acceso total).
-      const { data: tpl } = await sb.from("Users").select("permissions").eq("role", role).eq("active", true).not("permissions", "is", null).limit(1).maybeSingle();
+      const { data: tpl } = await sb.from("Users").select("permissions").eq("role", role).is("usuario_prueba", null).eq("active", true).not("permissions", "is", null).limit(1).maybeSingle();
       const tp = (tpl as { permissions?: Record<string, unknown> } | null)?.permissions;
       if (tp && Object.keys(tp).length > 0) insRow.permissions = tp;
     }

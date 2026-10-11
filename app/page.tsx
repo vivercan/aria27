@@ -127,6 +127,19 @@ export default function LoginPage() {
     }
     
     setLoading(true)
+    // 11-Oct-2026: perfiles de prueba de JJ (admin, direccion, rh, validador, compras, residente, ejecutivo)
+    if (!email.includes('@')) {
+      try {
+        const pr = await fetch('/api/auth/prueba', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ usuario: email, password: pass, recordar: rememberMe }) })
+        const j = await pr.json().catch(() => ({})) as { prueba?: boolean; ok?: boolean; error?: string; email?: string; role?: string; permissions?: unknown }
+        if (j.prueba) {
+          if (!j.ok) { setError(j.error || 'No se pudo entrar'); setLoading(false); return }
+          try { localStorage.removeItem('ariaSession'); localStorage.setItem('userEmail', String(j.email)); localStorage.setItem('userRole', j.role || 'user'); localStorage.setItem('userPermissions', JSON.stringify(j.permissions || {})) } catch {}
+          router.replace(landingPath()); return
+        }
+        if (pr.status === 429) { setError('Demasiados intentos. Espera unos minutos.'); setLoading(false); return }
+      } catch { /* sigue con el login normal */ }
+    }
     // 11-Oct-2026: se puede entrar solo con el usuario (sin @) → se completa con el dominio de la empresa
     const emailFull = email.trim().includes('@') ? email.trim() : `${email.trim()}@gcuavante.com`
     const emailLower = emailFull.toLowerCase()
@@ -327,14 +340,18 @@ export default function LoginPage() {
             <div style={{ padding: '22px 18px 18px 18px' }}>
               <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoComplete="username"
+                  aria-label="Correo o usuario"
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError(''); }}
                   disabled={loading}
                   required
                   className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5b9dff]/50 placeholder:text-[#9fb3d6] disabled:opacity-50"
                   style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: 'rgba(3,14,40,0.75)', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.45)', border: '1px solid rgba(120,170,255,0.32)' }}
-                  placeholder="usuario@gcuavante.com"
+                  placeholder="Correo o usuario"
                 />
 
                 <div style={{ position: 'relative' }}>

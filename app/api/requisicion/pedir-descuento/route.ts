@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const desc = ((precio_actual - precio_sugerido) / precio_actual * 100).toFixed(1);
 
     // Obtener usuario compras
-    const { data: compras } = await sb.from("Users").select("email, phone").eq("role", "compras").maybeSingle() as { data: UserRow | null };
+    const { data: compras } = await sb.from("Users").select("email, phone").eq("role", "compras").is("usuario_prueba", null).maybeSingle() as { data: UserRow | null };
 
     if (compras?.email) {
       await sendEmailLogged({

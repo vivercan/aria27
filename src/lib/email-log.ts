@@ -63,6 +63,8 @@ type ResendSendResponse = { data?: { id?: string } | null; error?: { message?: s
 export async function sendEmailLogged(opts: SendEmailLoggedOpts): Promise<SendEmailLoggedResult> {
   // 11-Oct-2026: modo prueba de JJ — lo que él dispara le llega solo a él
   { const { correoPrueba } = await import("@/lib/modo-prueba"); const pr = await correoPrueba(opts.to); if (pr.iba) opts = { ...opts, to: pr.to, subject: `[PRUEBA · iba a ${pr.iba}] ${opts.subject}`, bcc: undefined, replyTo: undefined, sinCopiaAdmin: true }; }
+  { const { esCorreoPrueba, CORREO_JJ } = await import("@/lib/modo-prueba"); const l = Array.isArray(opts.to) ? opts.to : [opts.to];
+    if (l.some(esCorreoPrueba)) { const iba = l.filter(esCorreoPrueba).join(", "); const resto = l.filter(x => !esCorreoPrueba(x)); opts = { ...opts, to: [...new Set([...resto, CORREO_JJ])], subject: opts.subject.startsWith("[PRUEBA") ? opts.subject : `[PRUEBA · iba a ${iba}] ${opts.subject}`, sinCopiaAdmin: true }; } }
   const payload: Record<string, unknown> = {
     from: opts.from || RESEND_FROM,
     to: opts.to,

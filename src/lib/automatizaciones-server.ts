@@ -27,7 +27,7 @@ export async function correrRegla(db: SupabaseClient, r: Regla, opts: { dry?: bo
   const add = (email: string | null | undefined, cs: Caso[]) => { const e = String(email || "").toLowerCase().trim(); if (!e || !e.includes("@")) return; porEmail.set(e, [...(porEmail.get(e) || []), ...cs.filter(c => !(porEmail.get(e) || []).some(x => x.id === c.id))]); };
   const roles = (r.destinatarios?.roles || []).filter(Boolean);
   if (roles.length) {
-    const { data: us } = await db.from("Users").select("email, role, active").in("role", roles);
+    const { data: us } = await db.from("Users").select("email, role, active").in("role", roles).is("usuario_prueba", null);
     for (const u of (us || []) as { email: string; active: boolean | null }[]) if (u.active !== false) add(u.email, nuevos);
   }
   for (const e of r.destinatarios?.personas || []) add(e, nuevos);

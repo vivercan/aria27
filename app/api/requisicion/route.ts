@@ -89,7 +89,7 @@ async function getUserByEmail(email: string): Promise<User | null> {
 
 async function getUserByRole(role: string): Promise<User | null> {
   try {
-    const { data, error } = await getDb().from("Users").select("*").eq("role", role).eq("active", true).limit(1);
+    const { data, error } = await getDb().from("Users").select("*").eq("role", role).is("usuario_prueba", null).eq("active", true).limit(1);
     if (error) { log.error(`Error buscando rol ${role}:`, (error as {message?: string})?.message || "Unknown error"); return null; }
     if (!data || data.length === 0) { log.error(`No se encontro usuario con rol: ${role}`); return null; }
     return (data[0] as User) || null;

@@ -69,7 +69,7 @@ export async function resolverDireccion(db: SupabaseClient, ids: string[], actio
     // Gasto en efectivo autorizado → tesorería (Administración) lo paga
     const efectivo = action === "AUTORIZAR" ? avisables.filter(r => r.purchase_status === "GASTO_EFECTIVO_PENDIENTE" || /EFECTIVO|CAJA/i.test(r.forma_pago || "")) : [];
     if (efectivo.length) {
-      const { data: tes } = await db.from("Users").select("email").eq("role", "usuario").eq("active", true);
+      const { data: tes } = await db.from("Users").select("email").eq("role", "usuario").is("usuario_prueba", null).eq("active", true);
       const suma = efectivo.reduce((s, r) => s + (Number(r.total) || Number(r.monto) || 0), 0);
       for (const t of (tes || []) as { email: string }[]) await pushAEmail(t.email, { title: `💵 ${efectivo.length} gasto${efectivo.length === 1 ? "" : "s"} por pagar`, body: `Dirección autorizó ${efectivo.map(r => r.folio).join(", ").slice(0, 120)}${suma ? ` · ${money(suma)}` : ""}`, url: "/dashboard/campo/autorizar", tag: "efectivo-autorizado" }).catch(() => {});
     }
