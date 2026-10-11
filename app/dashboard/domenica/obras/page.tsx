@@ -20,7 +20,7 @@ export default function ObrasDomPage() {
       const [{ data: o }, { data: a }, { data: r }] = await Promise.all([
         supabase.from("centros_trabajo").select("id, nombre, cliente, presupuesto, presupuesto_contratado, presupuesto_ampliaciones, fecha_inicio, fecha_fin, responsable_email, estado").eq("activo", true).order("nombre"),
         supabase.from("tareas_asignadas").select("id, titulo, obra, obra_id, estatus, motivo_bloqueo, fecha_compromiso, avance").neq("estatus", "CANCELADA").limit(3000),
-        supabase.from("Requisiciones").select("id, folio, cost_center_name, status, total, monto").limit(5000),
+        supabase.from("Requisiciones").select("id, folio, cost_center_name, status, total, monto, created_at").limit(5000),
       ]);
       setDatos({ obras: (o || []) as ObraDom[], acts: (a || []) as Actividad[], requis: (r || []) as RequiDom[] });
     })();
@@ -52,6 +52,7 @@ export default function ObrasDomPage() {
                   <div><div className="text-lg font-bold" style={{ color: x.atrasadas ? "var(--c-rojo)" : "var(--d-faint)" }}>{x.atrasadas}</div><div className="text-[10.5px] text-[var(--d-muted)]">atrasadas</div></div>
                   <div><div className="text-lg font-bold text-[var(--d-text)]">{x.avance}%</div><div className="text-[10.5px] text-[var(--d-muted)]">avance</div></div>
                 </div>
+                {x.detenidas.length > 0 && <div className="mt-2 rounded-lg bg-[#fdab3d]/12 px-2.5 py-1.5 text-[12px] font-semibold text-[var(--d-warn)]">⏸ {x.detenidas.length} solicitud{x.detenidas.length === 1 ? "" : "es"} detenida{x.detenidas.length === 1 ? "" : "s"} (+3 días sin autorizar)</div>}
                 <div className="mt-3">
                   <div className="flex justify-between text-[11.5px]"><span className="text-[var(--d-muted)]">Gastado {fmtMoney(x.gastado)}</span><span className="text-[var(--d-text-2)] font-semibold">{x.presupuesto ? `${x.pctGasto}% de ${fmtMoney(x.presupuesto)}` : "Sin presupuesto"}</span></div>
                   <div className="mt-1 h-2 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${Math.min(100, x.pctGasto ?? 0)}%`, background: (x.pctGasto ?? 0) > 100 ? "#e2445c" : (x.pctGasto ?? 0) > 85 ? "#fdab3d" : "#00c875" }} /></div>

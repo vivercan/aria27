@@ -3,6 +3,9 @@ import { columnaDe, diasAtraso, type Actividad } from "@/lib/actividades";
 
 export type ObraDom = { id: string; nombre: string; cliente?: string | null; presupuesto?: number | null; presupuesto_contratado?: number | null; presupuesto_ampliaciones?: number | null; fecha_inicio?: string | null; fecha_fin?: string | null; responsable_email?: string | null; estado?: string | null };
 export type RequiDom = { id: string; folio: string; cost_center_name: string | null; status: string | null; total: number | null; monto: number | null; proveedor?: string | null; created_at?: string | null };
+export const ESTADOS_ABIERTOS = ["PENDIENTE_RESPONSABLE", "PENDIENTE", "EN_COTIZACION", "EN_AUTORIZACION"];
+/** Detenida: sigue sin avanzar a autorizada después de 3 días */
+export const estaDetenida = (r: RequiDom, ahora = Date.now()) => ESTADOS_ABIERTOS.includes(String(r.status || "")) && !!r.created_at && ahora - Date.parse(r.created_at) > 3 * 864e5;
 
 export const normObra = (s?: string | null) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
 const NO_CUENTA = ["CANCELADA", "RECHAZADA", "RECHAZADA_RESPONSABLE"];
@@ -25,12 +28,13 @@ export function numerosObra(o: ObraDom, acts: Actividad[], requis: RequiDom[]) {
     actividades: mias, abiertas, terminadas: mias.length - abiertas.length,
     atrasadas: abiertas.filter(a => diasAtraso(a) > 0).length, atoradas: abiertas.filter(a => columnaDe(a) === "BLOQUEADA").length,
     avance, requis: reqs, gastado, presupuesto, pctGasto: presupuesto > 0 ? Math.round((gastado / presupuesto) * 100) : null,
+    detenidas: reqs.filter(r => estaDetenida(r)),
   };
 }
 
 /** Semáforo de la obra: rojo si hay atoradas o gasto > 100 %, ámbar si hay atrasadas o gasto > 85 %, verde si no */
-export function semaforoObra(x: { atoradas: number; atrasadas: number; pctGasto: number | null }): { c: string; t: string } {
+export function semaforoObra(x: { atoradas: number; atrasadas: number; pctGasto: number | null; detenidas?: unknown[] }): { c: string; t: string } {
   if (x.atoradas > 0 || (x.pctGasto !== null && x.pctGasto > 100)) return { c: "#e2445c", t: "Atención" };
-  if (x.atrasadas > 0 || (x.pctGasto !== null && x.pctGasto > 85)) return { c: "#fdab3d", t: "Vigilar" };
+  if (x.atrasadas > 0 || (x.detenidas?.length || 0) > 0 || (x.pctGasto !== null && x.pctGasto > 85)) return { c: "#fdab3d", t: "Vigilar" };
   return { c: "#00c875", t: "En orden" };
 }

@@ -11,19 +11,22 @@ import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, fechaCorta, iniciales, colorPersona, COLUMNAS, type Actividad } from "@/lib/actividades";
 import { statusLabel } from "@/lib/requi-stepper";
 import { fmtMoney } from "@/lib/formatters";
-import { numerosObra, semaforoObra, type ObraDom, type RequiDom } from "@/lib/obras-dom";
+import { numerosObra, semaforoObra, normObra, type ObraDom, type RequiDom } from "@/lib/obras-dom";
+
+type Entrega = { id: string; fecha_entrega: string | null; proveedor_nombre: string | null; obra_nombre: string | null; recibido_por_nombre: string | null; foto_url: string | null; status: string | null; requisicion_id: string | null };
 
 export default function ObraDomPage() {
   const { id } = useParams<{ id: string }>();
-  const [d, setD] = useState<{ o: ObraDom | null; acts: Actividad[]; requis: RequiDom[] } | null>(null);
+  const [d, setD] = useState<{ o: ObraDom | null; acts: Actividad[]; requis: RequiDom[]; entregas: Entrega[] } | null>(null);
   useEffect(() => {
     (async () => {
       const { data: o } = await supabase.from("centros_trabajo").select("id, nombre, cliente, presupuesto, presupuesto_contratado, presupuesto_ampliaciones, fecha_inicio, fecha_fin, responsable_email, estado, direccion").eq("id", id).maybeSingle();
-      const [{ data: a }, { data: r }] = await Promise.all([
+      const [{ data: a }, { data: r }, { data: en }] = await Promise.all([
         supabase.from("tareas_asignadas").select("*").neq("estatus", "CANCELADA").limit(3000),
         supabase.from("Requisiciones").select("id, folio, cost_center_name, status, total, monto, proveedor, created_at").order("created_at", { ascending: false }).limit(5000),
+        supabase.from("entregas").select("id, fecha_entrega, proveedor_nombre, obra_nombre, recibido_por_nombre, foto_url, status, requisicion_id").order("fecha_entrega", { ascending: false }).limit(500),
       ]);
-      setD({ o: (o || null) as ObraDom | null, acts: (a || []) as Actividad[], requis: (r || []) as RequiDom[] });
+      setD({ o: (o || null) as ObraDom | null, acts: (a || []) as Actividad[], requis: (r || []) as RequiDom[], entregas: (en || []) as Entrega[] });
     })();
   }, [id]);
   const x = useMemo(() => d?.o ? numerosObra(d.o, d.acts, d.requis) : null, [d]);
@@ -32,6 +35,8 @@ export default function ObraDomPage() {
   if (!d.o || !x) return <div className="dom-page h-full p-6 text-[var(--d-muted)]">No se encontró la obra. <Link href="/dashboard/domenica/obras" className="text-[var(--d-link)] underline">Ver obras</Link></div>;
   const o = d.o; const s = semaforoObra(x);
   const porCol = COLUMNAS.map(c => ({ c, n: x.actividades.filter(a => columnaDe(a) === c.id).length }));
+  const idsReq = new Set(x.requis.map(q => q.id));
+  const entregasObra = d.entregas.filter(e => (e.requisicion_id && idsReq.has(e.requisicion_id)) || normObra(e.obra_nombre) === normObra(o.nombre));
   const abiertasOrden = [...x.abiertas].sort((a, b) => (diasAtraso(b) - diasAtraso(a)) || String(a.fecha_compromiso || "9").localeCompare(String(b.fecha_compromiso || "9")));
 
   return (
@@ -50,8 +55,8 @@ export default function ObraDomPage() {
           </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
-          {[{ n: `${x.avance}%`, l: "Avance de actividades", c: "var(--c-azul)" }, { n: String(x.abiertas.length), l: "Actividades abiertas", c: "var(--d-text)" }, { n: String(x.atrasadas), l: "Atrasadas", c: x.atrasadas ? "var(--c-rojo)" : "var(--d-faint)" }, { n: String(x.atoradas), l: "Atoradas", c: x.atoradas ? "var(--c-rojo)" : "var(--d-faint)" }].map((k, i) => (
+        <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2">
+          {[{ n: `${x.avance}%`, l: "Avance de actividades", c: "var(--c-azul)" }, { n: String(x.abiertas.length), l: "Actividades abiertas", c: "var(--d-text)" }, { n: String(x.atrasadas), l: "Atrasadas", c: x.atrasadas ? "var(--c-rojo)" : "var(--d-faint)" }, { n: String(x.atoradas), l: "Atoradas", c: x.atoradas ? "var(--c-rojo)" : "var(--d-faint)" }, { n: String(x.detenidas.length), l: "Solicitudes detenidas (+3 días)", c: x.detenidas.length ? "var(--c-ambar)" : "var(--d-faint)" }, { n: String(entregasObra.length), l: "Entregas registradas", c: "var(--c-verde)" }].map((k, i) => (
             <div key={k.l} className="dom-card dom-in rounded-2xl p-3" style={{ animationDelay: `${i * 50}ms` }}><div className="text-[24px] font-bold leading-none" style={{ color: k.c }}>{k.n}</div><div className="mt-1.5 text-[11.5px] text-[var(--d-muted)]">{k.l}</div></div>))}
         </div>
 
@@ -82,6 +87,31 @@ export default function ObraDomPage() {
               </Link>); })}
             {x.abiertas.length === 0 && <div className="rounded-2xl border border-dashed border-[var(--d-border)] p-6 text-center text-sm text-[var(--d-muted)]">No hay actividades abiertas. <Link href={`/dashboard/domenica/plantillas?obra=${o.id}`} className="text-[var(--d-link)] font-semibold">Usa una plantilla</Link> para arrancar.</div>}
             {x.abiertas.length > 15 && <Link href={`/dashboard/actividades?vista=lista&obra=${o.id}`} className="block text-center text-sm font-semibold text-[var(--d-link)] py-2">Ver las {x.abiertas.length}</Link>}
+          </div>
+        </section>
+
+        {x.detenidas.length > 0 && <section className="mt-6">
+          <h2 className="text-[15px] font-bold text-[var(--d-text)] mb-2">Solicitudes detenidas</h2>
+          <div className="dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)]">
+            {x.detenidas.slice(0, 10).map(q => (
+              <Link key={q.id} href={`/dashboard/requisiciones/requisiciones/estatus?open=${q.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-[var(--d-hover)]">
+                <span className="shrink-0 text-lg">⏸</span>
+                <div className="flex-1 min-w-0"><div className="font-mono text-[12.5px] font-semibold text-[var(--d-link)]">{q.folio}</div><div className="text-[12px] text-[var(--d-muted)] truncate">{statusLabel(q.status)} · hace {Math.floor((Date.now() - Date.parse(String(q.created_at))) / 864e5)} días</div></div>
+                <div className="text-[13px] font-bold text-[var(--d-text)]">{fmtMoney(Number(q.monto) || Number(q.total) || 0)}</div>
+              </Link>))}
+          </div>
+        </section>}
+
+        <section className="mt-6">
+          <h2 className="text-[15px] font-bold text-[var(--d-text)] mb-2">Entregas en obra</h2>
+          <div className="dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)]">
+            {entregasObra.slice(0, 8).map(e => (
+              <div key={e.id} className="flex items-center gap-3 px-4 py-3">
+                {e.foto_url ? <a href={e.foto_url} target="_blank" rel="noreferrer" className="shrink-0"><img src={e.foto_url} alt="Foto de la entrega" className="w-12 h-12 rounded-xl object-cover border border-[var(--d-border)]" /></a> : <span className="shrink-0 w-12 h-12 rounded-xl bg-[var(--d-card-2)] flex items-center justify-center text-lg">📦</span>}
+                <div className="flex-1 min-w-0"><div className="text-[13.5px] font-semibold text-[var(--d-text)] truncate">{e.proveedor_nombre || "Proveedor"}</div><div className="text-[12px] text-[var(--d-muted)] truncate">{fechaCorta(e.fecha_entrega)}{e.recibido_por_nombre ? ` · recibió ${e.recibido_por_nombre}` : ""}</div></div>
+                <span className="text-[11px] font-semibold text-[var(--d-ok)]">{e.status === "PARCIAL" ? "Parcial" : "Recibida"}</span>
+              </div>))}
+            {entregasObra.length === 0 && <div className="px-4 py-6 text-center text-sm text-[var(--d-muted)]">Aún no hay entregas registradas en esta obra.</div>}
           </div>
         </section>
 

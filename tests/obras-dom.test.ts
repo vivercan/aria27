@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { numerosObra, semaforoObra, presupuestoDe, normObra } from "@/lib/obras-dom";
+import { numerosObra, semaforoObra, presupuestoDe, normObra, estaDetenida } from "@/lib/obras-dom";
 import type { Actividad } from "@/lib/actividades";
 
 describe("espacio por obra", () => {
@@ -26,5 +26,14 @@ describe("espacio por obra", () => {
     expect(semaforoObra({ atoradas: 0, atrasadas: 2, pctGasto: 10 }).t).toBe("Vigilar");
     expect(semaforoObra({ atoradas: 0, atrasadas: 0, pctGasto: 90 }).t).toBe("Vigilar");
     expect(semaforoObra({ atoradas: 0, atrasadas: 0, pctGasto: null }).t).toBe("En orden");
+  });
+});
+
+describe("solicitudes detenidas", () => {
+  it("más de 3 días sin autorizar = detenida", () => {
+    const ahora = Date.parse("2026-10-11T12:00:00Z");
+    expect(estaDetenida({ id: "1", folio: "x", cost_center_name: "A", status: "EN_AUTORIZACION", total: 1, monto: null, created_at: "2026-10-01T00:00:00Z" }, ahora)).toBe(true);
+    expect(estaDetenida({ id: "2", folio: "x", cost_center_name: "A", status: "EN_AUTORIZACION", total: 1, monto: null, created_at: "2026-10-10T00:00:00Z" }, ahora)).toBe(false);
+    expect(estaDetenida({ id: "3", folio: "x", cost_center_name: "A", status: "APROBADA", total: 1, monto: null, created_at: "2026-09-01T00:00:00Z" }, ahora)).toBe(false);
   });
 });
