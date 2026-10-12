@@ -24,9 +24,12 @@ async function permisos(email: string): Promise<{ role: string; perms: UserPermi
   if (!u || u.active === false) return null;
   return { role: String(u.role || ""), perms: (u.permissions || {}) as UserPermissions };
 }
-const puedeLeer = (p: { role: string; perms: UserPermissions }) => canAccessModule(p.role, p.perms, "talento");
+// Solo quien tiene pantallas de Talento con datos sensibles (no basta con Asistencias)
+const SUBS_SENSIBLES = ["personal", "nomina", "finiquitos", "legales", "prestaciones", "matriz"];
+const puedeLeer = (p: { role: string; perms: UserPermissions }) =>
+  ["admin", "Administrador", "rh"].includes(p.role) || (canAccessModule(p.role, p.perms, "talento") && SUBS_SENSIBLES.some(s => canAccessSub(p.role, p.perms, "talento", s)));
 const puedeEscribir = (p: { role: string; perms: UserPermissions }) =>
-  ["admin", "Administrador", "rh"].includes(p.role) || canAccessSub(p.role, p.perms, "talento", "personal") || canAccessSub(p.role, p.perms, "talento", "finiquitos") || canAccessSub(p.role, p.perms, "talento", "legales");
+  ["admin", "Administrador", "rh"].includes(p.role) || ["personal", "finiquitos", "legales"].some(s => canAccessSub(p.role, p.perms, "talento", s));
 
 export async function GET(req: NextRequest) {
   const auth = await requireUser(req); if (!auth.ok) return auth.res;
