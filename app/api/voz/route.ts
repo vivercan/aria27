@@ -41,6 +41,20 @@ Dictado: """${texto}"""`;
     pasos: Array.isArray(o.pasos) ? (o.pasos as unknown[]).map(String).filter(Boolean).slice(0, 10) : [] };
 }
 
+const sinAcentos = (s: string) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const VACIAS = new Set(["para", "obra", "obras", "fracc", "fraccionamiento", "blvd", "calle", "casa", "del", "las", "los", "con", "edificio", "torre", "etapa"]);
+/** La obra que la persona nombró, con su nombre exacto del catálogo (o null si no nombró ninguna) */
+function obraDicha(texto: string, sugerida: string | null, obras: string[]): string | null {
+  const t = ` ${sinAcentos(texto).replace(/[^a-z0-9 ]/g, " ")} `;
+  let mejor: string | null = null; let pts = 0;
+  for (const o of obras) {
+    const pal = sinAcentos(o).replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w.length >= 4 && !VACIAS.has(w));
+    const p = pal.filter(w => t.includes(` ${w} `)).length + (sugerida && sinAcentos(o).includes(sinAcentos(sugerida)) ? 1 : 0);
+    if (p > pts) { pts = p; mejor = o; }
+  }
+  return pts > 0 ? mejor : null;
+}
+
 export async function POST(req: NextRequest) {
   const auth = await requireUser(req); if (!auth.ok) return auth.res;
   const rl = checkRateLimit(`u:${auth.email}`, { key: "voz", max: 20, windowMs: 10 * 60_000 }); if (!rl.allowed) return rateLimitResponse(rl);
@@ -65,6 +79,13 @@ export async function POST(req: NextRequest) {
     if (esMaterial) {
       const m = await extractRequisicionFromText(`${texto}\n(Hoy es ${hoy})`);
       if (m && m.materiales?.length) {
+        // 11-Oct-2026 (prueba como usuario): la obra dicha no se elegía, "necesito" se volvía "Crítico" y la fecha caía en hoy
+        const { data: obs } = await getSupabaseAdmin().from("centros_trabajo").select("nombre").eq("activo", true);
+        const real = obraDicha(texto, m.obra, ((obs || []) as { nombre: string }[]).map(o => o.nombre));
+        m.obra = real;
+        const tn = sinAcentos(texto);
+        if ((m.prioridad === "CRITICO" || m.prioridad === "URGENTE") && !/\b(urgente|urge|hoy|ahorita|ya mismo|ya|emergencia|cuanto antes|lo antes posible|rapido|pronto|manana)\b/.test(tn)) m.prioridad = "NORMAL";
+        if (!/\b(hoy|manana|pasado|lunes|martes|miercoles|jueves|viernes|sabado|domingo|semana|mes|\d{1,2} de|\d{1,2}\/\d{1,2})\b/.test(tn)) m.fecha_requerida = null;
         const out: VozResultado = { texto, tipo: "material", material: { obra: m.obra, fecha_requerida: m.fecha_requerida, prioridad: m.prioridad, comentarios: m.comentarios || texto, materiales: m.materiales } };
         return NextResponse.json(out);
       }
