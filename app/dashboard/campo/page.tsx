@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, X, Share, BellRing, MapPin } from "lucide-react";
-import { Ficha, IcoCamion, IcoSello, IcoTarea, IcoSaco, IcoMicro } from "@/components/domenica/IconosObra";
+import { Ficha, IcoCamion, IcoSello, IcoTarea, IcoSaco, IcoMicro, IcoBillete } from "@/components/domenica/IconosObra";
 import { obraAqui, type ObraGeo } from "@/lib/geo";
 import { enRiesgo } from "@/lib/riesgo";
 import { normObra } from "@/lib/obras-dom";
@@ -193,8 +193,8 @@ export default function CampoHome() {
             <Link href="/dashboard/actividades?nueva=1" className="rounded-2xl bg-[#b85507] p-3.5 text-white flex flex-col gap-1.5 min-h-[112px] active:scale-[0.98] transition">
               <IcoTarea className="w-8 h-8" color="#fff" fondo="#b85507" /><span className="text-[16px] font-bold leading-tight">Tarea</span><span className="text-[13.5px] leading-tight text-white/90">Encárgale algo a alguien</span></Link>
           </div>
-          <Link href="/dashboard/requisiciones/requisiciones/nuevo?tipo=PAGO" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#7a4b00] px-4 py-3.5 text-white active:scale-[0.99] transition">
-            <IcoSaco className="w-8 h-8 shrink-0" color="#fff" fondo="#7a4b00" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Pago de servicio</span><span className="block text-[13.5px] text-white/90">En efectivo. Va directo a pago, sin cotizar</span></span></Link>
+          <Link href="/dashboard/requisiciones/requisiciones/nuevo?tipo=PAGO" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#007a87] px-4 py-3.5 text-white active:scale-[0.99] transition">
+            <IcoBillete className="w-8 h-8 shrink-0" color="#fff" fondo="#007a87" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Pago de servicio</span><span className="block text-[13.5px] text-white/90">En efectivo. Va directo a pago</span></span></Link>
           <Link href="/dashboard/campo/evidencia" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#1f8500] px-4 py-3.5 text-white active:scale-[0.99] transition">
             <IcoCamion className="w-8 h-8 shrink-0" color="#fff" fondo="#1f8500" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Registrar una entrega{porEntregar.length ? ` (${porEntregar.length})` : ""}</span><span className="block text-[13.5px] text-white/90">Llegó material: foto y quién recibió</span></span></Link>
           {porAutorizar > 0 && <Link href="/dashboard/campo/autorizar" className="mt-2 flex items-center gap-3 rounded-2xl dom-card px-4 py-3.5 active:scale-[0.99] transition"><Ficha ico={IcoSello} color="#1f8500" /><span className="flex-1 text-[16px] font-bold text-[var(--d-text)]">Autorizar ({porAutorizar})</span><ChevronRight className="w-5 h-5 text-[var(--d-faint)]" /></Link>}

@@ -5,11 +5,11 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, X, Square, RotateCcw, Check, Loader2 } from "lucide-react";
+import { Mic, X, Square, RotateCcw, Check, Loader2, ChevronRight } from "lucide-react";
 import type { VozResultado } from "@/lib/voz";
 import { interpretar } from "@/lib/comandos-voz";
 import { celebrar } from "@/lib/celebrar";
-import { IcoMicro, IcoSaco, IcoTarea, IcoCamion } from "@/components/domenica/IconosObra";
+import { IcoMicro, IcoSaco, IcoTarea, IcoCamion, IcoBillete } from "@/components/domenica/IconosObra";
 
 type Fase = "menu" | "lista" | "grabando" | "procesando" | "resultado" | "escribir" | "pendientes" | "elegir";
 type Opcion = { id: string; nombre: string; explica: string; href: string | null };
@@ -138,7 +138,6 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
     }
   };
 
-  const tile = "rounded-3xl p-4 min-h-[112px] flex flex-col justify-between text-left text-white active:scale-[0.97] transition";
   return (
     <div className="aria-sheet fixed inset-0 z-[80] flex items-end justify-center bg-black/50 backdrop-blur-[2px]" onClick={onClose}>
       <div onClick={e => e.stopPropagation()} onClickCapture={e => { if (Date.now() - abiertoEn.current < 400) { e.stopPropagation(); e.preventDefault(); } }} className="dom-in w-full max-w-md rounded-t-[28px] bg-[var(--d-surface)] p-5 shadow-2xl" style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
@@ -163,17 +162,23 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
           </div>
         )}
 
-        {fase === "menu" && (
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => setFase("lista")} className={`${tile} col-span-2 min-h-[92px] flex-row items-center gap-4`} style={{ background: "#6d35c9" }}>
-              <span className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center"><IcoMicro className="w-7 h-7" color="#fff" fondo="#6d35c9" /></span>
-              <span><span className="block text-[17px] font-bold">Habla con Doménica</span><span className="block text-[12.5px] text-white/90">Pide, asigna o pregunta. Ella lo arma.</span></span>
-            </button>
-            <button onClick={() => ir("/dashboard/requisiciones/requisiciones/nuevo?tipo=MATERIALES")} className={tile} style={{ background: "#0073ea" }}><IcoSaco className="w-8 h-8" color="#fff" fondo="#0073ea" /><span className="text-[16px] font-bold leading-tight">Requisición</span><span className="text-[13px] leading-tight text-white/90">Material o servicio. Se cotiza y se paga</span></button>
-            <button onClick={() => ir("/dashboard/actividades?nueva=1")} className={tile} style={{ background: "#b85507" }}><IcoTarea className="w-8 h-8" color="#fff" fondo="#b85507" /><span className="text-[16px] font-bold leading-tight">Tarea</span><span className="text-[13px] leading-tight text-white/90">Encárgale algo a alguien</span></button>
-            <button onClick={() => ir("/dashboard/requisiciones/requisiciones/nuevo?tipo=PAGO")} className={`${tile} col-span-2 min-h-[72px] flex-row items-center gap-3`} style={{ background: "#7a4b00" }}><IcoSaco className="w-8 h-8" color="#fff" fondo="#7a4b00" /><span className="text-left"><span className="block text-[16px] font-bold">Pago de servicio</span><span className="block text-[13px] text-white/90">En efectivo. Va directo a pago, sin cotizar</span></span></button>
-            <button onClick={() => ir("/dashboard/campo/evidencia")} className={`${tile} col-span-2 min-h-[72px] flex-row items-center gap-3`} style={{ background: "#1f8500" }}><IcoCamion className="w-8 h-8" color="#fff" fondo="#1f8500" /><span className="text-left"><span className="block text-[16px] font-bold">Registrar una entrega</span><span className="block text-[13px] text-white/90">Llegó material: foto y quién recibió</span></span></button>
-          </div>)}
+        {fase === "menu" && (() => {
+          // 11-Oct-2026 · JJ: lista con aire (antes se veía apretada) y Pago de servicio en verde azulado
+          const fila = (o: { k: string; ico: typeof IcoSaco; c: string; t: string; d: string; on: () => void }) => (
+            <button key={o.k} onClick={o.on} className="w-full flex items-center gap-4 rounded-[22px] px-4 py-3.5 min-h-[76px] text-left text-white active:scale-[0.98] transition" style={{ background: o.c }}>
+              <span className="shrink-0 w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center"><o.ico className="w-7 h-7" color="#fff" fondo={o.c} /></span>
+              <span className="flex-1 min-w-0"><span className="block text-[17px] font-bold leading-tight">{o.t}</span><span className="block mt-0.5 text-[14px] leading-snug text-white/90">{o.d}</span></span>
+              <ChevronRight className="w-5 h-5 shrink-0 text-white/80" />
+            </button>);
+          return (
+          <div className="flex flex-col gap-2.5">
+            {fila({ k: "voz", ico: IcoMicro, c: "#6d35c9", t: "Habla con Doménica", d: "Pide, asigna o pregunta. Ella lo arma", on: () => setFase("lista") })}
+            <p className="mt-2 mb-0.5 px-1 text-[13px] font-semibold text-[var(--d-muted)]">O elige qué es</p>
+            {fila({ k: "req", ico: IcoSaco, c: "#0073ea", t: "Requisición", d: "Material o servicio. Se cotiza y se paga", on: () => ir("/dashboard/requisiciones/requisiciones/nuevo?tipo=MATERIALES") })}
+            {fila({ k: "tarea", ico: IcoTarea, c: "#b85507", t: "Tarea", d: "Encárgale algo a alguien", on: () => ir("/dashboard/actividades?nueva=1") })}
+            {fila({ k: "pago", ico: IcoBillete, c: "#007a87", t: "Pago de servicio", d: "En efectivo. Va directo a pago", on: () => ir("/dashboard/requisiciones/requisiciones/nuevo?tipo=PAGO") })}
+            {fila({ k: "entrega", ico: IcoCamion, c: "#1f8500", t: "Registrar una entrega", d: "Llegó material: foto y quién recibió", on: () => ir("/dashboard/campo/evidencia") })}
+          </div>); })()}
 
         {(fase === "lista" || fase === "grabando") && (
           <div className="flex flex-col items-center py-4">

@@ -49,6 +49,14 @@ export const IcoSaco: Ico = p => <S {...p}>{(c, k) => <>
   <path d="M10 13.2h4" {...linea(c, 1.5)} />
 </>}</S>;
 
+/** Billete — pago en efectivo · 11-Oct-2026 */
+export const IcoBillete: Ico = p => <S {...p}>{(c, k) => <>
+  <rect x="2.6" y="6" width="18.8" height="12" rx="2.4" fill={c} />
+  <circle cx="12" cy="12" r="2.9" fill={k} />
+  <path d="M12 10.6v2.8" {...linea(c, 1.4)} />
+  <circle cx="6.4" cy="12" r="1.1" fill={k} /><circle cx="17.6" cy="12" r="1.1" fill={k} />
+</>}</S>;
+
 /** Tabla con palomitas — actividad */
 export const IcoTarea: Ico = p => <S {...p}>{(c, k) => <>
   <rect x="4" y="4" width="16" height="17.5" rx="2.6" fill={c} />
