@@ -15,6 +15,7 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import CotizacionesProveedor from "@/components/CotizacionesProveedor";
+import EntregasDeRequi from "@/components/EntregasDeRequi";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
 import { fmtMoney, fmtDate } from "@/lib/formatters";
@@ -717,6 +718,7 @@ export default function RequisicionesStatusPage() {
                   </>
                 )}
                 <CotizacionesProveedor reqId={detailReq.id} puedePedir={["admin", "compras", "rh", "direccion", "validador"].includes(userRole)} />
+                <EntregasDeRequi reqId={detailReq.id} />
               </div>
             </div>
             {accionPara(detailReq, userRole, userEmail) === "AUTORIZAR_RESPONSABLE" && (
