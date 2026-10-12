@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
         const tn = sinAcentos(texto);
         if ((m.prioridad === "CRITICO" || m.prioridad === "URGENTE") && !/\b(urgente|urge|hoy|ahorita|ya mismo|ya|emergencia|cuanto antes|lo antes posible|rapido|pronto|manana)\b/.test(tn)) m.prioridad = "NORMAL";
         if (!/\b(hoy|manana|pasado|lunes|martes|miercoles|jueves|viernes|sabado|domingo|semana|mes|\d{1,2} de|\d{1,2}\/\d{1,2})\b/.test(tn)) m.fecha_requerida = null;
-        const out: VozResultado = { texto, tipo: "material", material: { obra: m.obra, fecha_requerida: m.fecha_requerida, prioridad: m.prioridad, comentarios: m.comentarios || texto, materiales: m.materiales } };
+        const out: VozResultado = { texto, tipo: "material", material: { obra: m.obra, fecha_requerida: m.fecha_requerida, prioridad: m.prioridad, comentarios: texto, materiales: m.materiales } };
         return NextResponse.json(out);
       }
     }
