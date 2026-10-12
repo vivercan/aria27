@@ -2,7 +2,7 @@
  * Versión nueva publicada → el teléfono se pone al día solo, sin sacar a nadie de lo que está haciendo.
  * 11-Oct-2026 · JJ vio la ficha de una solicitud con la versión vieja (no salían las entregas) y luego
  * la pantalla "se salió y volvió a entrar" sin aviso. Ahora:
- *  - Se revisa al cambiar de pantalla, al volver a la app (desde WhatsApp, etc.) y cada 3 minutos.
+ *  - Se revisa al cambiar de pantalla, al volver a la app (desde WhatsApp, etc.) y cada minuto.
  *  - Solo se actualiza en un momento seguro: sin ventana/ficha abierta y sin estar escribiendo.
  *  - Mientras se actualiza se ve "Actualizando Doménica…" y al terminar "Listo, Doménica está al día".
  */
@@ -31,7 +31,7 @@ function avisar(texto: string, ms: number) {
 
 async function hayNueva(): Promise<string | null> {
   if (MIA === "dev" || typeof window === "undefined" || !navigator.onLine) return null;
-  if (Date.now() - ultima < 30000) return null; // no preguntar más de 1 vez cada 30 s
+  if (Date.now() - ultima < 5000) return null; // no preguntar más de 1 vez cada 5 s
   ultima = Date.now();
   try {
     const r = await fetch("/api/version", { cache: "no-store", credentials: "omit" });
@@ -65,8 +65,8 @@ export function vigilarVersion(): () => void {
   const alVolver = () => { if (document.visibilityState === "visible") revisarVersion(); };
   document.addEventListener("visibilitychange", alVolver);
   window.addEventListener("focus", alVolver);
-  // cada 3 min pregunta; si ya sabe que hay nueva, cada 20 s espera el momento seguro (p. ej. al cerrar la ficha)
+  // cada minuto pregunta; si ya sabe que hay nueva, cada 20 s espera el momento seguro (p. ej. al cerrar la ficha)
   let n = 0;
-  const t = setInterval(() => { n++; if (nueva) { recargar(nueva); } else if (n % 9 === 0 && document.visibilityState === "visible") { revisarVersion(); } }, 20000);
+  const t = setInterval(() => { n++; if (nueva) { recargar(nueva); } else if (n % 3 === 0 && document.visibilityState === "visible") { revisarVersion(); } }, 20000);
   return () => { document.removeEventListener("visibilitychange", alVolver); window.removeEventListener("focus", alVolver); clearInterval(t); };
 }
