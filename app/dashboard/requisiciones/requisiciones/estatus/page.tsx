@@ -16,6 +16,7 @@ import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import CotizacionesProveedor from "@/components/CotizacionesProveedor";
 import EntregasDeRequi from "@/components/EntregasDeRequi";
+import FolioCruzado from "@/components/FolioCruzado";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
 import { fmtMoney, fmtDate } from "@/lib/formatters";
@@ -499,7 +500,7 @@ export default function RequisicionesStatusPage() {
           onSelect={lf.setSelect}
           shown={visibles.length} total={requisiciones.length}
           isActive={lf.isActive} onClear={lf.clear}
-        /></div>
+        /><FolioCruzado q={lf.search} /></div>
       )}
 
       {loading ? (
@@ -517,6 +518,7 @@ export default function RequisicionesStatusPage() {
               </button>))}
           </div>
           <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar por número, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 h-12 text-[16px] text-[var(--d-text)]" />
+          <FolioCruzado q={qMovil} />
           <div className="mt-3 space-y-2">
             {listaMovil.slice(0, nMovil).map(req => { const acc = accionPara(req, userRole, userEmail); const toca = meToca(req, userRole, userEmail); return (
               <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#b85507]" : ""}`}>
