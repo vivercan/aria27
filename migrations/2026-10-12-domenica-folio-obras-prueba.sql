@@ -29,4 +29,17 @@ select id, employee_number, full_name, "position", project_site, department, sal
        salario_diario, tipo_nomina, hora_entrada, hora_salida, dias_laborales, centro_trabajo_id, banco, clabe, numero_cuenta, fecha_ingreso,
        fecha_baja, nss, curp, rfc, empresa_id, motivo_baja, salario_semanal, minimo_tarjeta, usuario_email
 from employees;
--- PENDIENTE (decisión de JJ): esta vista concede todo al rol anon e incluye NSS, CURP y CLABE.
+-- (Cerrado el mismo día: ver el bloque de abajo.)
+
+-- 12-Oct-2026 (tarde) · Datos sensibles del personal cerrados a la llave pública (decisión de JJ).
+-- La llave pública (anon/authenticated) solo ve datos de directorio; NSS, CURP, RFC, cuentas y salarios
+-- se leen y escriben únicamente por /api/personal (sesión + permiso de Talento).
+revoke all on table employees from anon, authenticated;
+grant select (id, employee_number, full_name, "position", project_site, department, email, status, expediente_status, whatsapp, tipo_nomina,
+  hora_entrada, hora_salida, dias_laborales, centro_trabajo_id, fecha_ingreso, fecha_baja, empresa_id, geocerca_libre, last_seen,
+  status_message, whatsapp_phone, usuario_email, tipo_contrato) on table employees to anon, authenticated;
+revoke all on table "Personal" from anon, authenticated;
+grant select (id, employee_number, full_name, "position", project_site, department, email, status, expediente_status, whatsapp, tipo_nomina,
+  hora_entrada, hora_salida, dias_laborales, centro_trabajo_id, fecha_ingreso, fecha_baja, empresa_id, usuario_email) on table "Personal" to anon, authenticated;
+-- REQ-2026-00587 cancelada por indicación de JJ (estaba Pendiente y en $0.00):
+-- update requisitions set status='CANCELADA' where folio='REQ-2026-00587';
