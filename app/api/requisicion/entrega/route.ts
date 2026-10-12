@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const items = Array.isArray(b.items) ? b.items as Array<{ product_name: string; unit?: string; quantity: number; recibida: number }> : [];
 
     const db = getSupabaseAdmin();
-    const { data: r } = await db.from("requisitions").select("id, folio, status, cost_center_name, proveedor, user_email, created_by, tipo_solicitud").eq("id", id).maybeSingle();
+    const { data: r } = await db.from("requisitions").select("id, folio, status, cost_center_name, proveedor, user_email, created_by, tipo_solicitud, purchase_status, forma_pago, comprobante_pago_url").eq("id", id).maybeSingle();
     if (!r) return NextResponse.json({ error: "Requisición no encontrada" }, { status: 404 });
     const role = (auth.role || "").toLowerCase(); const me = auth.email.toLowerCase();
     const puede = ["admin", "compras", "validador", "residente", "rh", "almacen"].includes(role) || (r.user_email || "").toLowerCase() === me;
@@ -56,6 +56,12 @@ export async function POST(req: NextRequest) {
     if (error) { log.error("insert entregas", { err: error.message }); return NextResponse.json({ error: error.message }, { status: 500 }); }
 
     await db.from("requisitions").update({ status: completa ? "ENTREGADA" : "ENTREGA_PARCIAL", fecha_entrega: now.toISOString().slice(0, 10), recibio: String(b.recibido_por || auth.email).slice(0, 120) }).eq("id", id);
+    // 11-Oct-2026 · JJ: en gastos en efectivo, al recibir ya se pagó → la foto del ticket/factura queda como comprobante de pago
+    const esEfectivo = r.purchase_status === "GASTO_EFECTIVO_PENDIENTE" || /EFECTIVO|CAJA/i.test(String(r.forma_pago || ""));
+    const comprobante = (String(b.nota || "").match(/https?:\/\/\S+/) || [])[0] || (b.foto_url ? String(b.foto_url) : null);
+    if (esEfectivo && !r.comprobante_pago_url && comprobante) {
+      await db.from("requisitions").update({ comprobante_pago_url: comprobante }).eq("id", id);
+    }
     await db.from("event_log").insert({ tipo: "ENTREGA_REGISTRADA", resumen: `${r.folio} ${r.cost_center_name} entregada (${completa ? "completa" : "parcial"})`, detalle: b.nota || null, actor: me, metadata: { folio: r.folio, entrega: folio, foto: !!b.foto_url, gps: lat != null } }).then(() => {}, () => {});
 
     if ((r.user_email || "").toLowerCase() !== me) {
