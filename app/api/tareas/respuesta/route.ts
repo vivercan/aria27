@@ -177,6 +177,9 @@ async function mandarNotif(
 
 export async function POST(req: NextRequest) {
   const supabase = getSupabaseAdmin();
+  // 11-Oct-2026: solo lo llama el bot de WhatsApp (webhook/attendance) por dentro. Antes estaba abierto a cualquiera.
+  const interno = req.headers.get("x-aria-interno") || "";
+  if (!process.env.CRON_SECRET || interno !== process.env.CRON_SECRET) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   try {
     const body = await req.json().catch(() => ({}));
     const phoneRaw: string = body.phone || "";

@@ -5,6 +5,7 @@ import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText, verifyWebhookSignature, verifyWebhookUrlToken } from "@/lib/whatsapp";
 import { notifyOps } from "@/lib/notify-ops";
+import { mensajeDeActividad } from "@/lib/wa-actividades";
 
 const log = logger("WEBHOOK-ATTENDANCE");
 
@@ -826,6 +827,18 @@ export async function POST(request: NextRequest) {
       await handleAsistencia(from, phone10, lat, lng);
       return NextResponse.json({ status: "asistencia processed" });
     }
+
+    // ====== ACTIVIDADES (11-Oct-2026): "ya quedó", "50", "no hay cemento", APROBAR, fotos y notas de voz de la tarea ======
+    // Antes estas respuestas caían en el menú de ayuda o se leían como gasto, y nunca llegaban a la actividad.
+    try {
+      const proto = request.headers.get("x-forwarded-proto") || "https";
+      const host = request.headers.get("host") || "aria.jjcrm27.com";
+      const ra = await mensajeDeActividad(db, `${proto}://${host}`, message, from, phone10);
+      if (ra.manejado) {
+        if (ra.respuesta) await sendWhatsApp(from, ra.respuesta);
+        return NextResponse.json({ status: `actividad ${ra.accion}` });
+      }
+    } catch (eAct: unknown) { log.error("ruta actividades fallo, sigue flow normal", { err: String(eAct) }); }
 
     // ====== IMAGEN = FOTO OC / INVENTARIO / GASTO ======
     if (message.type === "image") {
