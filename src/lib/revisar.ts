@@ -24,8 +24,8 @@ export function usePorRevisar(): number {
   useEffect(() => {
     let vivo = true;
     const leer = async () => { if (document.visibilityState !== "visible") return; let em = ""; try { em = localStorage.getItem("userEmail") || ""; } catch { /* */ } if (!em) return; const l = await cargarPorRevisar(em).catch(() => []); if (vivo) setN(l.length); };
-    leer(); const iv = setInterval(leer, 60_000); const f = () => leer(); window.addEventListener("focus", f); window.addEventListener("dom:revisar", f);
-    return () => { vivo = false; clearInterval(iv); window.removeEventListener("focus", f); window.removeEventListener("dom:revisar", f); };
+    leer(); const iv = setInterval(leer, 60_000); const f = () => leer(); window.addEventListener("focus", f); window.addEventListener("dom:revisar", f); window.addEventListener("aria:perms", f);
+    return () => { vivo = false; clearInterval(iv); window.removeEventListener("focus", f); window.removeEventListener("dom:revisar", f); window.removeEventListener("aria:perms", f); };
   }, []);
   return n;
 }
