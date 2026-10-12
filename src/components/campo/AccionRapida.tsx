@@ -11,7 +11,8 @@ import { interpretar } from "@/lib/comandos-voz";
 import { celebrar } from "@/lib/celebrar";
 import { IcoMicro, IcoSaco, IcoTarea, IcoCamion } from "@/components/domenica/IconosObra";
 
-type Fase = "menu" | "lista" | "grabando" | "procesando" | "resultado" | "escribir" | "pendientes";
+type Fase = "menu" | "lista" | "grabando" | "procesando" | "resultado" | "escribir" | "pendientes" | "elegir";
+type Opcion = { id: string; nombre: string; explica: string; href: string | null };
 type Pend = { titulo: string; fecha: string; hora: string | null; obra_id: string | null; obra: string | null; prioridad: string; quitar?: boolean };
 const diaCorto = (f: string) => { const d = new Date(f + "T12:00:00"); const h = new Date(); h.setHours(12, 0, 0, 0); const dd = Math.round((d.getTime() - h.getTime()) / 864e5); return dd === 0 ? "Hoy" : dd === 1 ? "Mañana" : d.toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" }); };
 // Reconocimiento de voz del propio teléfono (gratis, ve las palabras mientras hablas). Si no existe, se graba audio.
@@ -32,6 +33,27 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
   useEffect(() => () => { if (timer.current) clearInterval(timer.current); rec.current?.stream.getTracks().forEach(t => t.stop()); }, []);
 
   const ir = (href: string) => { onClose(); router.push(href); };
+  // "¿Quisiste decir…?": cuando no está claro qué quiere, se pregunta con botones grandes (nunca se adivina)
+  const [opciones, setOpciones] = useState<Opcion[]>([]); const [oido, setOido] = useState("");
+  const elegirOpcion = (o: Opcion, texto: string) => {
+    if (o.id === "material" || o.id === "actividad") { enviarTexto(texto, o.id); return; }
+    if (o.id === "pendientes" || o.id === "anotar_pendientes") { setModoPend(true); entenderPendientes(texto); return; }
+    if (o.id === "pregunta") { ir(`/dashboard/campo/pregunta?q=${encodeURIComponent(texto.slice(0, 400))}`); return; }
+    if (o.id === "ayuda") { onClose(); try { window.dispatchEvent(new Event("dom:guia")); } catch { /* */ } return; }
+    if (o.href) { setAviso(`Abriendo ${o.nombre}`); setTimeout(() => ir(o.href as string), 400); }
+  };
+  const preguntarIntencion = async (texto: string, sugeridas: Opcion[]) => {
+    setFase("procesando"); setErr(""); setOido(texto);
+    try {
+      const r = await fetch("/api/voz/intencion", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto }) });
+      const j = await r.json() as { opcion?: string | null; seguridad?: number; opciones?: Opcion[] };
+      const ops = (j.opciones || []).length ? j.opciones! : sugeridas;
+      if (j.opcion && (j.seguridad || 0) >= 0.8 && ops[0]) { elegirOpcion(ops[0], texto); return; }
+      const unicas = [...ops, ...sugeridas].filter((o, i, a) => a.findIndex(x => x.id === o.id) === i).slice(0, 3);
+      if (!unicas.length) { enviarTexto(texto, "actividad"); return; }
+      setOpciones(unicas); setFase("elegir");
+    } catch { if (sugeridas.length) { setOpciones(sugeridas); setFase("elegir"); } else { setErr("Sin conexión. Intenta de nuevo."); setFase("lista"); } }
+  };
   const enviarTexto = async (texto: string, tipo?: "actividad" | "material") => {
     if (!texto.trim()) { setErr("No se escuchó nada. Intenta otra vez."); setFase("lista"); return; }
     if (!tipo && modoPendRef.current) { entenderPendientes(texto); return; }
@@ -41,7 +63,10 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
       if (c.tipo === "ir") { setAviso(c.aviso); setTimeout(() => ir(c.href), 450); return; }
       if (c.tipo === "pregunta") { ir(`/dashboard/campo/pregunta?q=${encodeURIComponent(texto.slice(0, 400))}`); return; }
       if (c.tipo === "pendientes") { if (c.texto) { setModoPend(true); entenderPendientes(c.texto); } else { setModoPend(true); setFase("lista"); setTimeout(() => grabarRef.current?.(), 350); } return; }
-      if (c.pista) tipo = c.pista;
+      if (c.tipo === "ayuda") { onClose(); try { window.dispatchEvent(new Event("dom:guia")); } catch { /* */ } return; }
+      if (c.tipo === "elegir") { preguntarIntencion(texto, c.opciones); return; }
+      if (!c.pista) { preguntarIntencion(texto, []); return; }
+      tipo = c.pista;
     }
     setFase("procesando"); setErr(""); textoRef.current = texto;
     const fd = new FormData(); fd.append("texto", texto); if (tipo) fd.append("tipo", tipo);
@@ -118,7 +143,25 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
     <div className="aria-sheet fixed inset-0 z-[80] flex items-end justify-center bg-black/50 backdrop-blur-[2px]" onClick={onClose}>
       <div onClick={e => e.stopPropagation()} onClickCapture={e => { if (Date.now() - abiertoEn.current < 400) { e.stopPropagation(); e.preventDefault(); } }} className="dom-in w-full max-w-md rounded-t-[28px] bg-[var(--d-surface)] p-5 shadow-2xl" style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
         <div className="mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
-        <div className="flex items-center mb-4"><h2 className="flex-1 text-[19px] font-bold text-[var(--d-text)]">{fase === "menu" ? "¿Qué quieres hacer?" : fase === "escribir" ? "Escríbelo" : fase === "resultado" ? "¿Así está bien?" : fase === "pendientes" ? "Tus pendientes" : modoPend ? "Dicta tus pendientes" : "Habla con Doménica"}</h2><button onClick={onClose} className="p-2 -m-2 rounded-xl text-[var(--d-muted)]" aria-label="Cerrar"><X className="w-6 h-6" /></button></div>
+        <div className="flex items-center mb-4"><h2 className="flex-1 text-[19px] font-bold text-[var(--d-text)]">{fase === "menu" ? "¿Qué quieres hacer?" : fase === "escribir" ? "Escríbelo" : fase === "resultado" ? "¿Así está bien?" : fase === "elegir" ? "¿Te entendí bien?" : fase === "pendientes" ? "Tus pendientes" : modoPend ? "Dicta tus pendientes" : "Habla con Doménica"}</h2><button onClick={onClose} className="p-2 -m-2 rounded-xl text-[var(--d-muted)]" aria-label="Cerrar"><X className="w-6 h-6" /></button></div>
+
+        {fase === "elegir" && (
+          <div>
+            <p className="text-[15px] text-[var(--d-muted)]">Escuché:</p>
+            <p className="mt-0.5 text-[17px] font-semibold text-[var(--d-text)]">“{oido}”</p>
+            <p className="mt-4 text-[16px] font-bold text-[var(--d-text)]">¿Qué quieres hacer?</p>
+            <div className="mt-2 space-y-2">
+              {opciones.map(o => (
+                <button key={o.id} type="button" onClick={() => elegirOpcion(o, oido)} className="w-full rounded-2xl bg-[var(--d-card-2)] px-4 py-3.5 text-left active:scale-[0.99] transition">
+                  <span className="block text-[17px] font-bold text-[var(--d-text)]">{o.nombre}</span><span className="block text-[14px] text-[var(--d-muted)]">{o.explica}</span>
+                </button>))}
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => { setFase("lista"); setTimeout(() => grabarRef.current?.(), 300); }} className="h-12 rounded-2xl bg-[#6d35c9] text-white text-[15px] font-bold">Decirlo otra vez</button>
+              <button type="button" onClick={() => { setEscrito(oido); setFase("escribir"); }} className="h-12 rounded-2xl bg-[var(--d-card-2)] text-[var(--d-text)] text-[15px] font-bold">Escribirlo</button>
+            </div>
+          </div>
+        )}
 
         {fase === "menu" && (
           <div className="grid grid-cols-2 gap-3">

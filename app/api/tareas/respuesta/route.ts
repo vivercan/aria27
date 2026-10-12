@@ -18,6 +18,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { leerRespuestaWA } from "@/lib/respuesta-wa";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { sendEmailLogged } from "@/lib/email-log";
@@ -58,68 +59,8 @@ function normalize(s: string): string {
     .trim();
 }
 
-function parseRapido(textRaw: string): ParseResult {
-  const text = normalize(textRaw);
-
-  // Selector de tarea: "1 OK" / "TAREA #5 LISTO"
-  let tareaIdx: number | undefined;
-  const idxMatch = text.match(/^(?:tarea\s*#?\s*)?(\d{1,2})\s+(.+)$/);
-  let cuerpo = text;
-  if (idxMatch) {
-    tareaIdx = Number(idxMatch[1]);
-    cuerpo = idxMatch[2];
-  }
-
-  // STATUS / MIS TAREAS
-  if (/^(status|mis tareas|tareas|que tengo|que pendiente|pendientes)$/.test(cuerpo)) {
-    return { intent: "STATUS", tareaIdx };
-  }
-  // AYUDA
-  if (/^(ayuda|sos|help|necesito ayuda)$/.test(cuerpo)) {
-    return { intent: "AYUDA", tareaIdx };
-  }
-  // CANCELAR
-  if (/^(cancelar|cancelo|no puedo)$/.test(cuerpo)) {
-    return { intent: "CANCELAR", tareaIdx };
-  }
-  // BLOQUEADO + motivo
-  const blockMatch = cuerpo.match(/^(bloqueado|problema|trabado|atorado|stop)\b\s*[:\-,]?\s*(.*)$/);
-  if (blockMatch) {
-    return { intent: "BLOQUEADO", motivo: (blockMatch[2] || "").trim() || "sin detalle", tareaIdx };
-  }
-  // AVANCE N (numero 0..100)
-  const avMatch = cuerpo.match(/^(?:avance|porcentaje|llevo|al)\s+(\d{1,3})(?:\s*%)?$/);
-  if (avMatch) {
-    const n = Math.min(100, Math.max(0, Number(avMatch[1])));
-    if (n === 100) return { intent: "LISTO", porcentaje: 100, tareaIdx };
-    return { intent: "AVANCE", porcentaje: n, tareaIdx };
-  }
-  // Solo numero "50" / "75"
-  const numMatch = cuerpo.match(/^(\d{1,3})(?:\s*%)?$/);
-  if (numMatch) {
-    const n = Math.min(100, Math.max(0, Number(numMatch[1])));
-    if (n === 100) return { intent: "LISTO", porcentaje: 100, tareaIdx };
-    return { intent: "AVANCE", porcentaje: n, tareaIdx };
-  }
-  // INICIO
-  if (/^(inicio|iniciando|empece|empiezo|empezando|arranco|arrancando|arranque|on it|ok|enterado|recibido|va)$/.test(cuerpo)) {
-    return { intent: "INICIO", porcentaje: 25, tareaIdx };
-  }
-  // MITAD / 50
-  if (/^(mitad|medio|midway|half)$/.test(cuerpo)) {
-    return { intent: "AVANCE", porcentaje: 50, tareaIdx };
-  }
-  // CASI / 75
-  if (/^(casi|casi listo|por terminar)$/.test(cuerpo)) {
-    return { intent: "AVANCE", porcentaje: 75, tareaIdx };
-  }
-  // LISTO / DONE / 100
-  if (/^(listo|terminado|termine|completado|done|finalizado|acabe|hecho)$/.test(cuerpo)) {
-    return { intent: "LISTO", porcentaje: 100, tareaIdx };
-  }
-
-  return { intent: "DESCONOCIDO", tareaIdx };
-}
+/** 11-Oct-2026: la lectura sin IA vive en src/lib/respuesta-wa.ts (con pruebas y frases de obra) */
+function parseRapido(textRaw: string): ParseResult { return leerRespuestaWA(textRaw) as ParseResult; }
 
 async function parseAI(textRaw: string): Promise<ParseResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
