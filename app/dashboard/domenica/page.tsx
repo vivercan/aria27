@@ -56,7 +56,7 @@ export default function DomenicaHub() {
     })();
   }, []);
   const [miCorreo, setMiCorreo] = useState("");
-  useEffect(() => { try { setMiCorreo(localStorage.getItem("userEmail") || ""); } catch { /* */ } }, []);
+  useEffect(() => { const leer = () => { try { setMiCorreo(localStorage.getItem("userEmail") || ""); } catch { /* */ } }; leer(); window.addEventListener("aria:perms", leer); return () => window.removeEventListener("aria:perms", leer); }, []);
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
