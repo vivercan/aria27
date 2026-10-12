@@ -118,7 +118,7 @@ export default function MasPage() {
           <h2 className="px-1 mb-2 text-[16px] font-bold text-[var(--d-text)]">Ajustes</h2>
           <div className="dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)]">
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#0b1830] text-white font-black text-[18px]">Aa</span>
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#55657c] text-white font-black text-[18px]">Aa</span>
               <div className="flex-1"><div className="text-[16px] font-semibold text-[var(--d-text)]">Tamaño de letra</div><div className="text-[14px] text-[var(--d-muted)]">{letra === "grande" ? "Grande" : "Normal"}</div></div>
               <div className="inline-flex rounded-xl bg-[var(--d-card-2)] p-1">
                 {(["normal", "grande"] as const).map(l => <button key={l} onClick={() => cambiarLetra(l)} className={`rounded-lg px-3.5 h-10 font-bold capitalize ${l === "grande" ? "text-[16px]" : "text-[13px]"} ${letra === l ? "bg-[#0073ea] text-white" : "text-[var(--d-muted)]"}`}>{l}</button>)}
