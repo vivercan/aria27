@@ -1285,7 +1285,7 @@ html, body {
 /* 10-Oct-2026 Campo automatico en celular: la barra inferior (56px + safe-area) no debe tapar modales ni botones fijos */
 @media (max-width: 767px) {
   body.aria-campo .fixed.inset-0 { bottom: calc(56px + env(safe-area-inset-bottom)); }
-  body.aria-campo .campo-bottom-bar { bottom: calc(56px + env(safe-area-inset-bottom)); }
+  body.aria-campo .campo-bottom-bar { bottom: calc(84px + env(safe-area-inset-bottom)); /* 12-Oct: encima del botón + (Nuevo), que sobresale de la barra */ }
   /* hojas de pantalla completa (ficha/nueva actividad) cubren la barra inferior */
   body.aria-campo .fixed.inset-0.aria-sheet { bottom: 0; }
   /* la burbuja de alertas flota arriba de la barra inferior */
