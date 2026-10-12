@@ -20,7 +20,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { leerRespuestaWA } from "@/lib/respuesta-wa";
 import { leerAprobacionWA, pedirAprobacion, resolverAprobacion } from "@/lib/aprobacion";
-import { avisarWA } from "@/lib/actividades-server";
+import { avisarWA, avisarEnApp } from "@/lib/actividades-server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { sendEmailLogged } from "@/lib/email-log";
@@ -149,30 +149,14 @@ async function notificarAsignador(
 
 async function mandarNotif(
   email: string | null,
-  phone: string | null,
+  _phone: string | null,
   tarea: Tarea,
   evento: string,
   detalle: string
 ) {
-  if (email) {
-    const color = evento === "BLOQUEADO" ? "#dc2626" : evento === "COMPLETADA" ? "#16a34a" : evento === "AYUDA" ? "#f59e0b" : "#3b82f6";
-    await sendEmailLogged({
-      template: `tarea_${evento.toLowerCase()}_asignador`,
-      to: email,
-      subject: `[${evento}] ${tarea.titulo} — ${tarea.asignado_nombre || "personal"}`,
-      html: ariaEmailWrapper(
-        ariaEmailHeader(`Tarea ${evento.toLowerCase()}`) +
-        `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:${color}1A;border-left:4px solid ${color};padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:${color};font-weight:bold">${detalle}</p></div><table style="width:100%;font-size:12px;color:#334155"><tr><td style="color:#64748b;padding:3px 0">Tarea:</td><td><strong>${tarea.titulo}</strong></td></tr>${tarea.obra ? `<tr><td style="color:#64748b;padding:3px 0">Obra:</td><td>${tarea.obra}</td></tr>` : ""}<tr><td style="color:#64748b;padding:3px 0">Persona:</td><td>${tarea.asignado_nombre || "-"}</td></tr><tr><td style="color:#64748b;padding:3px 0">Avance:</td><td>${tarea.avance ?? 0}%</td></tr></table></div>` +
-        ariaEmailFooter()
-      ),
-      origen: `tarea-${evento.toLowerCase()}-asignador`,
-      enviadoPor: "tareas-respuesta",
-    });
-  }
-  if (phone) {
-    // 11-Oct-2026: con plantilla aprobada (antes texto libre: Meta lo rechaza si la persona no escribió en 24 h)
-    await avisarWA({ nombre: "", email, phone }, `${evento}: ${detalle} · ${tarea.titulo} · ${tarea.asignado_nombre || "—"}${tarea.obra ? ` · ${tarea.obra}` : ""} · avance ${tarea.avance ?? 0}%`, `tarea-${evento.toLowerCase()}-asignador-wa`, "tareas-respuesta");
-  }
+  // 11-Oct-2026 (JJ): al que encargó ya no le llega WhatsApp ni correo: le aparece en la APP (Inicio) y, si la activó, notificación
+  const titulos: Record<string, string> = { BLOQUEADO: "⚠️ Actividad atorada", AYUDA: "🆘 Piden ayuda", INICIADA: "▶️ Ya empezó", COMPLETADA: "✅ Terminó" };
+  await avisarEnApp(email, { title: titulos[evento] || evento, body: `${detalle} · ${tarea.titulo}${tarea.obra ? ` · ${tarea.obra}` : ""}`, url: `/dashboard/actividades?abrir=${tarea.id}`, tag: `act-${tarea.id}` });
 }
 
 export async function POST(req: NextRequest) {
@@ -453,7 +437,6 @@ async function procesarRespuesta(
     if (!pidio) await notificarAsignador(supabase, tarea, "COMPLETADA", `${nombre} marco la tarea como terminada.`);
     try { await avisarDependientes(supabase, { id: tarea.id, titulo: tarea.titulo, obra: (tarea as { obra?: string | null }).obra }, emailEmpleado || "whatsapp"); } catch { /* best effort */ }
     try { const hoyMx = new Date(Date.now() - 6 * 3600 * 1000).toISOString().slice(0, 10); const fc = String((tarea as { fecha_compromiso?: string | null }).fecha_compromiso || "").slice(0, 10); if (fc && hoyMx > fc) await aplicarRecorrido(supabase, tarea.id, hoyMx, emailEmpleado || "whatsapp"); } catch { /* best effort */ }
-    await notifyOps({ evento: "TAREA_COMPLETADA", resumen: nombre + " completo: " + tarea.titulo, actor: emailEmpleado || nombre }).catch(() => {});
   }
   if (parsed.intent === "BLOQUEADO") {
     await notificarAsignador(supabase, tarea, "BLOQUEADO", `${nombre} reporta bloqueo: ${motivoBloqueo}`);

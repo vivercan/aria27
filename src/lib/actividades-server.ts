@@ -44,6 +44,13 @@ export async function avisarWA(p: Persona | null, mensaje: string, origen: strin
   return !!r.success;
 }
 
+/** 11-Oct-2026 (JJ): al que encarga (gente de oficina) se le avisa en la APP, no por WhatsApp.
+ *  Notificación del teléfono/computadora si la activó; y siempre queda en Inicio como "por revisar". */
+export async function avisarEnApp(email: string | null | undefined, msg: { title: string; body: string; url: string; tag?: string }): Promise<boolean> {
+  if (/\bqa\b[\s\S]*no procesar/i.test(`${msg.title} ${msg.body}`)) return false;
+  try { return (await pushAEmail(email, { title: msg.title, body: limpiar(msg.body).slice(0, 220), url: msg.url, tag: msg.tag })) > 0; } catch { return false; }
+}
+
 export async function registrarActualizacion(db: SupabaseClient, row: { tarea_id: string; autor_email: string; autor_nombre?: string | null; tipo: string; texto?: string | null; foto_url?: string | null; archivo_url?: string | null; archivo_nombre?: string | null }) {
   await db.from("tarea_actualizaciones").insert({ ...row, autor_nombre: row.autor_nombre || row.autor_email });
 }

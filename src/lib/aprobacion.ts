@@ -1,12 +1,12 @@
 /**
  * Visto bueno del que encargó la actividad (11-Oct-2026 · JJ)
  * Cuando quien la hace dice que terminó (en la app o por WhatsApp "ya quedó"), la actividad se da por terminada
- * (para que lo que sigue pueda avanzar) pero queda "por aprobar": al que la encargó le llega un WhatsApp con el enlace
- * para ver la evidencia y contesta APROBAR o REGRESAR y qué falta. Si en 3 días no contesta, se aprueba sola y se avisa.
+ * (para que lo que sigue pueda avanzar) pero queda "por aprobar": al que la encargó le aparece en la APP (Inicio › Revisar)
+ * con la evidencia, y aprueba o regresa ahí (también puede contestar APROBAR/REGRESAR por WhatsApp). Si en 3 días no contesta, se aprueba sola y se avisa.
  * Lógica pura de lectura en leerAprobacionWA (tests/aprobacion.test.ts).
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { avisarWA, personaPorEmail, registrarActualizacion, urlActividad } from "@/lib/actividades-server";
+import { avisarEnApp, avisarWA, personaPorEmail, registrarActualizacion } from "@/lib/actividades-server";
 
 export const DIAS_AUTOAPROBAR = 3;
 
@@ -35,10 +35,8 @@ export async function pedirAprobacion(db: SupabaseClient, t: T, porEmail: string
   const hace = String(t.asignado_email || "").toLowerCase();
   if (!dueño.includes("@") || dueño === hace || dueño === "automatizacion") return false;
   await db.from("tareas_asignadas").update({ por_aprobar: true, aprobada_por: null, aprobada_at: null }).eq("id", t.id);
-  const p = await personaPorEmail(db, dueño);
-  const obra = t.obra ? ` (${t.obra})` : "";
-  await avisarWA(p, `${t.asignado_nombre || "Quien la hace"} dice que terminó "${t.titulo}"${obra}. Mira la evidencia: ${urlActividad(t.id)} · Contesta APROBAR si quedó bien, o REGRESAR y qué falta. Si no contestas en ${DIAS_AUTOAPROBAR} días se aprueba sola.`,
-    "actividad-por-aprobar", porEmail, { title: "✅ Terminó: ¿la apruebas?", url: `/dashboard/actividades?abrir=${t.id}`, tag: `apr-${t.id}` });
+  // 11-Oct-2026 (JJ): al que la encargó le llega en la APP (Inicio › "Revisar" + notificación si la activó), no por WhatsApp
+  await avisarEnApp(dueño, { title: "✅ Terminó: revisa y aprueba", body: `${t.asignado_nombre || "Quien la hace"} dice que terminó "${t.titulo}"${t.obra ? ` (${t.obra})` : ""}. Revisa la evidencia y apruébala o regrésala.`, url: `/dashboard/actividades?abrir=${t.id}`, tag: `apr-${t.id}` });
   return true;
 }
 

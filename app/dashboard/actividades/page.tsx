@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { celebrar } from "@/lib/celebrar";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import PanelPorRevisar from "@/components/domenica/PorRevisar";
 import { atrasoTexto,
   COLUMNAS, PRIORIDADES, prioridadDe, columnaDe, diasAtraso, venceHoy, esMia, laAsigneYo, iniciales, colorPersona, fechaCorta, haceCuanto, resumen,
   type Actividad, type ColumnaId,
@@ -158,7 +159,8 @@ export default function ActividadesPage() {
         setMe({ email, role, name: u.display_name || u.name || email });
         const sp = new URLSearchParams(window.location.search);
         const movil = window.innerWidth < 768;
-        setVista((sp.get("vista") as Vista) || (movil ? "mi" : "tablero"));
+        const vp = sp.get("vista"); setVista(vp && vp !== "revisar" ? (vp as Vista) : (movil ? "mi" : "tablero"));
+        if (vp === "revisar") setTimeout(() => { try { document.getElementById("por-revisar")?.scrollIntoView({ behavior: "smooth" }); } catch { /* */ } }, 1200);
         setAmbito(SUPER.includes(role) ? "todas" : "mias");
         if (sp.get("nueva") === "1") setNueva(true);
         if (sp.get("persona")) { setFPersona(sp.get("persona") || ""); setAmbito("todas"); }
@@ -435,6 +437,7 @@ export default function ActividadesPage() {
         </div>
 
         {/* Vistas + filtros */}
+        {me && <PanelPorRevisar email={me.email} onAbrir={id => setAbierta(id)} recargar={acts.length + acts.filter(x => x.por_aprobar).length} />}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
             {([["mi", "Mi trabajo", Sun], ["tablero", "Por estado", LayoutGrid], ["lista", "Lista", List], ["linea", "Línea", GanttChart]] as const).map(([v, l, I]) => (
@@ -679,13 +682,13 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
                   <textarea value={motivoReg} onChange={e => setMotivoReg(e.target.value)} rows={2} placeholder="¿Qué le falta?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-[15px] text-[var(--d-text)]" />
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     <button type="button" onClick={() => setRegresando(false)} className="h-12 rounded-xl bg-[var(--d-card-2)] text-[15px] font-bold text-[var(--d-text)]">Cancelar</button>
-                    <button type="button" disabled={!motivoReg.trim()} onClick={async () => { try { await api(`/api/actividades/${a.id}/aprobar`, "POST", { accion: "regresar", motivo: motivoReg.trim() }); flash("ok", "Se la regresaste y le avisamos"); setRegresando(false); onUpd(); } catch (e) { flash("err", (e as Error).message); } }} className="h-12 rounded-xl bg-[#d0304a] text-[15px] font-bold text-white disabled:opacity-50">Regresar</button>
+                    <button type="button" disabled={!motivoReg.trim()} onClick={async () => { try { await api(`/api/actividades/${a.id}/aprobar`, "POST", { accion: "regresar", motivo: motivoReg.trim() }); flash("ok", "Se la regresaste y le avisamos"); setRegresando(false); onUpd(); try { window.dispatchEvent(new Event("dom:revisar")); } catch { /* */ } } catch (e) { flash("err", (e as Error).message); } }} className="h-12 rounded-xl bg-[#d0304a] text-[15px] font-bold text-white disabled:opacity-50">Regresar</button>
                   </div>
                 </div>
               ) : (
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <button type="button" onClick={() => setRegresando(true)} className="h-12 rounded-xl border-2 border-[#d0304a] text-[15px] font-bold text-[var(--d-danger)]">Regresar</button>
-                  <button type="button" onClick={async () => { try { await api(`/api/actividades/${a.id}/aprobar`, "POST", { accion: "aprobar" }); flash("ok", "Aprobada. Le avisamos por WhatsApp"); onUpd(); } catch (e) { flash("err", (e as Error).message); } }} className="h-12 rounded-xl bg-[#1f8500] text-[15px] font-bold text-white">Aprobar</button>
+                  <button type="button" onClick={async () => { try { await api(`/api/actividades/${a.id}/aprobar`, "POST", { accion: "aprobar" }); flash("ok", "Aprobada. Le avisamos por WhatsApp"); onUpd(); try { window.dispatchEvent(new Event("dom:revisar")); } catch { /* */ } } catch (e) { flash("err", (e as Error).message); } }} className="h-12 rounded-xl bg-[#1f8500] text-[15px] font-bold text-white">Aprobar</button>
                 </div>
               )}
             </div>

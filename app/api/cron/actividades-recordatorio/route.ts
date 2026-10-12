@@ -7,7 +7,7 @@
 import { cronAutorizado } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { avisarWA, personaPorEmail, personaPorEmpleado } from "@/lib/actividades-server";
+import { avisarEnApp, avisarWA, personaPorEmail, personaPorEmpleado } from "@/lib/actividades-server";
 import { columnaDe, diasAtraso, fechaCorta, type Actividad } from "@/lib/actividades";
 import { meToca, accionPara, ACCION_TXT } from "@/lib/requi-stepper";
 import { enRiesgo } from "@/lib/riesgo";
@@ -104,8 +104,7 @@ export async function GET(req: NextRequest) {
       porDueño.set(k, [...(porDueño.get(k) || []), t]);
     }
     for (const [k, ts] of porDueño) {
-      const p = await personaPorEmail(db, k);
-      if (await avisarWA(p, `Tienes ${ts.length} actividad${ts.length === 1 ? "" : "es"} terminada${ts.length === 1 ? "" : "s"} esperando tu visto bueno: ${ts.slice(0, 5).map((t, i) => `${i + 1}) ${t.titulo} (${t.asignado_nombre || "—"})`).join(" · ")}. Contesta APROBAR 1 o REGRESAR 1 y qué falta. Si no, se aprueban solas a los ${DIAS_AUTOAPROBAR} días.`, "recordatorio-aprobar", "cron")) recordatoriosAprobar++;
+      if (await avisarEnApp(k, { title: `✅ ${ts.length} por revisar`, body: `Tienes ${ts.length} actividad${ts.length === 1 ? "" : "es"} terminada${ts.length === 1 ? "" : "s"} esperando tu visto bueno: ${ts.slice(0, 3).map(t => t.titulo).join(" · ")}. Si no, se aprueban solas a los ${DIAS_AUTOAPROBAR} días.`, url: "/dashboard/actividades?vista=revisar", tag: "por-revisar" })) recordatoriosAprobar++;
     }
   } catch { /* best effort */ }
   return NextResponse.json({ ok: true, hoy: H, personas: porPersona.size, asignadores: atrasadasPorAsignador.size, enviados, autoAprobadas, recordatoriosAprobar });

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, type Actividad } from "@/lib/actividades";
 import { Contador } from "@/components/domenica/ui";
+import PanelPorRevisar from "@/components/domenica/PorRevisar";
 import { Ficha, IcoOrganizar } from "@/components/domenica/IconosObra";
 import { BookOpen, ShieldCheck, Map as MapIcon, Mic, Sun, Zap, GanttChart, LayoutGrid, Link2, Building2, LayoutTemplate, Repeat, AtSign, Users, FileInput, BarChart3, ChevronRight } from "lucide-react";
 
@@ -54,6 +55,8 @@ export default function DomenicaHub() {
       setK({ abiertas: acts.filter(x => columnaDe(x) !== "TERMINADA").length, atrasadas: acts.filter(x => diasAtraso(x) > 0).length, autos: ((auto.reglas || []) as { activa: boolean }[]).filter(r => r.activa).length, obras: obras || 0 });
     })();
   }, []);
+  const [miCorreo, setMiCorreo] = useState("");
+  useEffect(() => { try { setMiCorreo(localStorage.getItem("userEmail") || ""); } catch { /* */ } }, []);
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
@@ -61,6 +64,7 @@ export default function DomenicaHub() {
           <Ficha ico={IcoOrganizar} color="#7e3bdd" size="md" />
           <div><h1 className="text-[26px] font-bold text-[var(--d-text)] tracking-tight leading-tight">{NOMBRE_MODULO}</h1><p className="text-[13px] text-[var(--d-muted)]">Planea, organiza y sigue el trabajo de todas las obras.</p></div>
         </div>
+        {miCorreo && <PanelPorRevisar email={miCorreo} />}
         <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">
           {[["Actividades abiertas", k.abiertas, "var(--c-azul)", "/dashboard/actividades"], ["Atrasadas", k.atrasadas, "var(--c-rojo)", "/dashboard/actividades?vista=mi"], ["Obras activas", k.obras, "var(--c-verde)", "/dashboard/domenica/obras"], ["Avisos automáticos", k.autos, "var(--c-ambar)", "/dashboard/domenica/automatizaciones"]].map(([l, n, c, h]) => (
             <Link key={String(l)} href={String(h)} className="dom-card dom-in rounded-2xl p-3"><div className="text-[11px] text-[var(--d-muted)]">{l}</div><div className="text-2xl font-bold" style={{ color: Number(n) > 0 ? String(c) : "var(--d-faint)" }}><Contador n={Number(n)} /></div></Link>))}

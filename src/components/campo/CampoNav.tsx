@@ -10,6 +10,7 @@ import { IcoInicio, IcoSolicitudes, IcoActividades, IcoMas, IcoMasGrande } from 
 import AccionRapida from "@/components/campo/AccionRapida";
 import SinSenal from "@/components/campo/SinSenal";
 import Guia from "@/components/campo/Guia";
+import { usePorRevisar } from "@/lib/revisar";
 
 const TABS = [
   { href: "/dashboard/campo", label: "Inicio", icon: IcoInicio, match: (p: string) => p === "/dashboard/campo" },
@@ -21,6 +22,7 @@ const TABS = [
 
 export default function CampoNav() {
   const path = usePathname() || "";
+  const revisar = usePorRevisar();
   const [abierto, setAbierto] = useState(false); const [auto, setAuto] = useState(false);
   // El micrófono grande de Inicio abre la hoja escuchando de una vez
   useEffect(() => { const f = () => { setAuto(true); setAbierto(true); }; window.addEventListener("dom:hablar", f); return () => window.removeEventListener("dom:hablar", f); }, []);
@@ -40,7 +42,7 @@ export default function CampoNav() {
             const active = t.match(path); const Icon = t.icon;
             return (
               <li key={i}><Link href={t.href} className={`flex flex-col items-center gap-0.5 pt-1.5 pb-2 text-[12.5px] font-bold ${active ? "text-[var(--d-nav-on)]" : "text-[var(--d-muted)]"}`} aria-current={active ? "page" : undefined}>
-                <span className={`flex items-center justify-center h-8 w-12 rounded-full transition-all duration-200 `}><Icon activo={active} className="w-[24px] h-[24px]" /></span>{t.label}</Link></li>);
+                <span className={`relative flex items-center justify-center h-8 w-12 rounded-full transition-all duration-200 `}><Icon activo={active} className="w-[24px] h-[24px]" />{t.href === "/dashboard/actividades" && revisar > 0 && <span aria-label={`${revisar} por revisar`} className="absolute -top-1 right-0 min-w-[20px] h-5 px-1 rounded-full bg-[#d0304a] text-white text-[12px] font-black flex items-center justify-center">{revisar > 9 ? "9+" : revisar}</span>}</span>{t.label}</Link></li>);
           })}
         </ul>
       </nav>

@@ -18,6 +18,7 @@ import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
 import DomenicaLogo from "@/components/campo/DomenicaLogo";
 import RegresarTel, { esRaizTel } from "@/components/campo/RegresarTel";
+import { usePorRevisar } from "@/lib/revisar";
 import { revisarVersion } from "@/lib/version-check";
 import PantallaCompu from "@/components/campo/PantallaCompu";
 import { esPantallaCompu } from "@/lib/rutas-tel";
@@ -243,6 +244,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [globalResults, setGlobalResults] = useState<GlobalResult[]>([]);
   const globalSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [inboxUnread, setInboxUnread] = useState(0);
+  const porRevisar = usePorRevisar(); // 11-Oct-2026: actividades que encargué y ya me contestaron
   /* Ref: true mientras el inbox page está montado — suspende el poll */
   const inboxActiveRef = useRef(false);
   const inboxVisitedRef = useRef(false);
@@ -626,6 +628,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                         {inboxUnread > 99 ? "99+" : inboxUnread}
                       </span>
                     )}
+                    {item.href === "/dashboard/domenica" && porRevisar > 0 && <span title="Actividades por revisar" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 22, height: 22, padding: "0 6px", borderRadius: 9999, background: "#d0304a", color: "#fff", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>{porRevisar > 99 ? "99+" : porRevisar}</span>}
                     {item.hasSubmenu && <ChevronRight style={{ width: "12px", height: "12px", opacity: 0.4 }} />}
                   </Link>
                 </React.Fragment>

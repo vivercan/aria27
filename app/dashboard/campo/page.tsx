@@ -17,6 +17,7 @@ import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
 import { supabase } from "@/lib/supabase";
 import { accionPara, statusLabel } from "@/lib/requi-stepper";
+import { cargarPorRevisar } from "@/lib/revisar";
 import { atrasoTexto, columnaDe, diasAtraso, venceHoy, esMia, fechaCorta, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
 
 type R = { id: string; folio: string; cost_center_name: string; status: string; purchase_status?: string | null; user_email?: string; responsable_email?: string | null; tipo_solicitud?: string | null; created_at: string; required_date?: string | null; proveedor?: string | null };
@@ -74,7 +75,7 @@ export default function CampoHome() {
         const empId = (emp as { id?: string } | null)?.id || null;
         let aq = supabase.from("tareas_asignadas").select("*").not("estatus", "in", "(COMPLETADA,CANCELADA)");
         aq = empId ? aq.or(`asignado_email.eq.${email},asignado_id.eq.${empId}`) : aq.eq("asignado_email", email);
-        const [{ data: ac }, { data: apr }] = await Promise.all([aq, supabase.from("tareas_asignadas").select("*").eq("por_aprobar", true).ilike("asignado_por_email", email)]);
+        const [{ data: ac }, { data: apr }] = await Promise.all([aq, cargarPorRevisar(email).then(data => ({ data }))]);
         if (!alive) return;
         setReqs((rq || []) as R[]); setActs(((ac || []) as Actividad[]).filter(a => esMia(a, email, empId))); setPorAprobar((apr || []) as Actividad[]);
       } catch { /* best effort */ } finally { if (alive) setLoading(false); }
@@ -102,7 +103,8 @@ export default function CampoHome() {
       const d = diasAtraso(a); const h = venceHoy(a); const col = columnaDe(a); const rg = enRiesgo(a, hoyIso);
       out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `Riesgo: ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? atrasoTexto(d) : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#d0304a" : h ? "#b85507" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#d0304a" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
     }
-    for (const a of porAprobar) out.push({ obra: a.obra, key: "v" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: `${a.asignado_nombre || "Alguien"} dice que ya terminó · dale tu visto bueno`, boton: "Revisar", color: "#b85507", icon: "act", urg: 1 });
+    for (const a of porAprobar) { const atorada = !a.por_aprobar && !!a.motivo_bloqueo;
+      out.push({ obra: a.obra, key: "v" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: atorada ? `${a.asignado_nombre || "Alguien"} avisa que está atorada: ${a.motivo_bloqueo}` : `${a.asignado_nombre || "Alguien"} dice que ya terminó · dale tu visto bueno`, boton: atorada ? "Ver" : "Revisar", color: atorada ? "#d0304a" : "#b85507", icon: "act", urg: atorada ? 0 : 1 }); }
     // Si estás en una obra, lo de esa obra va primero
     const enAqui = (x: Item) => (aqui && normObra(x.obra) === normObra(aqui.nombre) ? 0 : 1);
     return out.sort((x, y) => enAqui(x) - enAqui(y) || x.urg - y.urg);
