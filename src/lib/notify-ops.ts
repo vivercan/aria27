@@ -127,6 +127,8 @@ function tituloEvento(e: EventoOps): string {
  */
 export async function notifyOps(input: NotifyOpsInput): Promise<void> {
   const { evento, resumen, detalle, actor, metadata } = input;
+  // 11-Oct-2026: lo marcado "QA … NO PROCESAR" es prueba: nunca avisa a nadie
+  if (/\bqa\b[\s\S]*no procesar/i.test(`${resumen} ${detalle || ""}`)) return;
   const supabase = getSupabaseAdmin();
   const icono = iconoEvento(evento);
   const titulo = tituloEvento(evento);

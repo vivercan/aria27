@@ -35,6 +35,7 @@ export async function personaPorEmpleado(db: SupabaseClient, empleadoId?: string
 }
 
 export async function avisarWA(p: Persona | null, mensaje: string, origen: string, enviadoPor: string, push?: { title: string; url: string; tag?: string }): Promise<boolean> {
+  if (/\bqa\b[\s\S]*no procesar/i.test(mensaje)) return false; // pruebas "QA … NO PROCESAR": no avisan a nadie
   // 10-Oct-2026: ademas del WhatsApp, notificacion en el telefono si la persona la activo
   if (p?.email && push) { try { await pushAEmail(p.email, { title: push.title, body: limpiar(mensaje).slice(0, 220), url: push.url, tag: push.tag }); } catch { /* push best effort */ } }
   if (!p?.phone) return false;
