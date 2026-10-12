@@ -128,7 +128,7 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
             </button>
             <button onClick={() => ir("/dashboard/requisiciones/requisiciones/nuevo")} className={tile} style={{ background: "#0073ea" }}><IcoSaco className="w-8 h-8" color="#fff" fondo="#0073ea" /><span className="text-[16px] font-bold leading-tight">Pedir material</span><span className="text-[13px] leading-tight text-white/90">Cemento, varilla, un servicio…</span></button>
             <button onClick={() => ir("/dashboard/actividades?nueva=1")} className={tile} style={{ background: "#b85507" }}><IcoTarea className="w-8 h-8" color="#fff" fondo="#b85507" /><span className="text-[16px] font-bold leading-tight">Encargar algo</span><span className="text-[13px] leading-tight text-white/90">Una tarea para alguien</span></button>
-            <button onClick={() => ir("/dashboard/campo/evidencia")} className={`${tile} col-span-2 min-h-[72px] flex-row items-center gap-3`} style={{ background: "#2aa300" }}><IcoCamion className="w-8 h-8" color="#fff" fondo="#2aa300" /><span className="text-left"><span className="block text-[16px] font-bold">Registrar una entrega</span><span className="block text-[13px] text-white/90">Llegó material: foto y quién recibió</span></span></button>
+            <button onClick={() => ir("/dashboard/campo/evidencia")} className={`${tile} col-span-2 min-h-[72px] flex-row items-center gap-3`} style={{ background: "#1f8500" }}><IcoCamion className="w-8 h-8" color="#fff" fondo="#1f8500" /><span className="text-left"><span className="block text-[16px] font-bold">Registrar una entrega</span><span className="block text-[13px] text-white/90">Llegó material: foto y quién recibió</span></span></button>
           </div>)}
 
         {(fase === "lista" || fase === "grabando") && (
@@ -158,7 +158,7 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
             <ul className="space-y-2 max-h-[45vh] overflow-y-auto">
               {pends.map((p, i) => (
                 <li key={i} className={`flex items-start gap-3 rounded-2xl border border-[var(--d-border)] p-3 ${p.quitar ? "opacity-40" : ""}`}>
-                  <button type="button" onClick={() => setPends(x => x.map((y, k) => k === i ? { ...y, quitar: !y.quitar } : y))} aria-label={p.quitar ? "Volver a incluir" : "Quitar"} className={`mt-0.5 shrink-0 w-6 h-6 rounded-lg flex items-center justify-center ${p.quitar ? "border-2 border-[var(--d-border)]" : "bg-[#3cde01]"} sobre-verde`}>{!p.quitar && <Check className="w-4 h-4 text-white" strokeWidth={3} />}</button>
+                  <button type="button" onClick={() => setPends(x => x.map((y, k) => k === i ? { ...y, quitar: !y.quitar } : y))} aria-label={p.quitar ? "Volver a incluir" : "Quitar"} className={`mt-0.5 shrink-0 w-6 h-6 rounded-lg flex items-center justify-center ${p.quitar ? "border-2 border-[var(--d-border)]" : "bg-[#1f8500]"} sobre-verde`}>{!p.quitar && <Check className="w-4 h-4 text-white" strokeWidth={3} />}</button>
                   <div className="flex-1 min-w-0">
                     <div className="text-[15px] font-semibold text-[var(--d-text)] leading-snug">{p.titulo}</div>
                     <div className="mt-1 flex flex-wrap gap-1.5 text-[12px] font-semibold">
@@ -170,7 +170,7 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
                 </li>))}
             </ul>
             {err && <div className="mt-3 rounded-xl bg-[#d0304a] px-3 py-2 text-sm font-semibold text-white">{err}</div>}
-            <button onClick={guardarPendientes} disabled={guardando || !pends.some(p => !p.quitar)} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#3cde01] py-4 text-[16px] font-bold text-white disabled:opacity-50 sobre-verde">{guardando ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Guardar {pends.filter(p => !p.quitar).length} en mi agenda</button>
+            <button onClick={guardarPendientes} disabled={guardando || !pends.some(p => !p.quitar)} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1f8500] py-4 text-[16px] font-bold text-white disabled:opacity-50 sobre-verde">{guardando ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Guardar {pends.filter(p => !p.quitar).length} en mi agenda</button>
             <button onClick={() => { setFase("lista"); setTimeout(() => grabarRef.current?.(), 200); }} className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--d-card-2)] py-3 text-[14px] font-semibold text-[var(--d-text-2)]"><Mic className="w-4 h-4" />Agregar más por voz</button>
           </div>)}
 

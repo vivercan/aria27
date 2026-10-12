@@ -60,7 +60,7 @@ export default function ObraDomPage() {
 
         {/* Golpe de vista: 3 números siempre; lo demás solo si hay algo (no tarjetas en cero) */}
         <div className="mt-3 grid grid-cols-3 gap-2">
-          {[{ n: `${x.avance}%`, l: "Avance", c: "#0073ea" }, { n: String(x.abiertas.length), l: "Abiertas", c: "var(--d-text)" }, { n: String(x.atrasadas), l: "Atrasadas", c: x.atrasadas ? "#d0304a" : "var(--d-faint)" }].map((k, i) => (
+          {[{ n: `${x.avance}%`, l: "Avance", c: "var(--c-azul)" }, { n: String(x.abiertas.length), l: "Abiertas", c: "var(--d-text)" }, { n: String(x.atrasadas), l: "Atrasadas", c: x.atrasadas ? "var(--c-rojo)" : "var(--d-faint)" }].map((k, i) => (
             <div key={k.l} className="dom-card dom-in rounded-2xl px-3 py-2.5" style={{ animationDelay: `${i * 50}ms` }}><div className="text-[24px] font-bold leading-none" style={{ color: k.c }}>{k.n}</div><div className="mt-1.5 text-[12px] text-[var(--d-muted)]">{k.l}</div></div>))}
         </div>
         {(() => { const nRiesgo = x.abiertas.filter(q => enRiesgo(q, new Date().toISOString().slice(0, 10))).length; return (x.atoradas > 0 || x.detenidas.length > 0 || nRiesgo > 0) && <div className="mt-2 flex flex-wrap gap-1.5">
@@ -73,13 +73,13 @@ export default function ObraDomPage() {
           <div className="flex items-baseline justify-between"><span className="text-sm font-bold text-[var(--d-text)]">Presupuesto contra gastado</span><span className="text-[12px] text-[var(--d-muted)]">{x.requis.length} solicitudes</span></div>
           <div className="mt-2 flex items-end justify-between gap-2"><div><div className="text-[22px] font-bold text-[var(--d-text)]">{fmtMoney(x.gastado)}</div><div className="text-[11.5px] text-[var(--d-muted)]">gastado en solicitudes</div></div>
             <div className="text-right"><div className="text-[15px] font-semibold text-[var(--d-text-2)]">{x.presupuesto ? fmtMoney(x.presupuesto) : "—"}</div><div className="text-[11.5px] text-[var(--d-muted)]">{x.presupuesto ? `presupuesto · ${x.pctGasto}% usado` : "sin presupuesto capturado"}</div></div></div>
-          <div className="mt-2 h-3 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, x.pctGasto ?? 0)}%`, background: (x.pctGasto ?? 0) > 100 ? "#d0304a" : (x.pctGasto ?? 0) > 85 ? "#fdab3d" : "#3cde01" }} /></div>
+          <div className="mt-2 h-3 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, x.pctGasto ?? 0)}%`, background: (x.pctGasto ?? 0) > 100 ? "#d0304a" : (x.pctGasto ?? 0) > 85 ? "#fdab3d" : "#1f8500" }} /></div>
           {!x.presupuesto && <div className="mt-2 text-[11.5px] text-[var(--d-muted)]">Captura el presupuesto en Obras › Catálogo para ver el porcentaje.</div>}
         </div>
 
         <div className="mt-3 grid grid-cols-3 md:grid-cols-6 gap-2">
           {([{ href: `/dashboard/domenica/obras/${o.id}/bitacora`, t: "Bitácora", icon: IcoBitacora, c: "#0077ad" }, { href: `/dashboard/domenica/obras/${o.id}/fotos`, t: "Fotos de avance", icon: IcoCamara, c: "#b85507" }, { href: `/dashboard/domenica/planos?obra=${o.id}`, t: "Planos", icon: IcoPlano, c: "#0073ea" },
-            { href: `/dashboard/actividades?nueva=1&obra=${o.id}`, t: "Nueva actividad", icon: IcoTarea, c: "#7e3bdd" }, { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", icon: IcoSaco, c: "#3cde01" }, { href: `/dashboard/actividades?vista=linea&obra=${o.id}`, t: "Línea de tiempo", icon: IcoCalendario, c: "#c62f5e" }] as { href: string; t: string; icon: Ico; c: string }[]).map(b => (
+            { href: `/dashboard/actividades?nueva=1&obra=${o.id}`, t: "Nueva actividad", icon: IcoTarea, c: "#7e3bdd" }, { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", icon: IcoSaco, c: "#1f8500" }, { href: `/dashboard/actividades?vista=linea&obra=${o.id}`, t: "Línea de tiempo", icon: IcoCalendario, c: "#c62f5e" }] as { href: string; t: string; icon: Ico; c: string }[]).map(b => (
             <Link key={b.t} href={b.href} className="dom-card rounded-2xl py-3 px-1 flex flex-col items-center gap-1.5 active:scale-[0.98] transition"><Ficha ico={b.icon} color={b.c} size="sm" /><span className="text-[12px] font-semibold text-[var(--d-text)] leading-tight text-center">{b.t}</span></Link>))}
         </div>
 

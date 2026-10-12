@@ -74,7 +74,7 @@ interface ReqItem {
 }
 
 /** 11-Oct-2026: color del punto de estado en la lista del celular */
-const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#b85507", EN_COTIZACION: "#b85507", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0077ad", ENTREGA_PARCIAL: "#0077ad", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#d0304a", RECHAZADA_DIRECCION: "#d0304a", CANCELADA: "#64748b", AUTORIZADA_HISTORICO: "#55657c" };
+const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#b85507", EN_COTIZACION: "#b85507", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0077ad", ENTREGA_PARCIAL: "#0077ad", ENTREGADA: "#1f8500", RECHAZADA_RESPONSABLE: "#d0304a", RECHAZADA_DIRECCION: "#d0304a", CANCELADA: "#64748b", AUTORIZADA_HISTORICO: "#55657c" };
 
 export default function RequisicionesStatusPage() {
   const { msg, flash, clear } = useFlashMessage();
@@ -733,14 +733,14 @@ export default function RequisicionesStatusPage() {
                 ) : (
                   <div className="flex gap-2 justify-end pb-3">
                     <button onClick={() => setRespAccion("RECHAZAR")} className="btn-flat px-4 py-2 rounded-lg border border-red-500/40 text-red-300 text-sm hover:bg-red-500/10">Rechazar</button>
-                    <button disabled={respSaving} onClick={() => resolverResponsable("AUTORIZAR")} className="px-5 py-2 rounded-lg bg-[#3cde01] text-white sobre-verde text-sm font-bold disabled:opacity-50">{respSaving ? "Autorizando…" : "Autorizar"}</button>
+                    <button disabled={respSaving} onClick={() => resolverResponsable("AUTORIZAR")} className="px-5 py-2 rounded-lg bg-[#1f8500] text-white sobre-verde text-sm font-bold disabled:opacity-50">{respSaving ? "Autorizando…" : "Autorizar"}</button>
                   </div>
                 )}
               </div>
             )}
             <div className="p-3 md:p-4 border-t border-[var(--d-border)] flex justify-end gap-2 flex-wrap" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
               {accionPara(detailReq, userRole, userEmail) === "REGISTRAR_ENTREGA" && (
-                <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="w-full md:w-auto justify-center px-4 py-3 md:py-2 rounded-xl md:rounded-lg bg-[#3cde01] text-white sobre-verde text-[15px] md:text-sm font-bold transition flex items-center gap-2"><IcoCamion className="w-5 h-5" color="#fff" fondo="#3cde01" />Registrar entrega</Link>
+                <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="w-full md:w-auto justify-center px-4 py-3 md:py-2 rounded-xl md:rounded-lg bg-[#1f8500] text-white sobre-verde text-[15px] md:text-sm font-bold transition flex items-center gap-2"><IcoCamion className="w-5 h-5" color="#fff" fondo="#1f8500" />Registrar entrega</Link>
               )}
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
                 <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#b85507] text-white text-sm font-semibold transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>

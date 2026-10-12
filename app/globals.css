@@ -1435,6 +1435,7 @@ body.dom-ruta.dom-oscuro {
   --d-border: rgba(255,255,255,.10); --d-text: #f5f7fa; --d-text-2: #d6dbe3; --d-muted: #b3bbc7; --d-faint: #a3acb9;
   --d-nav-on: #6fb2ff; --d-link: #8cc0ff; --d-ok: #6ee7a8; --d-warn: #ffc978; --d-danger: #ff9aa9; --d-purple: #d3b3f5;
   --d-field: #2a2e34; --d-input: #23262b; --d-sunken: #23262b; --d-nav: #2c2f35; --d-shadow: none;
+  --c-rojo: #ff7a8a; --c-azul: #7fb0ff; --c-verde: #4fdc8e; --c-ambar: #ffc06a; --c-morado: #c39bf0; --c-naranja: #ff8d5c; --c-amarillo: #ffd84d;
   --aria-bg: #26292f; --aria-card: #30343b; --aria-card-border: rgba(255,255,255,.10); --aria-text: #f5f7fa; --aria-muted: #b3bbc7; --aria-muted-2: #a3acb9; --aria-text-secondary: #d6dbe3;
   --aria-layer-0: #1f2227; --aria-layer-1: #23262b; --aria-layer-2: #26292f; --aria-layer-3: #2e3238; --aria-layer-4: #30343b; --aria-layer-5: #3b4048;
   background: #26292f;

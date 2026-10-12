@@ -34,7 +34,7 @@ export default function ObrasCatalogoMovil() {
       <Encabezado ico={IcoObra} color="#0073ea" titulo="Obras" sub={lista ? `${k.activas} activas` : "Cargando…"}
         accion={<a href="/dashboard/obras/catalogo?web=1&nueva=1" className="shrink-0 inline-flex items-center gap-1 rounded-xl bg-[#0073ea] px-3 py-2.5 text-[14px] font-bold text-white"><Plus className="w-4 h-4" />Nueva</a>} />
       <div className="mt-3 grid grid-cols-4 gap-1.5">
-        {([["Activas", k.activas, "#0073ea"], ["Planeación", k.plan, "#7e3bdd"], ["Pausadas", k.pausa, "#b85507"], ["Sin ubicación", k.sinUbic, "#d0304a"]] as const).map(([l, n, c]) => (
+        {([["Activas", k.activas, "var(--c-azul)"], ["Planeación", k.plan, "var(--c-morado)"], ["Pausadas", k.pausa, "var(--c-ambar)"], ["Sin ubicación", k.sinUbic, "var(--c-rojo)"]] as const).map(([l, n, c]) => (
           <div key={l} className="dom-card rounded-2xl px-2 py-2.5 text-center"><div className="text-[22px] font-bold leading-none" style={{ color: n ? c : "var(--d-faint)" }}>{lista ? n : "–"}</div><div className="mt-1 text-[11px] leading-tight text-[var(--d-muted)]">{l}</div></div>))}
       </div>
       <Buscador valor={q} cambiar={setQ} texto="Buscar obra, cliente o código" />

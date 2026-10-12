@@ -53,7 +53,7 @@ function categorizar(name: string): string {
 }
 
 const COLORES_CAT: Record<string, string> = {
-  "Estructurales": "#3cde01",
+  "Estructurales": "#1f8500",
   "Eléctrico": "#fbbf24",
   "Plomería": "#3b82f6",
   "Acabados": "#a855f7",
@@ -196,7 +196,7 @@ export default function AutorizarForm({
     return (
       <td key={cidx} style={{ padding: 4, textAlign: "center", verticalAlign: "middle", position: "relative" }}>
         <button onClick={() => setSelecciones((s) => ({ ...s, [it.product_name]: q.supplier }))}
-          style={{ width: "100%", padding: "8px 6px", borderRadius: 8, border: isSeleccionado ? "2px solid #3cde01" : "1px solid rgba(15,23,42,0.10)", background: isSeleccionado ? "rgba(34,197,94,0.18)" : (isMejor ? "rgba(34,197,94,0.06)" : "#f6f7fa"), color: isSeleccionado ? "#157000" : (isMejor ? "#1f8f00" : "#334155"), fontSize: 11, fontWeight: isSeleccionado ? 700 : 500, cursor: "pointer", fontFamily: "inherit", minWidth: 100 }}>
+          style={{ width: "100%", padding: "8px 6px", borderRadius: 8, border: isSeleccionado ? "2px solid #1f8500" : "1px solid rgba(15,23,42,0.10)", background: isSeleccionado ? "rgba(34,197,94,0.18)" : (isMejor ? "rgba(34,197,94,0.06)" : "#f6f7fa"), color: isSeleccionado ? "#157000" : (isMejor ? "#1f8f00" : "#334155"), fontSize: 11, fontWeight: isSeleccionado ? 700 : 500, cursor: "pointer", fontFamily: "inherit", minWidth: 100 }}>
           {fmt(price)}
           {isMejor && !isSeleccionado && <div style={{ fontSize: 11, color: "#1f8f00", marginTop: 2 }}>★ mejor</div>}
           {isSeleccionado && <div style={{ fontSize: 11, marginTop: 2 }}>✓ elegido</div>}
@@ -363,7 +363,7 @@ export default function AutorizarForm({
       {modo === "elegir" && (
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <button onClick={() => submit("AUTORIZADA")} disabled={submitting || itemsAsignados === 0}
-            style={{ flex: "1 1 240px", padding: "16px 20px", borderRadius: 999, background: (submitting || itemsAsignados === 0) ? "rgba(15,23,42,0.10)" : "#3cde01", textShadow: "0 1px 1px rgba(0,0,0,.28)", color: "#ffffff", fontWeight: 800, fontSize: 14, border: "none", cursor: submitting ? "not-allowed" : "pointer", boxShadow: (submitting || itemsAsignados === 0) ? "none" : "0 6px 18px rgba(22,112,77,0.40)" }}>
+            style={{ flex: "1 1 240px", padding: "16px 20px", borderRadius: 999, background: (submitting || itemsAsignados === 0) ? "rgba(15,23,42,0.10)" : "#1f8500", textShadow: "0 1px 1px rgba(0,0,0,.28)", color: "#ffffff", fontWeight: 800, fontSize: 14, border: "none", cursor: submitting ? "not-allowed" : "pointer", boxShadow: (submitting || itemsAsignados === 0) ? "none" : "0 6px 18px rgba(22,112,77,0.40)" }}>
             {submitting ? "Procesando..." : `Aprobar y generar ${proveedoresElegidos.length} OC${proveedoresElegidos.length === 1 ? "" : "s"}`}
           </button>
           <button onClick={() => setModo("volver")} disabled={submitting} style={{ flex: "1 1 180px", padding: "14px", borderRadius: 999, background: "rgba(245,158,11,0.18)", color: "#9a4a05", fontWeight: 700, fontSize: 13, border: "1px solid rgba(245,158,11,0.35)", cursor: "pointer" }}>Volver a cotizar</button>

@@ -64,7 +64,7 @@ function Editar({ u, onClose, onOk, flash }: { u: U; onClose: () => void; onOk: 
       <div className="mt-4"><span className={etiqueta}>Puesto en el sistema</span><Roles v={role} set={setRole} /></div>
       <label className="block mt-4"><span className={etiqueta}>Teléfono (WhatsApp)</span><input value={phone} onChange={e => setPhone(e.target.value)} inputMode="tel" placeholder="10 dígitos" className={campo} /></label>
       {u.active === false
-        ? <button onClick={() => activo(true)} disabled={busy} className="mt-5 w-full rounded-2xl bg-[#3cde01] py-3 text-[15px] font-bold text-white sobre-verde">Reactivar acceso</button>
+        ? <button onClick={() => activo(true)} disabled={busy} className="mt-5 w-full rounded-2xl bg-[#1f8500] py-3 text-[15px] font-bold text-white sobre-verde">Reactivar acceso</button>
         : <button onClick={() => activo(false)} disabled={busy} className="mt-5 w-full rounded-2xl border-2 border-[#d0304a] py-3 text-[15px] font-bold text-[#d0304a]">Dar de baja</button>}
     </Hoja>
   );
