@@ -74,12 +74,13 @@ export default function PagosPage() {
     try {
       const { data: ocs, error } = await supabase
         .from("purchase_orders")
-        .select("*, descripcion_compra, motivo_solicitud, factura_url, comprobante_url, requisition_id, payment_method")
+        .select("*")  // 11-Oct-2026: "comprobante_url" no existe (es ultimo_pago_comprobante_url) → la pantalla de Pagos no cargaba
         .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      const processed = (ocs || []).map((oc: PurchaseOrder) => {
+      const processed = (ocs || []).map((oc0: PurchaseOrder & { ultimo_pago_comprobante_url?: string | null }) => {
+        const oc = { ...oc0, comprobante_url: oc0.comprobante_url || oc0.ultimo_pago_comprobante_url || undefined };
         const pagado = oc.monto_pagado || 0;
         const total = oc.total || 0;
         return {
