@@ -131,7 +131,8 @@ export default function AlertasGlobales() {
         </div>
         <button
           onClick={() => setMinimizado(true)}
-          className="p-1 hover:bg-white/[0.06] rounded transition-colors"
+          aria-label="Ocultar alertas"
+          className="w-9 h-9 inline-flex items-center justify-center hover:bg-white/[0.06] rounded transition-colors"
         >
           <X className="w-4 h-4 text-[#7f93b0]" />
         </button>
@@ -166,7 +167,7 @@ export default function AlertasGlobales() {
 
       {/* Footer */}
       <div className="px-4 py-2 bg-[#0c1d38]/50 text-center">
-        <p className="text-[10px] text-[#4a6080]">Las alertas desaparecen al completar la información</p>
+        <p className="text-[11px] text-[#9fb0c8]">Las alertas desaparecen al completar la información</p>
       </div>
     </div>
   );

@@ -52,8 +52,8 @@ export default function ObraDomPage() {
             <span className="shrink-0 w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center"><Building2 className="w-6 h-6" /></span>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold leading-tight">{o.nombre}</h1>
-              <div className="text-[13px] text-white/90">{o.cliente || "Sin cliente"}{o.responsable_email ? ` · Responsable: ${respNombre || o.responsable_email.split("@")[0]}` : ""}</div>
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1 text-[12px] font-bold"><span className="w-2 h-2 rounded-full" style={{ background: s.c }} />{s.t}</div>
+              <div className="text-[13px] text-white">{o.cliente || "Sin cliente"}{o.responsable_email ? ` · Responsable: ${respNombre || o.responsable_email.split("@")[0]}` : ""}</div>
+              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-black/25 px-2.5 py-1 text-[12px] font-bold"><span className="w-2 h-2 rounded-full" style={{ background: s.c }} />{s.t}</div>
             </div>
           </div>
         </div>
