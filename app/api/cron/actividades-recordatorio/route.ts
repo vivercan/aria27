@@ -11,6 +11,7 @@ import { avisarWA, personaPorEmail, personaPorEmpleado } from "@/lib/actividades
 import { columnaDe, diasAtraso, fechaCorta, type Actividad } from "@/lib/actividades";
 import { meToca, accionPara, ACCION_TXT } from "@/lib/requi-stepper";
 import { enRiesgo } from "@/lib/riesgo";
+import { DIAS_AUTOAPROBAR, resolverAprobacion } from "@/lib/aprobacion";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -91,5 +92,21 @@ export async function GET(req: NextRequest) {
     if (!dry && await avisarWA(p, msg, "actividades-atrasadas-asignador", "cron", { title: "🔴 Actividades atrasadas", url: "/dashboard/actividades?vista=mi&ambito=asigne", tag: "atrasadas" })) enviados.push(`asignador:${p?.nombre}`);
     else if (dry) enviados.push(`DRY asignador:${p?.nombre} -> ${msg}`);
   }
-  return NextResponse.json({ ok: true, hoy: H, personas: porPersona.size, asignadores: atrasadasPorAsignador.size, enviados });
+  // 11-Oct-2026 · Visto bueno pendiente: a los 3 días sin respuesta se aprueba sola (y se avisa); antes, recordatorio diario al que la encargó
+  let autoAprobadas = 0; let recordatoriosAprobar = 0;
+  try {
+    const { data: pa } = await db.from("tareas_asignadas").select("id, titulo, obra, asignado_nombre, asignado_email, asignado_por, asignado_por_email, por_aprobar, completada_at").eq("por_aprobar", true);
+    const porDueño = new Map<string, { id: string; titulo: string; asignado_nombre?: string | null }[]>();
+    for (const t of (pa || []) as { id: string; titulo: string; asignado_nombre?: string | null; asignado_por_email?: string | null; completada_at?: string | null }[]) {
+      const dias = t.completada_at ? (Date.now() - new Date(t.completada_at).getTime()) / 864e5 : 0;
+      if (dias >= DIAS_AUTOAPROBAR) { await resolverAprobacion(db, t as never, "aprobar", "", "automatico", `Aprobada sola (${DIAS_AUTOAPROBAR} días sin respuesta)`); autoAprobadas++; continue; }
+      const k = String(t.asignado_por_email || "").toLowerCase(); if (!k.includes("@")) continue;
+      porDueño.set(k, [...(porDueño.get(k) || []), t]);
+    }
+    for (const [k, ts] of porDueño) {
+      const p = await personaPorEmail(db, k);
+      if (await avisarWA(p, `Tienes ${ts.length} actividad${ts.length === 1 ? "" : "es"} terminada${ts.length === 1 ? "" : "s"} esperando tu visto bueno: ${ts.slice(0, 5).map((t, i) => `${i + 1}) ${t.titulo} (${t.asignado_nombre || "—"})`).join(" · ")}. Contesta APROBAR 1 o REGRESAR 1 y qué falta. Si no, se aprueban solas a los ${DIAS_AUTOAPROBAR} días.`, "recordatorio-aprobar", "cron")) recordatoriosAprobar++;
+    }
+  } catch { /* best effort */ }
+  return NextResponse.json({ ok: true, hoy: H, personas: porPersona.size, asignadores: atrasadasPorAsignador.size, enviados, autoAprobadas, recordatoriosAprobar });
 }

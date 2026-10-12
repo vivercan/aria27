@@ -27,6 +27,7 @@ export default function CampoHome() {
   const [me, setMe] = useState<{ email: string; role: string; name: string } | null>(null);
   const [reqs, setReqs] = useState<R[]>([]);
   const [acts, setActs] = useState<Actividad[]>([]);
+  const [porAprobar, setPorAprobar] = useState<Actividad[]>([]); // terminadas que esperan MI visto bueno
   const [loading, setLoading] = useState(true);
   const [saludo, setSaludo] = useState("Hola"); const [hoyTxt, setHoyTxt] = useState("");
   const [isIos, setIsIos] = useState(false); const [verInstalar, setVerInstalar] = useState(false);
@@ -73,9 +74,9 @@ export default function CampoHome() {
         const empId = (emp as { id?: string } | null)?.id || null;
         let aq = supabase.from("tareas_asignadas").select("*").not("estatus", "in", "(COMPLETADA,CANCELADA)");
         aq = empId ? aq.or(`asignado_email.eq.${email},asignado_id.eq.${empId}`) : aq.eq("asignado_email", email);
-        const { data: ac } = await aq;
+        const [{ data: ac }, { data: apr }] = await Promise.all([aq, supabase.from("tareas_asignadas").select("*").eq("por_aprobar", true).ilike("asignado_por_email", email)]);
         if (!alive) return;
-        setReqs((rq || []) as R[]); setActs(((ac || []) as Actividad[]).filter(a => esMia(a, email, empId)));
+        setReqs((rq || []) as R[]); setActs(((ac || []) as Actividad[]).filter(a => esMia(a, email, empId))); setPorAprobar((apr || []) as Actividad[]);
       } catch { /* best effort */ } finally { if (alive) setLoading(false); }
     })();
     return () => { alive = false; };
@@ -101,10 +102,11 @@ export default function CampoHome() {
       const d = diasAtraso(a); const h = venceHoy(a); const col = columnaDe(a); const rg = enRiesgo(a, hoyIso);
       out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `Riesgo: ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? atrasoTexto(d) : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#d0304a" : h ? "#b85507" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#d0304a" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
     }
+    for (const a of porAprobar) out.push({ obra: a.obra, key: "v" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: `${a.asignado_nombre || "Alguien"} dice que ya terminó · dale tu visto bueno`, boton: "Revisar", color: "#b85507", icon: "act", urg: 1 });
     // Si estás en una obra, lo de esa obra va primero
     const enAqui = (x: Item) => (aqui && normObra(x.obra) === normObra(aqui.nombre) ? 0 : 1);
     return out.sort((x, y) => enAqui(x) - enAqui(y) || x.urg - y.urg);
-  }, [pendReq, acts, me, aqui, hoyIso]);
+  }, [pendReq, acts, porAprobar, me, aqui, hoyIso]);
 
   const nombre = (me?.name || "").split(" ")[0];
 

@@ -28,6 +28,9 @@ export type Actividad = {
   respuesta_ultima_at?: string | null;
   completada_at?: string | null;
   foto_url?: string | null;
+  por_aprobar?: boolean | null;
+  aprobada_por?: string | null;
+  aprobada_at?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
   orden?: number | null;

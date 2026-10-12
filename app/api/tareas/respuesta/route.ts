@@ -19,6 +19,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { leerRespuestaWA } from "@/lib/respuesta-wa";
+import { leerAprobacionWA, pedirAprobacion, resolverAprobacion } from "@/lib/aprobacion";
+import { avisarWA } from "@/lib/actividades-server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { sendEmailLogged } from "@/lib/email-log";
@@ -168,11 +170,8 @@ async function mandarNotif(
     });
   }
   if (phone) {
-    await sendWhatsAppText(
-      phone,
-      `🔔 *${evento}* — ARIA27\n\n${detalle}\n\n📋 ${tarea.titulo}\n👤 ${tarea.asignado_nombre || "—"}\n${tarea.obra ? `🏗️ ${tarea.obra}\n` : ""}📊 Avance ${tarea.avance ?? 0}%`,
-      { origen: `tarea-${evento.toLowerCase()}-asignador-wa`, enviadoPor: "tareas-respuesta" }
-    );
+    // 11-Oct-2026: con plantilla aprobada (antes texto libre: Meta lo rechaza si la persona no escribió en 24 h)
+    await avisarWA({ nombre: "", email, phone }, `${evento}: ${detalle} · ${tarea.titulo} · ${tarea.asignado_nombre || "—"}${tarea.obra ? ` · ${tarea.obra}` : ""} · avance ${tarea.avance ?? 0}%`, `tarea-${evento.toLowerCase()}-asignador-wa`, "tareas-respuesta");
   }
 }
 
@@ -188,6 +187,35 @@ export async function POST(req: NextRequest) {
     }
     // Normalizar phone (quitar +, 521, etc.)
     const phone10 = phoneRaw.replace(/\D/g, "").slice(-10);
+
+    // 11-Oct-2026: ¿es el que encargó contestando APROBAR / REGRESAR?
+    const apr = leerAprobacionWA(text);
+    if (apr) {
+      const [{ data: eu }, { data: uu }] = await Promise.all([
+        supabase.from("employees").select("full_name, usuario_email, email, whatsapp").ilike("whatsapp", `%${phone10}%`),
+        supabase.from("users").select("email, name, phone").eq("phone", phone10),
+      ]);
+      const correos = new Set<string>(); let quien = "";
+      for (const e of (eu || []) as { full_name: string; usuario_email: string | null; email: string | null; whatsapp: string | null }[]) if ((e.whatsapp || "").replace(/\D/g, "").slice(-10) === phone10) { for (const c of [e.usuario_email, e.email]) if (c) correos.add(c.toLowerCase()); quien = quien || e.full_name; }
+      for (const u of (uu || []) as { email: string; name: string }[]) { correos.add(u.email.toLowerCase()); quien = quien || u.name; }
+      if (correos.size) {
+        const { data: pend } = await supabase.from("tareas_asignadas").select("id, titulo, obra, asignado_nombre, asignado_email, asignado_por, asignado_por_email, por_aprobar, completada_at").eq("por_aprobar", true).in("asignado_por_email", [...correos]).order("completada_at", { ascending: false });
+        const lista = (pend || []) as { id: string; titulo: string; asignado_nombre?: string | null; asignado_por_email?: string | null }[];
+        if (lista.length) {
+          const yo = { nombre: quien, email: [...correos][0], phone: phoneRaw };
+          if (lista.length > 1 && !apr.idx) {
+            await avisarWA(yo, `Tienes ${lista.length} por aprobar: ${lista.slice(0, 6).map((t, i) => `${i + 1}) ${t.titulo} (${t.asignado_nombre || "—"})`).join(" · ")}. Contesta por ejemplo APROBAR 1 o REGRESAR 2 y qué falta.`, "aprobar-lista", yo.email);
+            return NextResponse.json({ ok: true, action: "APROBAR-LISTA", count: lista.length });
+          }
+          const t = lista[(apr.idx || 1) - 1];
+          if (t) {
+            await resolverAprobacion(supabase, t as never, apr.accion, apr.motivo, String(t.asignado_por_email || yo.email), quien);
+            await avisarWA(yo, apr.accion === "aprobar" ? `Listo, aprobaste "${t.titulo}". Le avisamos a ${t.asignado_nombre || "quien la hizo"}.` : `Listo, regresaste "${t.titulo}" a ${t.asignado_nombre || "quien la hizo"} con: ${apr.motivo}.`, "aprobar-confirmacion", yo.email);
+            return NextResponse.json({ ok: true, action: apr.accion.toUpperCase(), tarea_id: t.id });
+          }
+        }
+      }
+    }
     log.info(`[POST] phone10=${phone10} text="${text.slice(0, 60)}" debug=${debug}`);
 
     // Identificar empleado por whatsapp (busca los ultimos 10 digitos)
@@ -398,7 +426,7 @@ async function procesarRespuesta(
       confirmacion = `📊 Registrado: *${tarea.titulo}* en ${nuevoAvance}%. Sigues en progreso.`;
       break;
     case "LISTO":
-      confirmacion = `✅ ¡Excelente! *${tarea.titulo}* COMPLETADA. Gracias ${nombre}.`;
+      confirmacion = `✅ ¡Excelente! *${tarea.titulo}* terminada. Gracias ${nombre}. Le avisamos a quien te la encargó para que la revise.`;
       break;
     case "BLOQUEADO":
       confirmacion = `⚠️ Registrado bloqueo en *${tarea.titulo}*\nMotivo: ${motivoBloqueo}\n\nNotifique a tu jefe para que te apoye.`;
@@ -417,7 +445,9 @@ async function procesarRespuesta(
     await notificarAsignador(supabase, tarea, "INICIADA", `${nombre} comenzo la tarea.`);
   }
   if (parsed.intent === "LISTO") {
-    await notificarAsignador(supabase, tarea, "COMPLETADA", `${nombre} marco la tarea como terminada.`);
+    // 11-Oct-2026: el que la encargó recibe el aviso con la evidencia y contesta APROBAR o REGRESAR
+    const pidio = await pedirAprobacion(supabase, tarea as never, emailEmpleado || "whatsapp").catch(() => false);
+    if (!pidio) await notificarAsignador(supabase, tarea, "COMPLETADA", `${nombre} marco la tarea como terminada.`);
     try { await avisarDependientes(supabase, { id: tarea.id, titulo: tarea.titulo, obra: (tarea as { obra?: string | null }).obra }, emailEmpleado || "whatsapp"); } catch { /* best effort */ }
     try { const hoyMx = new Date(Date.now() - 6 * 3600 * 1000).toISOString().slice(0, 10); const fc = String((tarea as { fecha_compromiso?: string | null }).fecha_compromiso || "").slice(0, 10); if (fc && hoyMx > fc) await aplicarRecorrido(supabase, tarea.id, hoyMx, emailEmpleado || "whatsapp"); } catch { /* best effort */ }
     await notifyOps({ evento: "TAREA_COMPLETADA", resumen: nombre + " completo: " + tarea.titulo, actor: emailEmpleado || nombre }).catch(() => {});

@@ -65,7 +65,8 @@ export type NuevaActividad = {
 /** Crea una actividad. avisar: "todo" = push + WhatsApp al responsable; "push" = solo notificación; "nada" = sin avisos. */
 export async function crearActividad(db: SupabaseClient, a: NuevaActividad, porEmail: string, avisar: "todo" | "push" | "nada" = "todo"):
   Promise<{ ok: true; id: string; notificado: boolean; asignado: Persona } | { ok: false; error: string; status: number }> {
-  const titulo = String(a.titulo || "").trim().slice(0, 200);
+  // 11-Oct-2026: si no hay título pero sí pasos o detalles, se usa el primer renglón (no se atora)
+  const titulo = (String(a.titulo || "").trim() || [...(a.checklist || []), String(a.descripcion || "")].join("\n").split("\n").map(x => x.trim()).find(Boolean) || "").slice(0, 200);
   if (!titulo) return { ok: false, error: "Escribe qué hay que hacer", status: 400 };
   if (!a.asignado_id) return { ok: false, error: "Elige quién la hace", status: 400 };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(a.fecha_compromiso || "")) return { ok: false, error: "Elige la fecha de entrega", status: 400 };

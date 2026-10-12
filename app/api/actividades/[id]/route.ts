@@ -5,6 +5,7 @@
  */
 import { normHora } from "@/lib/actividades-server";
 import { NextRequest, NextResponse } from "next/server";
+import { pedirAprobacion } from "@/lib/aprobacion";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { avisarWA, avisarDependientes, aplicarRecorrido, personaPorEmail, personaPorEmpleado, registrarActualizacion } from "@/lib/actividades-server";
@@ -107,6 +108,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       notas.push(`Se la pasó a ${nuevoAsignado.nombre}`);
     }
     if (Object.keys(cambios).length === 0) return NextResponse.json({ ok: true, sinCambios: true, tarea: t });
+    if ((t as { por_aprobar?: boolean }).por_aprobar && cambios.estatus && cambios.estatus !== "COMPLETADA") cambios.por_aprobar = false;
     cambios.updated_at = new Date().toISOString();
 
     const { data: upd, error } = await db.from("tareas_asignadas").update(cambios).eq("id", id).select("*").single();
@@ -122,7 +124,8 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const obraTxt = nueva.obra ? ` (${nueva.obra})` : "";
     if (colDespues !== colAntes && !esAsignador) {
       const asignador = await personaPorEmail(db, t.asignado_por_email || t.asignado_por);
-      if (colDespues === "TERMINADA") await avisarWA(asignador, `${quien} terminó la actividad "${nueva.titulo}"${obraTxt}.`, "actividad-terminada", me, { title: "✅ Actividad terminada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
+      if (colDespues === "TERMINADA" && await pedirAprobacion(db, nueva as never, me)) { /* le llegó el aviso para aprobar con la evidencia */ }
+      else if (colDespues === "TERMINADA") await avisarWA(asignador, `${quien} terminó la actividad "${nueva.titulo}"${obraTxt}.`, "actividad-terminada", me, { title: "✅ Actividad terminada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
       else if (colDespues === "BLOQUEADA") await avisarWA(asignador, `La actividad "${nueva.titulo}"${obraTxt} está atorada: ${nueva.motivo_bloqueo}. Avisó ${quien}.`, "actividad-atorada", me, { title: "⚠️ Actividad atorada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
     }
     // Si la entrega se movió a después, o se terminó tarde, se recorren las que siguen

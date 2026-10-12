@@ -269,6 +269,7 @@ export default function ActividadesPage() {
             </div>
             {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Riesgo:</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
             {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Espera:</span><span className="truncate">No empieza hasta: {p.titulo}</span></div> : null; })()}
+            {a.por_aprobar && <div className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#b85507] rounded-md px-2 py-1 w-fit">Terminada · falta visto bueno</div>}
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#d0304a]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
             {!compacta && a.obra && <div className="hidden md:inline-flex items-center gap-1 text-[11px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
             <Barra pct={Number(a.avance) || 0} col={col} />
@@ -558,6 +559,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
   const [upds, setUpds] = useState<Upd[]>([]); const [txt, setTxt] = useState(""); const [enviando, setEnviando] = useState(false);
   const [nuevoChk, setNuevoChk] = useState("");
   const [tabF, setTabF] = useState<"resumen" | "detalles" | "charla">("resumen");
+  const [regresando, setRegresando] = useState(false); const [motivoReg, setMotivoReg] = useState("");
   const [sugMencion, setSugMencion] = useState<{ q: string; desde: number } | null>(null);
   const txtRef = useRef<HTMLTextAreaElement>(null);
   const candidatos = useMemo(() => emps.map(e => ({ id: e.id, nombre: e.full_name })), [emps]);
@@ -666,6 +668,30 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
             </div>
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#d0304a]/10 border border-[#d0304a]/30 px-3 py-2 text-sm text-[var(--d-danger)]"><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />{a.motivo_bloqueo}</div>}
           </div>
+
+          {/* 11-Oct-2026 · Visto bueno del que la encargó */}
+          {a.por_aprobar && (laAsigneYo(a, me.email) || esSuper) && (
+            <div className="rounded-2xl border-2 border-[#b85507] bg-[#b85507]/10 p-3">
+              <div className="text-[15px] font-bold text-[var(--d-text)]">{a.asignado_nombre || "Quien la hace"} dice que ya terminó</div>
+              <div className="text-[14px] text-[var(--d-muted)]">Revisa los comentarios y fotos abajo y dale tu visto bueno.</div>
+              {regresando ? (
+                <div className="mt-2">
+                  <textarea value={motivoReg} onChange={e => setMotivoReg(e.target.value)} rows={2} placeholder="¿Qué le falta?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-[15px] text-[var(--d-text)]" />
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setRegresando(false)} className="h-12 rounded-xl bg-[var(--d-card-2)] text-[15px] font-bold text-[var(--d-text)]">Cancelar</button>
+                    <button type="button" disabled={!motivoReg.trim()} onClick={async () => { try { await api(`/api/actividades/${a.id}/aprobar`, "POST", { accion: "regresar", motivo: motivoReg.trim() }); flash("ok", "Se la regresaste y le avisamos"); setRegresando(false); onUpd(); } catch (e) { flash("err", (e as Error).message); } }} className="h-12 rounded-xl bg-[#d0304a] text-[15px] font-bold text-white disabled:opacity-50">Regresar</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => setRegresando(true)} className="h-12 rounded-xl border-2 border-[#d0304a] text-[15px] font-bold text-[var(--d-danger)]">Regresar</button>
+                  <button type="button" onClick={async () => { try { await api(`/api/actividades/${a.id}/aprobar`, "POST", { accion: "aprobar" }); flash("ok", "Aprobada. Le avisamos por WhatsApp"); onUpd(); } catch (e) { flash("err", (e as Error).message); } }} className="h-12 rounded-xl bg-[#1f8500] text-[15px] font-bold text-white">Aprobar</button>
+                </div>
+              )}
+            </div>
+          )}
+          {a.por_aprobar && !(laAsigneYo(a, me.email) || esSuper) && <div className="rounded-xl bg-[#b85507]/10 px-3 py-2 text-[14px] font-semibold text-[var(--d-text)]">Terminada · esperando el visto bueno de quien la encargó</div>}
+          {!a.por_aprobar && a.aprobada_at && <div className="rounded-xl bg-[#1f8500]/10 px-3 py-2 text-[14px] font-semibold text-[var(--d-ok)]">Aprobada{a.aprobada_por === "automatico" ? " sola (nadie contestó en 3 días)" : ""}</div>}
 
           {/* Avance */}
           <div>
@@ -799,12 +825,21 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
     const sel = f.asignado_id && f.asignado_id !== miEmp && !top.some(e => e.id === f.asignado_id) ? emps.find(e => e.id === f.asignado_id) : null;
     return sel ? [sel, ...top] : top;
   }, [emps, buscaP, frec, carga, todas, miEmp, f.asignado_id]);
+  // 11-Oct-2026: si algo falta, se completa solo cuando se puede (el título sale de los pasos o detalles)
+  // y si no, se dice AHÍ MISMO qué falta (antes era un aviso de 3 segundos que nadie veía y "no dejaba guardar")
+  const [falta, setFalta] = useState<"" | "titulo" | "persona">("");
   const crear = async () => {
-    if (!f.titulo.trim()) { flash("err", "Escribe qué hay que hacer"); return; }
-    if (!f.asignado_id) { flash("err", "Elige quién la hace"); return; }
+    let titulo = f.titulo.trim();
+    if (!titulo) {
+      const primera = [f.pasos, f.descripcion].join("\n").split("\n").map(x => x.trim()).find(Boolean) || "";
+      if (primera) { titulo = primera.slice(0, 120); setF(x => ({ ...x, titulo })); }
+    }
+    if (!titulo) { setFalta("titulo"); return; }
+    if (!f.asignado_id) { setFalta("persona"); try { document.getElementById("quien-la-hace")?.scrollIntoView({ behavior: "smooth", block: "center" }); } catch { /* */ } return; }
+    setFalta("");
     setBusy(true);
     try {
-      const r = await api<{ id: string; notificado: boolean; encolado?: boolean }>("/api/actividades", "POST", { ...f, checklist: f.pasos.split("\n").map(s => s.trim()).filter(Boolean) });
+      const r = await api<{ id: string; notificado: boolean; encolado?: boolean }>("/api/actividades", "POST", { ...f, titulo, checklist: f.pasos.split("\n").map(s => s.trim()).filter(Boolean) });
       if (r.encolado) { flash("ok", "Sin señal: la actividad se creará sola al volver la conexión"); onClose(); return; }
       try { const m = { ...frec, [f.asignado_id]: (frec[f.asignado_id] || 0) + 1 }; localStorage.setItem("dom:personas-frec", JSON.stringify(m)); } catch { /* */ }
       onCreated(r.id, r.notificado);
@@ -817,14 +852,16 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
         <div className="flex items-center justify-between px-5 pt-3 md:pt-5"><h2 className="text-lg font-bold text-[var(--d-text)]">Nueva actividad</h2><button onClick={onClose} className="p-2 rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-text-2)]" aria-label="Cerrar"><X className="w-5 h-5" /></button></div>
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
           {deVoz && <div className="rounded-xl bg-[#a25ddc]/10 border border-[#a25ddc]/30 px-3 py-2 text-[12.5px] font-semibold text-[var(--d-purple)]">Lo llenamos con lo que dictaste. Revisa y toca Crear.</div>}
+          {falta === "titulo" && <div className="rounded-xl bg-[#d0304a] px-3 py-2.5 text-[15px] font-bold text-white">Escribe qué hay que hacer (aquí arriba o en los pasos de abajo).</div>}
           <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace? <span className="normal-case tracking-normal font-normal">· el número es cuántas tiene abiertas</span></div>
+            {falta === "persona" && <div className="mb-2 rounded-xl bg-[#d0304a] px-3 py-2.5 text-[15px] font-bold text-white">Falta elegir quién la hace: toca a una persona (o “Yo”).</div>}
+            <div id="quien-la-hace" className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace? <span className="normal-case tracking-normal font-normal">· el número es cuántas tiene abiertas</span></div>
             {emps.length > 6 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />}
             <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
-              {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={24} />Yo</button>}
+              {miEmp && <button onClick={() => { setF({ ...f, asignado_id: miEmp }); setFalta(""); }} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={24} />Yo</button>}
               {personas.filter(p => p.id !== miEmp).map(p => (
-                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={24} />{p.full_name.split(" ").slice(0, 2).join(" ")}{(carga[p.id] || 0) > 0 && <span title="Actividades abiertas" className={`ml-0.5 rounded-full px-1.5 text-[11px] font-bold ${carga[p.id] >= 15 ? "bg-[#d0304a] text-white" : carga[p.id] >= 8 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"}`}>{carga[p.id]}</span>}</button>))}
+                <button key={p.id} onClick={() => { setF({ ...f, asignado_id: p.id }); setFalta(""); }} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={24} />{p.full_name.split(" ").slice(0, 2).join(" ")}{(carga[p.id] || 0) > 0 && <span title="Actividades abiertas" className={`ml-0.5 rounded-full px-1.5 text-[11px] font-bold ${carga[p.id] >= 15 ? "bg-[#d0304a] text-white" : carga[p.id] >= 8 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"}`}>{carga[p.id]}</span>}</button>))}
               {!buscaP && !todas && emps.length > 6 && <button type="button" onClick={() => setTodas(true)} className="inline-flex items-center rounded-full border border-dashed border-[var(--d-border)] px-3 py-1 text-xs font-semibold text-[var(--d-link)]">Ver todas ({emps.length})</button>}
             </div>
           </div>
@@ -849,7 +886,7 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
               <div className="mt-1 grid grid-cols-4 gap-1">{PRIORIDADES.map(p => <button key={p.id} onClick={() => setF({ ...f, prioridad: p.id })} className={`rounded-lg py-2 text-[11px] font-semibold ${f.prioridad === p.id ? "text-white" : "text-[var(--d-muted)] bg-[var(--d-card)]"}`} style={f.prioridad === p.id ? { background: p.color } : undefined}>{p.label}</button>)}</div></div>
           </div>
           <textarea value={f.descripcion} onChange={e => setF({ ...f, descripcion: e.target.value })} rows={2} placeholder="Detalles (opcional)" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
-          <textarea value={f.pasos} onChange={e => setF({ ...f, pasos: e.target.value })} rows={3} placeholder={"Pasos (opcional, uno por renglón)\nEj. Medir\nCotizar\nComprar"} className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
+          <textarea value={f.pasos} onChange={e => setF({ ...f, pasos: e.target.value })} rows={3} placeholder={"Pasos o lista de actividades (opcional, una por renglón)\nEj. Medir\nCotizar\nComprar"} className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
         </div>
         <div className="px-5 py-3 border-t border-[var(--d-border)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
           <button onClick={crear} disabled={busy} className="w-full rounded-xl bg-[#0073ea] py-3 text-sm font-bold text-white disabled:opacity-60">{busy ? "Creando…" : f.asignado_id && f.asignado_id === miEmp ? "Crear" : "Crear y avisar"}</button>
