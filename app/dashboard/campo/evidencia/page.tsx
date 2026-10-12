@@ -30,7 +30,7 @@ export default function EvidenciaPage() {
     <Pagina>
       <Encabezado ico={IcoCamion} color="#0077ad" titulo="Registrar entrega" sub={items ? `${items.length} esperan llegar` : "Cargando…"} atras="/dashboard/campo" />
       <Buscador valor={q} cambiar={setQ} texto="Buscar folio, obra o proveedor" />
-      {obras.length > 1 && <select value={obra} onChange={e => setObra(e.target.value)} className="mt-2 w-full rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] px-3.5 h-11 text-[15px] text-[var(--d-text)]"><option value="">Todas las obras</option>{obras.map(o => <option key={o} value={o}>{o}</option>)}</select>}
+      {obras.length > 1 && <select aria-label="Filtrar por obra" value={obra} onChange={e => setObra(e.target.value)} className="mt-2 w-full rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] px-3.5 h-11 text-[15px] text-[var(--d-text)]"><option value="">Todas las obras</option>{obras.map(o => <option key={o} value={o}>{o}</option>)}</select>}
       <div className="mt-3">
         {items === null ? <Esqueleto filas={6} alto={64} /> : vis.length === 0 ? <div className="dom-card rounded-3xl"><Vacio dibujo="listo" titulo="Nada por recibir" texto="Cuando una compra esté por llegar a tu obra, aparece aquí." /></div> : (
           <div className="dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)]">{vis.map(r => (
