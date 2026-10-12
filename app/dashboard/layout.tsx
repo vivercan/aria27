@@ -849,7 +849,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </header>
 
         {sinSenal && <div className="flex-none bg-[#fdab3d] text-[#2a1a00] text-[12.5px] font-semibold text-center py-1.5 px-3">Sin señal · ves lo último que se cargó. En Actividades tus cambios se envían solos al volver la señal.</div>}
-        <div className={`flex-1 overflow-hidden aria-shell-scroll ${modoCampo ? "pb-[84px] md:pb-0" : ""}`}>{compu ? <PantallaCompu ruta={pathname || ""} /> : children}</div>
+        <div className={`flex-1 overflow-hidden aria-shell-scroll ${modoCampo ? "pb-14 md:pb-0" : ""}`}>{compu ? <PantallaCompu ruta={pathname || ""} /> : children}</div>
         {modoCampo && <CampoNav />}
       </main>
 

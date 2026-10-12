@@ -1304,6 +1304,8 @@ html, body {
 select:not([multiple]):not([size]) { padding-right: 1.9rem !important; }
 @media (max-width: 767px) {
   .aria-shell-scroll { padding-bottom: env(safe-area-inset-bottom); }
+  /* 12-Oct-2026 · auditoría: con la barra de abajo, el contenido termina arriba del botón + (antes lo tapaba: p. ej. "Enviar solicitud") */
+  body.aria-campo .aria-shell-scroll { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
   /* 11-Oct-2026: en el celular el contenedor del dashboard SÍ se desplaza (antes overflow:hidden dejaba sin scroll a Solicitudes y Registrar entrega) */
   .aria-shell-scroll { overflow-y: auto !important; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
   body.dom-ruta .aria-shell-scroll > .aria-page-canon, body.dom-ruta .aria-shell-scroll > .contents > .aria-page-canon { padding-bottom: 120px; }
