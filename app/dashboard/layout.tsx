@@ -19,7 +19,7 @@ import CampoNav from "@/components/campo/CampoNav";
 import DomenicaLogo from "@/components/campo/DomenicaLogo";
 import RegresarTel, { esRaizTel } from "@/components/campo/RegresarTel";
 import { usePorRevisar } from "@/lib/revisar";
-import { revisarVersion } from "@/lib/version-check";
+import { revisarVersion, vigilarVersion } from "@/lib/version-check";
 import PantallaCompu from "@/components/campo/PantallaCompu";
 import { esPantallaCompu } from "@/lib/rutas-tel";
 import { esRutaDomenica, leerTema, aplicarTema, guardarTema, useTemaDom, esRutaDomenicaMovil } from "@/lib/dom-tema";
@@ -204,6 +204,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   useEffect(() => { try { const verWeb = /[?&]web=1(&|$)/.test(window.location.search); const pc = isMobileDevice() && !verWeb && esPantallaCompu(pathname || ""); setCompu(pc); document.documentElement.classList.toggle("pantalla-compu", pc); document.body.classList.toggle("dom-ruta", pc || esRutaDomenica(pathname) || (isMobileDevice() && esRutaDomenicaMovil(pathname))); aplicarTema(leerTema()); sessionStorage.setItem("dom:nav", String(Number(sessionStorage.getItem("dom:nav") || 0) + 1)); } catch {} }, [pathname]);
   // 11-Oct-2026: al publicar una versión nueva, se actualiza sola al cambiar de pantalla (nunca a media captura)
   useEffect(() => { revisarVersion(); }, [pathname]);
+  useEffect(() => vigilarVersion(), []);
   // Doménica: vibración cortita al tocar un botón principal (fondo sólido) en el celular · 11-Oct-2026
   useEffect(() => {
     const h = (e: PointerEvent) => {

@@ -13,8 +13,13 @@ const fecha = (d?: string | null) => d ? new Date(d.slice(0, 10) + "T12:00:00").
 
 export default function EntregasDeRequi({ reqId }: { reqId: string }) {
   const [l, setL] = useState<Ent[] | null>(null);
-  useEffect(() => { let v = true; supabase.from("entregas").select("id, folio, fecha_entrega, hora_entrega, recibido_por_nombre, status, foto_url, notas, observaciones, materiales_recibidos").eq("requisicion_id", reqId).order("created_at", { ascending: false })
-    .then(({ data }) => { if (v) setL((data || []) as Ent[]); }); return () => { v = false; }; }, [reqId]);
+  useEffect(() => {
+    let v = true;
+    const cargar = (intento: number) => supabase.from("entregas").select("id, folio, fecha_entrega, hora_entrega, recibido_por_nombre, status, foto_url, notas, observaciones, materiales_recibidos").eq("requisicion_id", reqId).order("created_at", { ascending: false })
+      .then(({ data, error }) => { if (!v) return; if (error && intento < 2) { setTimeout(() => cargar(intento + 1), 1500); return; } setL((data || []) as Ent[]); });
+    cargar(1);
+    return () => { v = false; };
+  }, [reqId]);
   if (!l || !l.length) return null;
   return (
     <div className="mt-4">
