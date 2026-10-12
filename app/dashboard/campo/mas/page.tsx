@@ -4,6 +4,8 @@
  * Reemplaza al menu de la web en el celular: solo lo del dia a dia, por rol, mas ajustes (tema, avisos, salir).
  */
 import { useEffect, useState } from "react";
+import { rutaPermitida } from "@/lib/acceso";
+import type { UserPermissions } from "@/lib/permissions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fingerprint } from "lucide-react";
@@ -27,12 +29,12 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
     { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gastos y bitácora del día", icon: IcoObra, color: "#c9410f" },
     { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Revisar calidad y seguridad con foto y firma", icon: IcoRevision, color: "#00873f" },
     { href: "/dashboard/domenica/planos", t: "Planos", d: "Ver planos y marcar pendientes", icon: IcoPlano, color: "#0073ea" },
-    { href: "/dashboard/obras/catalogo", t: "Lista de obras", d: "Datos y ubicación de cada obra", roles: ["admin", "rh", "direccion", "validador", "residente"], icon: IcoCasco, color: "#c2461a" },
+    { href: "/dashboard/obras/catalogo", t: "Lista de obras", d: "Datos y ubicación de cada obra", icon: IcoCasco, color: "#c2461a" },
   ] },
   { titulo: "Mi equipo", items: [
-    { href: "/dashboard/talento/checadas", t: "Asistencias", d: "Quién llegó hoy", icon: IcoChecada, color: "#c62f5e", roles: ["admin", "rh", "validador"] },
-    { href: "/dashboard/talento/personal", t: "Personal", d: "Datos de cada empleado", icon: IcoEquipo, color: "#c62f5e", roles: ["admin", "rh", "direccion", "validador"] },
-    { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Quién entra al sistema y qué ve", icon: UserCog as unknown as Ico, color: "#c62f5e", roles: ["admin", "rh"] },
+    { href: "/dashboard/talento/checadas", t: "Asistencias", d: "Quién llegó hoy", icon: IcoChecada, color: "#c62f5e" },
+    { href: "/dashboard/talento/personal", t: "Personal", d: "Datos de cada empleado", icon: IcoEquipo, color: "#c62f5e" },
+    { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Quién entra al sistema y qué ve", icon: UserCog as unknown as Ico, color: "#c62f5e" },
   ] },
   { titulo: "Compras", items: [
     { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Teléfonos y datos de pago", icon: IcoBodega, color: "#0077ad", roles: ["admin", "compras", "direccion", "rh", "validador"] },
@@ -49,7 +51,7 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
 
 export default function MasPage() {
   const router = useRouter();
-  const [me, setMe] = useState<{ email: string; role: string; name: string } | null>(null);
+  const [me, setMe] = useState<{ email: string; role: string; name: string; permissions: UserPermissions } | null>(null);
   const tema = useTemaDom();
   // Tamaño de letra (para quien ve mejor con letra grande)
   const [letra, setLetra] = useState<"normal" | "grande">("normal");
@@ -73,11 +75,12 @@ export default function MasPage() {
   };
   useEffect(() => {
     estadoPush().then(setPush).catch(() => setPush("no-soportado"));
-    fetch("/api/auth/me", { credentials: "include", cache: "no-store" }).then(r => r.ok ? r.json() : null).then(u => { if (u) setMe({ email: String(u.email || ""), role: String(u.role || "").toLowerCase(), name: u.display_name || u.name || u.email }); }).catch(() => {});
+    fetch("/api/auth/me", { credentials: "include", cache: "no-store" }).then(r => r.ok ? r.json() : null).then(u => { if (u) setMe({ email: String(u.email || ""), role: String(u.role || "").toLowerCase(), name: u.display_name || u.name || u.email, permissions: (u.permissions || {}) as UserPermissions }); }).catch(() => {});
   }, []);
   const cambiarTema = (t: TemaDom) => guardarTema(t);
   const salir = async () => { try { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); } catch { /* */ } try { localStorage.removeItem("userEmail"); } catch { /* */ } router.replace("/"); };
-  const visible = (i: Item) => !i.roles || (me && (i.roles.includes(me.role) || me.role === "administrador"));
+  // 12-Oct-2026: misma regla que las pantallas (módulo, submódulo y rol de Doménica): no se muestra lo que no se puede abrir
+  const visible = (i: Item) => !!me && rutaPermitida(i.href, me.role, me.permissions) && (!i.roles || i.roles.includes(me.role) || me.role === "admin" || me.role === "administrador");
 
   return (
     <div className="dom-page h-full overflow-y-auto">

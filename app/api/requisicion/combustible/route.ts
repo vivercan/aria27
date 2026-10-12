@@ -30,6 +30,7 @@
  * 04-Jun-2026
  */
 import { NextRequest, NextResponse } from "next/server";
+import { siguienteFolio } from "@/lib/folio";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { notifyOps } from "@/lib/notify-ops";
@@ -94,7 +95,10 @@ export async function POST(req: NextRequest) {
       ? await hydrateSupplierBanking({ name: body.proveedor })
       : null;
 
+    // 12-Oct-2026: folio del consecutivo único (antes quedaba con el default de la tabla)
+    const folioNuevo = await siguienteFolio(db, "REQ");
     const { data: reqRow, error: e1 } = await db.from("requisitions").insert({
+      ...(folioNuevo ? { folio: folioNuevo } : {}),
       cost_center_id: body.centro_trabajo_id || null,
       cost_center_name: body.centro_trabajo_name,
       user_email: body.user_email,

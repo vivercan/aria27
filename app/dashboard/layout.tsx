@@ -20,6 +20,7 @@ import DomenicaLogo from "@/components/campo/DomenicaLogo";
 import RegresarTel, { esRaizTel } from "@/components/campo/RegresarTel";
 import { usePorRevisar } from "@/lib/revisar";
 import { revisarVersion, vigilarVersion } from "@/lib/version-check";
+import { GuardaRol, useAcceso, useOcultarLigas } from "@/components/AccesoDomenica";
 import PantallaCompu from "@/components/campo/PantallaCompu";
 import { esPantallaCompu } from "@/lib/rutas-tel";
 import { esRutaDomenica, leerTema, aplicarTema, guardarTema, useTemaDom, esRutaDomenicaMovil } from "@/lib/dom-tema";
@@ -201,6 +202,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   useEffect(() => { try { document.body.classList.toggle("aria-campo", modoCampo); } catch {} }, [modoCampo]);
   // Doménica: diseño claro (u oscuro si el usuario lo eligio) en sus pantallas
   const [compu, setCompu] = useState(false);
+  // 12-Oct-2026 · mismas restricciones en Doménica y ARIA27: herramientas por rol y sin ligas a pantallas cerradas
+  const acceso = useAcceso();
+  useOcultarLigas(".aria-shell-scroll", acceso.role, acceso.perms, pathname || "");
   useEffect(() => { try { const verWeb = /[?&]web=1(&|$)/.test(window.location.search); const pc = isMobileDevice() && !verWeb && esPantallaCompu(pathname || ""); setCompu(pc); document.documentElement.classList.toggle("pantalla-compu", pc); document.body.classList.toggle("dom-ruta", pc || esRutaDomenica(pathname) || (isMobileDevice() && esRutaDomenicaMovil(pathname))); aplicarTema(leerTema()); sessionStorage.setItem("dom:nav", String(Number(sessionStorage.getItem("dom:nav") || 0) + 1)); } catch {} }, [pathname]);
   // 11-Oct-2026: al publicar una versión nueva, se actualiza sola al cambiar de pantalla (nunca a media captura)
   useEffect(() => { revisarVersion(); }, [pathname]);
@@ -849,7 +853,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </header>
 
         {sinSenal && <div className="flex-none bg-[#fdab3d] text-[#2a1a00] text-[12.5px] font-semibold text-center py-1.5 px-3">Sin señal · ves lo último que se cargó. En Actividades tus cambios se envían solos al volver la señal.</div>}
-        <div className={`flex-1 overflow-hidden aria-shell-scroll ${modoCampo ? "pb-14 md:pb-0" : ""}`}>{compu ? <PantallaCompu ruta={pathname || ""} /> : children}</div>
+        <div className={`flex-1 overflow-hidden aria-shell-scroll ${modoCampo ? "pb-14 md:pb-0" : ""}`}>{compu ? <PantallaCompu ruta={pathname || ""} /> : <GuardaRol ruta={pathname || ""} role={acceso.role}>{children}</GuardaRol>}</div>
         {modoCampo && <CampoNav />}
       </main>
 

@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { requireUser } from "@/lib/auth-api";
+import { siguienteFolio } from "@/lib/folio";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendEmailLogged } from "@/lib/email-log";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
@@ -8,7 +9,9 @@ import { logger } from "@/lib/logger";
 
 const log = logger("REQ-EXPRESS");
 
+// 12-Oct-2026: el folio sale del consecutivo único (requisiciones, pagos de servicio y tareas); lo de abajo es solo respaldo si falla
 async function getNextFolio(sb: ReturnType<typeof getSupabaseAdmin>) {
+  const unico = await siguienteFolio(sb, "REQ"); if (unico) return unico;
   const prefix = "REQ-" + new Date().getFullYear() + "-";
   const { data } = await sb.from("requisitions")
     .select("folio")
