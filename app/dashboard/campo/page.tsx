@@ -16,7 +16,7 @@ import { estadoPush, activarPush } from "@/lib/push-client";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
 import { supabase } from "@/lib/supabase";
-import { accionPara, statusLabel } from "@/lib/requi-stepper";
+import { accionPara, puedeRegistrarEntrega, statusLabel } from "@/lib/requi-stepper";
 import { cargarPorRevisar } from "@/lib/revisar";
 import { atrasoTexto, columnaDe, diasAtraso, venceHoy, esMia, fechaCorta, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
 
@@ -84,7 +84,7 @@ export default function CampoHome() {
   }, [router]);
 
   const pendReq = useMemo(() => me ? reqs.filter(r => { const a = accionPara(r, me.role, me.email); return a !== null && a !== "REGISTRAR_ENTREGA"; }) : [], [reqs, me]);
-  const porEntregar = useMemo(() => me ? reqs.filter(r => accionPara(r, me.role, me.email) === "REGISTRAR_ENTREGA") : [], [reqs, me]);
+  const porEntregar = useMemo(() => me ? reqs.filter(r => puedeRegistrarEntrega(r, me.role, me.email)) : [], [reqs, me]);
   const atrasadas = useMemo(() => acts.filter(a => diasAtraso(a) > 0), [acts]);
   const porAutorizar = useMemo(() => me ? reqs.filter(r => { const a = accionPara(r, me.role, me.email); return a === "AUTORIZAR_RESPONSABLE" || a === "APROBAR_DIRECCION"; }).length : 0, [reqs, me]);
   const enCurso = useMemo(() => me ? reqs.filter(r => (r.user_email || "").toLowerCase() === me.email && !["ENTREGADA", "CANCELADA", "RECHAZADA_RESPONSABLE", "RECHAZADA_DIRECCION"].includes(r.status)).length : 0, [reqs, me]);

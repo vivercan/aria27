@@ -137,3 +137,16 @@ export const ACCION_TXT: Record<string, string> = { AUTORIZAR_RESPONSABLE: "Auto
 export function meToca(r: RequiLike & { user_email?: string | null }, role: string, email: string): boolean {
   const a = accionPara(r, role, email); return a !== null && a !== "REGISTRAR_ENTREGA";
 }
+
+/**
+ * ¿Puede esta persona registrar la entrega de esta solicitud? (12-Oct-2026 · auditoría)
+ * Misma regla que /api/requisicion/entrega, para que la pantalla no esconda lo que el servidor sí permite
+ * (antes Administración y RH no veían nada por recibir porque se usaba la "acción principal" de la solicitud).
+ */
+export function puedeRegistrarEntrega(r: RequiLike & { user_email?: string | null }, role: string, email: string): boolean {
+  const st = String(r.status || "");
+  if (["ENTREGADA", "CANCELADA", "RECHAZADA_RESPONSABLE", "RECHAZADA_DIRECCION", "PENDIENTE_RESPONSABLE", "AUTORIZADA_HISTORICO"].includes(st)) return false;
+  if ((r.tipo_solicitud || "MATERIALES").toUpperCase() === "DESTAJO") return false;
+  const rol = (role || "").toLowerCase();
+  return ["admin", "compras", "validador", "residente", "rh", "almacen"].includes(rol) || (r.user_email || "").toLowerCase() === (email || "").toLowerCase();
+}

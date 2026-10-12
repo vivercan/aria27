@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { accionPara } from "@/lib/requi-stepper";
+import { puedeRegistrarEntrega } from "@/lib/requi-stepper";
 import { IcoCamion } from "@/components/domenica/IconosObra";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
@@ -22,7 +22,7 @@ export default function EvidenciaPage() {
     let qq = supabase.from("Requisiciones").select("id, folio, cost_center_name, status, purchase_status, user_email, responsable_email, tipo_solicitud, proveedor, required_date, created_at").order("created_at", { ascending: false }).limit(500);
     if (!["admin", "compras", "rh", "direccion"].includes(role)) qq = qq.eq("user_email", email);
     const { data } = await qq; if (!alive) return;
-    setItems(((data || []) as R[]).filter(x => accionPara(x, role, email) === "REGISTRAR_ENTREGA"));
+    setItems(((data || []) as R[]).filter(x => puedeRegistrarEntrega(x, role, email)));
   } catch { if (alive) setItems([]); } })(); return () => { alive = false; }; }, [router]);
   const obras = useMemo(() => [...new Set((items || []).map(r => r.cost_center_name).filter(Boolean))].sort(), [items]);
   const vis = useMemo(() => { const t = q.trim().toLowerCase(); return (items || []).filter(r => (!obra || r.cost_center_name === obra) && (!t || `${r.folio} ${r.cost_center_name} ${r.proveedor || ""}`.toLowerCase().includes(t))); }, [items, q, obra]);

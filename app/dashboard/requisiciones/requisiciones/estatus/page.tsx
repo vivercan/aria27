@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 import ListToolbar from "@/components/ListToolbar";
 import { useListFilter } from "@/hooks/useListFilter";
 import RequiStepper from "@/components/RequiStepper";
-import { statusLabel, accionPara, queSigue, ACCION_TXT, meToca } from "@/lib/requi-stepper";
+import { statusLabel, accionPara, puedeRegistrarEntrega, queSigue, ACCION_TXT, meToca } from "@/lib/requi-stepper";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
 import FlashBanner from "@/components/FlashBanner";
@@ -745,7 +745,7 @@ export default function RequisicionesStatusPage() {
               </div>
             )}
             <div className="p-3 md:p-4 border-t border-[var(--d-border)] flex justify-end gap-2 flex-wrap" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-              {accionPara(detailReq, userRole, userEmail) === "REGISTRAR_ENTREGA" && (
+              {puedeRegistrarEntrega(detailReq, userRole, userEmail) && (
                 <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="w-full md:w-auto justify-center px-4 py-3 md:py-2 rounded-xl md:rounded-lg bg-[#00873f] text-white sobre-verde text-[15px] md:text-sm font-bold transition flex items-center gap-2"><IcoCamion className="w-5 h-5" color="#fff" fondo="#00873f" />Registrar entrega</Link>
               )}
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
