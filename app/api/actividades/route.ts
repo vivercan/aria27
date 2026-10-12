@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
       checklist: Array.isArray(b.checklist) ? (b.checklist as unknown[]).map(String) : [], depende_de: b.depende_de ? String(b.depende_de) : null,
       hora: b.hora ? String(b.hora) : null,
     }, auth.email, "todo");
-    if (!r.ok) return NextResponse.json({ error: r.error }, { status: r.status });
+    // 11-Oct-2026: dejar rastro de por qué se rechazó (antes un 400 no dejaba nada en los registros y no se podía saber qué le pasó a la persona)
+    if (!r.ok) { log.warn("actividad no creada", { por: auth.email, motivo: r.error, status: r.status, asignado_id: String(b.asignado_id || ""), fecha: String(b.fecha_compromiso || "") }); return NextResponse.json({ error: r.error }, { status: r.status }); }
     const { id, notificado } = r;
     return NextResponse.json({ ok: true, id, notificado });
   } catch (e: unknown) {

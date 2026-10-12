@@ -48,14 +48,18 @@ const COLA = "aria:cola-actividades";
 type Pendiente = { url: string; method: string; body?: unknown; t: number };
 const leerCola = (): Pendiente[] => { try { return JSON.parse(localStorage.getItem(COLA) || "[]") as Pendiente[]; } catch { return []; } };
 const guardarCola = (c: Pendiente[]) => { try { localStorage.setItem(COLA, JSON.stringify(c.slice(-200))); } catch { /* sin espacio */ } };
+/** Rechazos al mandar lo guardado sin señal (antes se contaban como "enviados" y se perdían sin avisar) */
+let rechazosCola: string[] = [];
 async function enviarCola(): Promise<number> {
   if (typeof navigator !== "undefined" && navigator.onLine === false) return 0;
   const cola = leerCola(); if (!cola.length) return 0;
-  const resto: Pendiente[] = []; let enviados = 0;
+  const resto: Pendiente[] = []; let enviados = 0; rechazosCola = [];
   for (const p of cola) {
     try {
       const r = await fetch(p.url, { method: p.method, credentials: "include", headers: { "Content-Type": "application/json" }, body: p.body ? JSON.stringify(p.body) : undefined });
-      if (r.ok || (r.status >= 400 && r.status < 500 && r.status !== 401)) enviados++; else resto.push(p);
+      if (r.ok) enviados++;
+      else if (r.status >= 400 && r.status < 500 && r.status !== 401) { const j = await r.json().catch(() => ({})) as { error?: string }; const t = (p.body as { titulo?: string } | undefined)?.titulo; rechazosCola.push(`${t ? `"${String(t).slice(0, 40)}": ` : ""}${j.error || `error ${r.status}`}`); }
+      else resto.push(p);
     } catch { resto.push(p); }
   }
   guardarCola(resto); return enviados;
@@ -171,10 +175,10 @@ export default function ActividadesPage() {
       } finally { if (alive) setLoading(false); }
     })();
     const onFocus = () => { cargar(); };
-    const onOnline = async () => { const n = await enviarCola(); if (n) { flash("ok", `Se enviaron ${n} cambio${n === 1 ? "" : "s"} guardados sin señal`); } cargar(); };
+    const onOnline = async () => { const n = await enviarCola(); if (rechazosCola.length) flash("err", `No se pudo guardar ${rechazosCola.join(" · ")}`); else if (n) { flash("ok", `Se enviaron ${n} cambio${n === 1 ? "" : "s"} guardados sin señal`); } cargar(); };
     window.addEventListener("focus", onFocus);
     window.addEventListener("online", onOnline);
-    enviarCola().then(n => { if (n) cargar(); });
+    enviarCola().then(n => { if (rechazosCola.length) flash("err", `No se pudo guardar ${rechazosCola.join(" · ")}`); if (n) cargar(); });
     const iv = setInterval(() => { if (document.visibilityState === "visible") cargar(); }, 60000);
     return () => { alive = false; window.removeEventListener("focus", onFocus); window.removeEventListener("online", onOnline); clearInterval(iv); };
   }, [cargar, router]);
@@ -790,8 +794,11 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
   const personas = useMemo(() => {
     const n = norm(buscaP); if (n) return emps.filter(e => norm(e.full_name).includes(n));
     const orden = [...emps].sort((x, y) => (frec[y.id] || 0) - (frec[x.id] || 0) || (carga[y.id] || 0) - (carga[x.id] || 0));
-    return todas ? orden : orden.filter(e => e.id !== miEmp).slice(0, 5);
-  }, [emps, buscaP, frec, carga, todas, miEmp]);
+    const top = todas ? orden : orden.filter(e => e.id !== miEmp).slice(0, 5);
+    // 11-Oct-2026: si ya hay alguien elegido (por voz o búsqueda) que no está entre las 5, se muestra igual para que se vea quién quedó
+    const sel = f.asignado_id && f.asignado_id !== miEmp && !top.some(e => e.id === f.asignado_id) ? emps.find(e => e.id === f.asignado_id) : null;
+    return sel ? [sel, ...top] : top;
+  }, [emps, buscaP, frec, carga, todas, miEmp, f.asignado_id]);
   const crear = async () => {
     if (!f.titulo.trim()) { flash("err", "Escribe qué hay que hacer"); return; }
     if (!f.asignado_id) { flash("err", "Elige quién la hace"); return; }
