@@ -83,7 +83,7 @@ export default function DashboardPage() {
         // Empleados activos
         const { count: emps } = await supabase
           .from("Personal")
-          .select("*", { count: "exact", head: true })
+          .select("id", { count: "exact", head: true })
           .eq("status", "ACTIVO");
 
         // Productos

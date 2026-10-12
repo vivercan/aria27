@@ -1,5 +1,6 @@
 "use client";
 import PersonalMovil from "@/components/movil/PersonalMovil";
+import { leerPersonal, guardarEmpleado } from "@/lib/personal-api";
 import { useEsTel } from "@/lib/es-tel";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -148,11 +149,7 @@ function PersonalPageWeb() {
 
   const cargarDatos = async () => {
     setFetchError(null);
-    const { data: emps, error: empsErr } = await supabase
-      .from("Personal")
-      .select("*")
-      .eq("status", "ACTIVO")
-      .order("full_name");
+    const { data: emps, error: empsErr } = await leerPersonal({ status: "ACTIVO", orden: "full_name" });
     if (empsErr) {
       setFetchError("No se pudo cargar el personal. Intenta recargar la página.");
       setLoading(false);
@@ -249,7 +246,7 @@ function PersonalPageWeb() {
         status: "ACTIVO",
       };
 
-      const { error } = await supabase.from("employees").insert(insertData);
+      const { error } = await guardarEmpleado(null, insertData as Record<string, unknown>);
       setGuardando(false);
 
       if (error) {
@@ -275,7 +272,7 @@ function PersonalPageWeb() {
       }
     } else {
       // UPDATE existing
-      const { error } = await supabase.from("employees").update(saveData).eq("id", editando);
+      const { error } = await guardarEmpleado(editando, saveData as Record<string, unknown>);
       setGuardando(false);
 
       if (error) {

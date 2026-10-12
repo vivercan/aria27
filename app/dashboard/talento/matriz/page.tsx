@@ -1,5 +1,6 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
+import { leerPersonal, guardarEmpleado } from "@/lib/personal-api";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { BarChart3, Users, DollarSign, Building2, Loader2 } from "lucide-react";
@@ -29,7 +30,7 @@ export default function MatrizSalarialPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("salario_diario", { ascending: false });
+      const { data, error } = await leerPersonal({ status: "ACTIVO", orden: "salario_diario", asc: false });
       if (error) { log.error("Error loading empleados:", { error: error?.message }); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);

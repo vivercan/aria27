@@ -2,12 +2,13 @@
  * Visto bueno del que encargó la actividad (11-Oct-2026 · JJ)
  * Cuando quien la hace dice que terminó (en la app o por WhatsApp "ya quedó"), la actividad se da por terminada
  * (para que lo que sigue pueda avanzar) pero queda "por aprobar": al que la encargó le aparece en la APP (Inicio › Revisar)
- * con la evidencia, y aprueba o regresa ahí (también puede contestar APROBAR/REGRESAR por WhatsApp). Si en 3 días no contesta, se aprueba sola y se avisa.
+ * con la evidencia, y aprueba o regresa ahí (también puede contestar APROBAR/REGRESAR por WhatsApp). Ya no se aprueba sola (12-Oct-2026 · JJ): cada mañana se le recuerda, con los días que lleva esperando, hasta que la revise.
  * Lógica pura de lectura en leerAprobacionWA (tests/aprobacion.test.ts).
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { avisarEnApp, avisarWA, personaPorEmail, registrarActualizacion } from "@/lib/actividades-server";
 
+/** @deprecated 12-Oct-2026: ya no hay aprobación automática; se conserva por compatibilidad */
 export const DIAS_AUTOAPROBAR = 3;
 
 type T = { id: string; titulo: string; obra?: string | null; asignado_nombre?: string | null; asignado_email?: string | null; asignado_por?: string | null; asignado_por_email?: string | null; por_aprobar?: boolean | null };

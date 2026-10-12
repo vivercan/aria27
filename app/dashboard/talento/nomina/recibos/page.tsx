@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
+import { leerPersonal, guardarEmpleado } from "@/lib/personal-api";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -114,10 +115,7 @@ export default function RecibosNominaPage() {
     if (nominasData && nominasData.length > 0) {
       // Batch query bancarios — una sola query .in() en vez de N+1
       const empIds = nominasData.map((n: typeof nominasData[number]) => n.employee_id);
-      const { data: empBank } = await supabase
-        .from("Personal")
-        .select("id, banco, clabe, numero_cuenta")
-        .in("id", empIds);
+      const { data: empBank } = await leerPersonal({ campos: "id,banco,clabe,numero_cuenta", ids: empIds });
       const bankMap = new Map((empBank || []).map((e: PersonalBankInfo) => [e.id, e]));
       const merged = nominasData.map((n: typeof nominasData[number]) => {
         const b: PersonalBankInfo = bankMap.get(n.employee_id) || { id: "", banco: null, clabe: null, numero_cuenta: null };

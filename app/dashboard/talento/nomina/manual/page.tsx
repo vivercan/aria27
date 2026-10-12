@@ -1,5 +1,6 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
+import { leerPersonal, guardarEmpleado } from "@/lib/personal-api";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -116,11 +117,7 @@ export default function NominaManualPage() {
   }, [asistencias, empleadoSeleccionado]);
 
   const cargarEmpleados = async () => {
-    const { data } = await supabase
-      .from("Personal")
-      .select("id, employee_number, full_name, position, salario_diario, minimo_tarjeta")
-      .eq("status", "ACTIVO")
-      .order("full_name");
+    const { data } = await leerPersonal({ campos: "id,employee_number,full_name,position,salario_diario,minimo_tarjeta", status: "ACTIVO", orden: "full_name" });
     if (data) setEmpleados(data);
     setLoading(false);
   };

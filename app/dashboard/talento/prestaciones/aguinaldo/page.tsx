@@ -1,5 +1,6 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
+import { leerPersonal, guardarEmpleado } from "@/lib/personal-api";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Gift, Calculator, DollarSign, Loader2 } from "lucide-react";
@@ -15,7 +16,7 @@ export default function AguinaldoPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("full_name");
+      const { data, error } = await leerPersonal({ status: "ACTIVO", orden: "full_name" });
       if (error) { log.error("Error loading employees:", { error: error?.message }); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);

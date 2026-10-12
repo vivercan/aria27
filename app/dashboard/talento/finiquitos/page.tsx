@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { leerPersonal, guardarEmpleado } from "@/lib/personal-api";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
@@ -143,13 +144,7 @@ export default function FiniquitosPage() {
     if (fin) setFiniquitos(fin);
 
     // Cargar empleados activos
-    const { data: emp } = await supabase
-      .from("Personal")
-      .select(
-        "id, full_name, employee_number, salario_diario, fecha_ingreso, status"
-      )
-      .eq("status", "ACTIVO")
-      .order("full_name");
+    const { data: emp } = await leerPersonal({ campos: "id,full_name,employee_number,salario_diario,fecha_ingreso,status", status: "ACTIVO", orden: "full_name" });
 
     if (emp) setEmpleados(emp);
 
@@ -333,7 +328,7 @@ export default function FiniquitosPage() {
         .maybeSingle();
 
       if (fin) {
-        await supabase.from("employees").update({ status: "BAJA" }).eq("id", fin.employee_id);
+        await guardarEmpleado(fin.employee_id, { status: "BAJA" });
       }
     }
 

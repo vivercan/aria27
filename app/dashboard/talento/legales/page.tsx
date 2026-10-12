@@ -1,5 +1,6 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
+import { leerPersonal, guardarEmpleado } from "@/lib/personal-api";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { FileText, Search, Download, User, Edit2, Save, X, Loader2 } from "lucide-react";
@@ -36,7 +37,7 @@ export default function LegalesPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase.from("Personal").select("*").order("employee_number");
+      const { data, error } = await leerPersonal({ orden: "employee_number" });
       if (error) { log.error("Error loading empleados:", { error: error?.message }); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
@@ -76,12 +77,12 @@ export default function LegalesPage() {
     if (!editingId) return;
     if (!validar()) return;
     setSaving(true);
-    const { error } = await supabase.from("employees").update({
+    const { error } = await guardarEmpleado(editingId, {
       rfc: editForm.rfc || null,
       curp: editForm.curp || null,
       nss: editForm.nss || null,
       tipo_contrato: editForm.tipo_contrato || null
-    }).eq("id", editingId);
+    });
     if (error) { log.error("Error saving legal info:", { error: error?.message }); flash("err", "Error: " + error?.message); setSaving(false); return; }
     setSaving(false);
     setEditingId(null);

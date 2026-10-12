@@ -1,7 +1,8 @@
 /**
  * Cron diario 7:00 (Aguascalientes) · Resumen de la mañana (actividades + solicitudes que te tocan) · 10/11-Oct-2026
  * - A cada persona: lista de lo que vence hoy, manana y lo atrasado (una sola notificacion por persona).
- * - A quien asigno: resumen de sus actividades atrasadas (1 mensaje).
+ * - A quien asigno: resumen de sus actividades atrasadas (1 mensaje) y recordatorio de lo que espera su visto bueno, con días de espera.
+ * Todo sale por WhatsApp y además como notificación en la app (12-Oct-2026 · JJ: por ambas).
  * Plantilla aprobada aria_tarea_status (funciona fuera de la ventana de 24 h).
  */
 import { cronAutorizado } from "@/lib/cron-auth";
@@ -11,7 +12,6 @@ import { avisarEnApp, avisarWA, personaPorEmail, personaPorEmpleado } from "@/li
 import { columnaDe, diasAtraso, fechaCorta, type Actividad } from "@/lib/actividades";
 import { meToca, accionPara, ACCION_TXT } from "@/lib/requi-stepper";
 import { enRiesgo } from "@/lib/riesgo";
-import { DIAS_AUTOAPROBAR, resolverAprobacion } from "@/lib/aprobacion";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -92,20 +92,27 @@ export async function GET(req: NextRequest) {
     if (!dry && await avisarWA(p, msg, "actividades-atrasadas-asignador", "cron", { title: "🔴 Actividades atrasadas", url: "/dashboard/actividades?vista=mi&ambito=asigne", tag: "atrasadas" })) enviados.push(`asignador:${p?.nombre}`);
     else if (dry) enviados.push(`DRY asignador:${p?.nombre} -> ${msg}`);
   }
-  // 11-Oct-2026 · Visto bueno pendiente: a los 3 días sin respuesta se aprueba sola (y se avisa); antes, recordatorio diario al que la encargó
-  let autoAprobadas = 0; let recordatoriosAprobar = 0;
+  // 12-Oct-2026 · JJ: el visto bueno YA NO se aprueba solo. Cada mañana se le recuerda al que la encargó (WhatsApp y app),
+  // diciendo cuántos días lleva esperando cada una, hasta que la apruebe o la regrese.
+  let recordatoriosAprobar = 0;
   try {
-    const { data: pa } = await db.from("tareas_asignadas").select("id, titulo, obra, asignado_nombre, asignado_email, asignado_por, asignado_por_email, por_aprobar, completada_at").eq("por_aprobar", true);
-    const porDueño = new Map<string, { id: string; titulo: string; asignado_nombre?: string | null }[]>();
-    for (const t of (pa || []) as { id: string; titulo: string; asignado_nombre?: string | null; asignado_por_email?: string | null; completada_at?: string | null }[]) {
-      const dias = t.completada_at ? (Date.now() - new Date(t.completada_at).getTime()) / 864e5 : 0;
-      if (dias >= DIAS_AUTOAPROBAR) { await resolverAprobacion(db, t as never, "aprobar", "", "automatico", `Aprobada sola (${DIAS_AUTOAPROBAR} días sin respuesta)`); autoAprobadas++; continue; }
+    const { data: pa } = await db.from("tareas_asignadas").select("id, folio, titulo, asignado_nombre, asignado_por_email, completada_at, updated_at").eq("por_aprobar", true);
+    const porDueño = new Map<string, { titulo: string; folio?: string | null; quien: string; dias: number }[]>();
+    for (const t of (pa || []) as { titulo: string; folio?: string | null; asignado_nombre?: string | null; asignado_por_email?: string | null; completada_at?: string | null; updated_at?: string | null }[]) {
       const k = String(t.asignado_por_email || "").toLowerCase(); if (!k.includes("@")) continue;
-      porDueño.set(k, [...(porDueño.get(k) || []), t]);
+      const desde = t.completada_at || t.updated_at; const dias = desde ? Math.max(0, Math.floor((hoy.getTime() - new Date(desde).getTime()) / 864e5)) : 0;
+      porDueño.set(k, [...(porDueño.get(k) || []), { titulo: t.titulo, folio: t.folio, quien: (t.asignado_nombre || "").split(" ")[0], dias }]);
     }
     for (const [k, ts] of porDueño) {
-      if (await avisarEnApp(k, { title: `✅ ${ts.length} por revisar`, body: `Tienes ${ts.length} actividad${ts.length === 1 ? "" : "es"} terminada${ts.length === 1 ? "" : "s"} esperando tu visto bueno: ${ts.slice(0, 3).map(t => t.titulo).join(" · ")}. Si no, se aprueban solas a los ${DIAS_AUTOAPROBAR} días.`, url: "/dashboard/actividades?vista=revisar", tag: "por-revisar" })) recordatoriosAprobar++;
+      ts.sort((x, y) => y.dias - x.dias);
+      const partes = ts.slice(0, 6).map(t => `${t.folio ? t.folio.replace(/^TAR-\d{4}-0*/, "#") + " " : ""}${t.titulo.slice(0, 50)} (${t.quien}, esperando ${t.dias === 0 ? "desde hoy" : `${t.dias} día${t.dias === 1 ? "" : "s"}`})`);
+      const msg = `${ts.length} actividad${ts.length === 1 ? "" : "es"} terminada${ts.length === 1 ? "" : "s"} espera${ts.length === 1 ? "" : "n"} tu visto bueno: ${partes.join(" | ")}${ts.length > 6 ? ` y ${ts.length - 6} más` : ""}. Revisa la evidencia y aprueba o regresa en Doménica 27 › Actividades › Por revisar.`;
+      if (dry) { recordatoriosAprobar++; enviados.push(`DRY por-revisar:${k} -> ${msg}`); continue; }
+      const p = await personaPorEmail(db, k);
+      const ok = p ? await avisarWA(p, msg, "por-revisar", "cron", { title: `✅ ${ts.length} por revisar (la más vieja: ${ts[0].dias} día${ts[0].dias === 1 ? "" : "s"})`, url: "/dashboard/actividades?vista=revisar", tag: "por-revisar" })
+        : await avisarEnApp(k, { title: `✅ ${ts.length} por revisar`, body: msg, url: "/dashboard/actividades?vista=revisar", tag: "por-revisar" });
+      if (ok) { recordatoriosAprobar++; enviados.push(`por-revisar:${k}`); }
     }
   } catch { /* best effort */ }
-  return NextResponse.json({ ok: true, hoy: H, personas: porPersona.size, asignadores: atrasadasPorAsignador.size, enviados, autoAprobadas, recordatoriosAprobar });
+  return NextResponse.json({ ok: true, hoy: H, personas: porPersona.size, asignadores: atrasadasPorAsignador.size, enviados, recordatoriosAprobar });
 }

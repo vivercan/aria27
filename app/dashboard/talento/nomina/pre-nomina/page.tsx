@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { leerPersonal, guardarEmpleado } from "@/lib/personal-api";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { Calculator, CheckCircle, Loader2, ChevronLeft, ChevronRight, Calendar, Search, Download, RefreshCw, Info } from "lucide-react";
@@ -88,7 +89,7 @@ export default function PreNominaPage() {
   useEffect(() => { checarExistente(); setDetalles([]); }, [semanaInfo.semana, semanaInfo.anio]);
 
   const cargarEmpleados = async () => {
-    const { data } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("full_name");
+    const { data } = await leerPersonal({ status: "ACTIVO", orden: "full_name" });
     if (data) setEmpleados(data as Empleado[]);
     setLoading(false);
   };
