@@ -50,7 +50,7 @@ export default function PlanoVisor() {
             <img src={img} alt={plano?.nombre || "Plano"} className={`block w-full select-none ${marcando ? "cursor-crosshair" : ""}`} draggable={false} />
             {visibles.map(m => (
               <button key={m.id} onClick={e => { e.stopPropagation(); setVer(m); }} className="absolute -translate-x-1/2 -translate-y-full" style={{ left: `${m.x * 100}%`, top: `${m.y * 100}%` }} aria-label={m.titulo}>
-                <span className="block w-8 h-8 rounded-full rounded-br-none rotate-45 border-2 border-white shadow-lg flex items-center justify-center" style={{ background: m.estado === "RESUELTA" ? "#1f8500" : COLOR[m.tipo] || "#d0304a" }}>
+                <span className="block w-8 h-8 rounded-full rounded-br-none rotate-45 border-2 border-white shadow-lg flex items-center justify-center" style={{ background: m.estado === "RESUELTA" ? "#00953f" : COLOR[m.tipo] || "#d0304a" }}>
                   <span className="-rotate-45 text-white text-[13px] font-extrabold">{m.estado === "RESUELTA" ? "✓" : m.tipo === "FOTO" ? <IcoCamara className="w-4 h-4" color="#fff" fondo="#7e3bdd" /> : m.tipo === "NOTA" ? "i" : "!"}</span></span>
               </button>))}
             {nueva && <span className="absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d0304a] ring-4 ring-[#d0304a]/30 animate-pulse" style={{ left: `${nueva.x * 100}%`, top: `${nueva.y * 100}%` }} />}

@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Search, Pencil, Archive, Power, Loader2, FolderOpen, Plus, X, Save, MapPin} from "lucide-react";
+import { Search, Pencil, Archive, Power, Loader2, FolderOpen, Plus, X, Save, MapPin, Trash2, RotateCcw, CheckSquare } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
@@ -40,6 +40,7 @@ interface Obra {
   responsable_email?: string | null;
   created_at?: string;
   updated_at?: string;
+  eliminada_at?: string | null;
 }
 
 const STATUS = [
@@ -92,6 +93,31 @@ function CatalogoObrasPageWeb() {
   useEffect(() => { cargar(); }, []);
   // ?nueva=1 abre el formulario (viene de Pipeline o de un link directo)
   useEffect(() => { try { if (new URLSearchParams(window.location.search).get("nueva") === "1") { setForm({ ...FORM_INIT }); setEditId(null); setShowForm(true); } } catch {} }, []);
+  // ?editar=<id> abre la obra para editar (viene del teléfono)
+  useEffect(() => { try { const id = new URLSearchParams(window.location.search).get("editar"); const o = id ? obras.find(x => x.id === id) : null; if (o && editId !== o.id) abrirEdicion(o); } catch {} // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [obras]);
+
+  // 11-Oct-2026 · JJ: Deyanira agrega, edita y borra una, varias o todas
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const [lote, setLote] = useState<{ estado: string; responsable_email: string; cliente: string; radio_metros: string } | null>(null);
+  const [trabajando, setTrabajando] = useState(false);
+  const alternar = (id: string) => setSel(p => { const n = new Set(p); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const enLote = async (accion: "eliminar" | "editar" | "restaurar", ids: string[], cambios?: Record<string, unknown>) => {
+    setTrabajando(true);
+    try {
+      const r = await fetch("/api/obras/lote", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids, accion, cambios }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { flash("err", j.error || "No se pudo"); return; }
+      if (accion === "eliminar") flash("ok", [j.borradas ? `${j.borradas} borrada(s)` : "", j.aEliminadas ? `${j.aEliminadas} con historial pasaron a Eliminadas (se pueden recuperar)` : ""].filter(Boolean).join(" · ") || "Listo");
+      else if (accion === "editar") flash("ok", `${j.editadas} obra(s) actualizadas`);
+      else flash("ok", `${j.restauradas} obra(s) recuperadas`);
+      setSel(new Set()); setLote(null); cargar();
+    } catch { flash("err", "Sin conexión. Intenta otra vez."); } finally { setTrabajando(false); }
+  };
+  const pedirEliminar = (ids: string[]) => {
+    const nombres = obras.filter(o => ids.includes(o.id)).map(o => o.nombre);
+    setConfirmState({ open: true, msg: `¿Eliminar ${ids.length === 1 ? `la obra "${nombres[0]}"` : `${ids.length} obras`}? Las que no tengan nada registrado se borran. Las que ya tienen requisiciones, personal o tareas pasan a "Eliminadas": desaparecen del sistema pero se pueden recuperar.`, onOk: () => { enLote("eliminar", ids); } });
+  };
 
   const cargar = async () => {
     setLoading(true);
@@ -216,6 +242,8 @@ function CatalogoObrasPageWeb() {
   const filtradas = obras.filter(o => {
     const matchSearch = !search || (o.nombre || "").toLowerCase().includes(search.toLowerCase()) || (o.cliente || "").toLowerCase().includes(search.toLowerCase());
     let matchEstado = true;
+    if (filtroEstado === "ELIMINADAS") return matchSearch && !!o.eliminada_at;
+    if (o.eliminada_at) return false;
     if (filtroEstado === "ACTIVAS") matchEstado = ["EN_PLANEACION", "ACTIVA", "PAUSADA"].includes(o.estado);
     else if (filtroEstado === "ARCHIVADAS") matchEstado = ["TERMINADA", "CANCELADA"].includes(o.estado);
     else if (filtroEstado !== "TODAS") matchEstado = o.estado === filtroEstado;
@@ -223,7 +251,7 @@ function CatalogoObrasPageWeb() {
   });
 
   const stats = {
-    total: obras.length,
+    total: obras.filter(o => !o.eliminada_at).length,
     activas: obras.filter(o => o.estado === "ACTIVA").length,
     planeacion: obras.filter(o => o.estado === "EN_PLANEACION").length,
     pausadas: obras.filter(o => o.estado === "PAUSADA").length,
@@ -288,8 +316,34 @@ function CatalogoObrasPageWeb() {
             <option value="ARCHIVADAS">Archivadas (terminadas+canceladas)</option>
             <option value="TODAS">Todas</option>
             {STATUS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            <option value="ELIMINADAS">Eliminadas (se pueden recuperar)</option>
           </select>
         </div>
+        {sel.size > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-[#3A5E9A]/50 bg-[#1E3E7A]/25 px-3 py-2">
+            <CheckSquare className="w-4 h-4 text-aria-accent" />
+            <span className="text-sm font-semibold text-white">{sel.size} seleccionada{sel.size === 1 ? "" : "s"}</span>
+            {filtradas.length > sel.size && <button onClick={() => setSel(new Set(filtradas.map(o => o.id)))} className="text-xs text-aria-accent underline">Seleccionar las {filtradas.length}</button>}
+            <span className="flex-1" />
+            {filtroEstado === "ELIMINADAS" ? (
+              <button disabled={trabajando} onClick={() => enLote("restaurar", [...sel])} className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold flex items-center gap-1.5 disabled:opacity-50"><RotateCcw className="w-4 h-4" />Recuperar</button>
+            ) : (<>
+              <button disabled={trabajando} onClick={() => setLote({ estado: "", responsable_email: "", cliente: "", radio_metros: "" })} className="px-3 py-1.5 rounded-lg bg-[#1E3E7A] border border-[rgba(130,170,230,0.3)] text-white text-sm font-semibold flex items-center gap-1.5 disabled:opacity-50"><Pencil className="w-4 h-4" />Editar</button>
+              <button disabled={trabajando} onClick={() => pedirEliminar([...sel])} className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-sm font-semibold flex items-center gap-1.5 disabled:opacity-50"><Trash2 className="w-4 h-4" />Eliminar</button>
+            </>)}
+            <button onClick={() => { setSel(new Set()); setLote(null); }} className="px-2 py-1.5 rounded-lg text-[#c9d8ed] text-sm hover:bg-white/[0.06]">Quitar selección</button>
+          </div>
+        )}
+        {lote && sel.size > 0 && (
+          <div className="mt-2 grid grid-cols-1 md:grid-cols-5 gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
+            <p className="md:col-span-5 text-xs text-[#7f93b0]">Cambia solo lo que llenes; lo que dejes vacío no se toca. Se aplica a las {sel.size} obras seleccionadas.</p>
+            <select value={lote.estado} onChange={e => setLote({ ...lote, estado: e.target.value })} className="px-3 py-2 rounded-lg text-sm"><option value="">Estado (sin cambio)</option>{STATUS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select>
+            <select value={lote.responsable_email} onChange={e => setLote({ ...lote, responsable_email: e.target.value })} className="px-3 py-2 rounded-lg text-sm"><option value="">Responsable (sin cambio)</option>{usuarios.filter(u => ["residente", "validador", "direccion", "admin", "compras"].includes(u.role)).map(u => <option key={u.email} value={u.email}>{u.name}</option>)}</select>
+            <input value={lote.cliente} onChange={e => setLote({ ...lote, cliente: e.target.value })} placeholder="Cliente (sin cambio)" className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
+            <input value={lote.radio_metros} onChange={e => setLote({ ...lote, radio_metros: e.target.value })} type="number" min="1" max="5000" placeholder="Radio geocerca m (sin cambio)" className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
+            <div className="flex gap-2"><button disabled={trabajando} onClick={() => enLote("editar", [...sel], lote)} className="flex-1 px-3 py-2 rounded-lg bg-aria-accent text-slate-900 text-sm font-bold disabled:opacity-50">{trabajando ? "Guardando…" : "Aplicar"}</button><button onClick={() => setLote(null)} className="px-3 py-2 rounded-lg text-[#c9d8ed] text-sm hover:bg-white/[0.06]">Cancelar</button></div>
+          </div>
+        )}
       </div>
 
       {/* EX-3 18-Abr-2026: FlashBanner canónico */}
@@ -392,6 +446,7 @@ function CatalogoObrasPageWeb() {
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
               <tr className="text-[#7f93b0] text-xs uppercase">
+                <th className="p-3 w-10"><input type="checkbox" aria-label="Seleccionar todas" className="w-4 h-4 accent-[#3b82f6]" checked={filtradas.length > 0 && filtradas.every(o => sel.has(o.id))} onChange={e => setSel(e.target.checked ? new Set(filtradas.map(o => o.id)) : new Set())} /></th>
                 <th className="text-left p-3">Obra</th>
                 <th className="text-left p-3">Cliente</th>
                 <th className="text-left p-3">Estado</th>
@@ -403,9 +458,9 @@ function CatalogoObrasPageWeb() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
+                <tr><td colSpan={8} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtradas.length === 0 ? (
-                <tr><td colSpan={7} className="p-8 text-center text-[#4a6080]">Sin obras para los filtros actuales.</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-[#4a6080]">Sin obras para los filtros actuales.</td></tr>
               ) : (() => {
                 // Detectar coords duplicadas para badge
                 const dup = new Set<string>();
@@ -423,7 +478,8 @@ function CatalogoObrasPageWeb() {
                 const isDup = coordKey ? dup.has(coordKey) : false;
                 const sinCoord = o.latitud == null || o.longitud == null;
                 return (
-                  <tr key={o.id} className={`border-t border-white/[0.05] hover:bg-white/[0.02] ${archivada ? "opacity-60" : ""}`}>
+                  <tr key={o.id} className={`border-t border-white/[0.05] hover:bg-white/[0.02] ${sel.has(o.id) ? "bg-[#1E3E7A]/20" : ""} ${archivada || o.eliminada_at ? "opacity-60" : ""}`}>
+                    <td className="p-3 w-10"><input type="checkbox" aria-label={`Seleccionar ${o.nombre}`} className="w-4 h-4 accent-[#3b82f6]" checked={sel.has(o.id)} onChange={() => alternar(o.id)} /></td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
                         <p className="text-white font-medium">{o.nombre}</p>
@@ -456,7 +512,10 @@ function CatalogoObrasPageWeb() {
                         <Link href={`/dashboard/obras/expedientes?obra=${o.id}`} title="Expediente" className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-light rounded">
                           <FolderOpen className="w-4 h-4" />
                         </Link>
-                        {!archivada ? (
+                        {o.eliminada_at ? (
+                          <button onClick={() => enLote("restaurar", [o.id])} title="Recuperar" className="p-1.5 text-emerald-400/80 hover:text-emerald-400 hover:bg-emerald-500/10 rounded"><RotateCcw className="w-4 h-4" /></button>
+                        ) : <button onClick={() => pedirEliminar([o.id])} title="Eliminar" className="p-1.5 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 rounded"><Trash2 className="w-4 h-4" /></button>}
+                        {o.eliminada_at ? null : !archivada ? (
                           <button onClick={() => cambiarEstado(o, "TERMINADA")} title="Archivar (Terminar)" className="p-1.5 text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded">
                             <Archive className="w-4 h-4" />
                           </button>

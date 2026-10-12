@@ -37,7 +37,7 @@ export default function EvidenciaPage() {
             <Link key={r.id} href={`/dashboard/requisiciones/requisiciones/entrega/${r.id}`} className="flex items-center gap-3 px-3.5 py-3 active:bg-[var(--d-hover)]">
               <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{r.cost_center_name || "Sin obra"}</div>
                 <div className="text-[12.5px] text-[var(--d-muted)] truncate">{corto(r.folio)} · {r.proveedor || "Sin proveedor"} · hace {dias(r.created_at)} d</div></div>
-              <span className="shrink-0 rounded-xl bg-[#1f8500] px-3 py-2 text-[13px] font-bold text-white sobre-verde">Recibir</span>
+              <span className="shrink-0 rounded-xl bg-[#00953f] px-3 py-2 text-[13px] font-bold text-white sobre-verde">Recibir</span>
             </Link>))}</div>)}
       </div>
     </Pagina>

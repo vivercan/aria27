@@ -21,8 +21,20 @@ const dinero = (n: number | null) => n ? Number(n).toLocaleString("es-MX", { sty
 export default function ObrasCatalogoMovil() {
   const [lista, setLista] = useState<O[] | null>(null); const [q, setQ] = useState(""); const [tab, setTab] = useState<"abiertas" | "todas">("abiertas"); const [ver, setVer] = useState<O | null>(null);
   const [nombres, setNombres] = useState<Record<string, string>>({});
+  const [borrando, setBorrando] = useState(false); const [aviso, setAviso] = useState("");
+  // 11-Oct-2026 · JJ: Deyanira también borra desde el teléfono (las que tienen historial pasan a Eliminadas y se pueden recuperar)
+  const eliminar = async () => {
+    if (!ver || !window.confirm(`¿Eliminar la obra "${ver.nombre}"? Si ya tiene requisiciones, personal o tareas, pasa a Eliminadas y se puede recuperar.`)) return;
+    setBorrando(true); setAviso("");
+    try {
+      const r = await fetch("/api/obras/lote", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [ver.id], accion: "eliminar" }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { setAviso(j.error || "No se pudo eliminar"); return; }
+      setLista(l => (l || []).filter(o => o.id !== ver.id)); setVer(null);
+    } catch { setAviso("Sin conexión. Intenta otra vez."); } finally { setBorrando(false); }
+  };
   useEffect(() => {
-    supabase.from("centros_trabajo").select("id, codigo, nombre, direccion, cliente, estado, presupuesto, fecha_inicio, fecha_fin, latitud, longitud, radio_metros, responsable_email").order("nombre").then(({ data }) => setLista((data || []) as O[]));
+    supabase.from("centros_trabajo").select("id, codigo, nombre, direccion, cliente, estado, presupuesto, fecha_inicio, fecha_fin, latitud, longitud, radio_metros, responsable_email").is("eliminada_at", null).order("nombre").then(({ data }) => setLista((data || []) as O[]));
     supabase.from("Users").select("email, name").then(({ data }) => setNombres(Object.fromEntries(((data || []) as { email: string; name: string }[]).map(u => [String(u.email).toLowerCase(), u.name]))));
   }, []);
   const abierta = (o: O) => !["TERMINADA", "CANCELADA"].includes(String(o.estado || "").toUpperCase());
@@ -47,7 +59,7 @@ export default function ObrasCatalogoMovil() {
             {o.latitud == null || o.longitud == null ? <span className="shrink-0 rounded-md bg-[#d0304a] px-2 py-1 text-[11px] font-bold text-white">Sin ubicación</span> : <MapPin className="shrink-0 w-4 h-4 text-[var(--d-faint)]" />}
           </button>); })}
       </div>
-      <ModoCompleto texto="Alta, edición y geocerca: modo completo" />
+      <ModoCompleto texto="Editar o borrar varias a la vez: modo completo" />
       {ver && (
         <Hoja titulo={ver.nombre} onClose={() => setVer(null)}>
           <div className="flex flex-wrap gap-1.5">
@@ -63,8 +75,11 @@ export default function ObrasCatalogoMovil() {
             <Link href={`/dashboard/domenica/obras/${ver.id}`} className="rounded-2xl bg-[#0073ea] py-3 text-center text-[14px] font-bold text-white">Abrir la obra</Link>
             {ver.latitud != null && ver.longitud != null
               ? <a href={`https://www.google.com/maps/search/?api=1&query=${ver.latitud},${ver.longitud}`} target="_blank" rel="noreferrer" className="rounded-2xl bg-[var(--d-card-2)] py-3 text-center text-[14px] font-bold text-[var(--d-text)]">Ver en el mapa</a>
-              : <a href="/dashboard/obras/catalogo?web=1" className="rounded-2xl bg-[var(--d-card-2)] py-3 text-center text-[14px] font-bold text-[var(--d-text)]">Poner ubicación</a>}
+              : <a href={`/dashboard/obras/catalogo?web=1&editar=${ver.id}`} className="rounded-2xl bg-[var(--d-card-2)] py-3 text-center text-[14px] font-bold text-[var(--d-text)]">Poner ubicación</a>}
+            <a href={`/dashboard/obras/catalogo?web=1&editar=${ver.id}`} className="rounded-2xl bg-[var(--d-card-2)] py-3 text-center text-[14px] font-bold text-[var(--d-text)]">Editar</a>
+            <button type="button" disabled={borrando} onClick={eliminar} className="rounded-2xl bg-[#d0304a] py-3 text-center text-[14px] font-bold text-white disabled:opacity-50">{borrando ? "Eliminando…" : "Eliminar"}</button>
           </div>
+          {aviso && <p className="mt-3 text-[14px] font-semibold text-[var(--d-text)]">{aviso}</p>}
         </Hoja>)}
     </Pagina>
   );

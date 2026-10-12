@@ -61,7 +61,7 @@ export default function BitacoraPage() {
 
         <div className="mt-3 flex gap-2 print:hidden">
           <button onClick={() => setEditar(true)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] py-3 text-[13.5px] font-semibold text-[var(--d-text)]"><Pencil className="w-4 h-4" />Agregar lo del día</button>
-          <button onClick={compartir} className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-[#1f8500] px-4 py-3 text-[13.5px] font-bold text-white sobre-verde"><Share2 className="w-4 h-4" />Compartir</button>
+          <button onClick={compartir} className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-[#00953f] px-4 py-3 text-[13.5px] font-bold text-white sobre-verde"><Share2 className="w-4 h-4" />Compartir</button>
           <button onClick={() => window.print()} className="inline-flex items-center justify-center rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] px-3.5 text-[var(--d-text)]" aria-label="Guardar PDF"><Printer className="w-5 h-5" /></button>
         </div>
 

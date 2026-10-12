@@ -122,7 +122,7 @@ export default function EntregaPage() {
       <div className="mt-3 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-2 py-2"><RequiStepper req={req} compact /></div>
       {bloqueada && <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200 flex gap-2"><AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />Esta requisición no admite entrega en su estado actual ({req.status}).</div>}
       {error && <div className="mt-3 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>}
-      {done && <div className="mt-3 rounded-xl bg-[#1f8500] p-3 text-sm font-semibold text-white flex gap-2 sobre-verde"><Check className="w-4 h-4" />{done}</div>}
+      {done && <div className="mt-3 rounded-xl bg-[#00953f] p-3 text-sm font-semibold text-white flex gap-2 sobre-verde"><Check className="w-4 h-4" />{done}</div>}
 
       <section className="mt-4 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] p-4">
         <div className="flex items-center gap-2 mb-2"><h2 className="flex-1 text-sm font-semibold text-[var(--d-text)]">1. ¿Qué llegó?</h2>
@@ -135,7 +135,7 @@ export default function EntregaPage() {
             {items.map((it, idx) => (
               <li key={it.id} className="py-2 flex items-center gap-3">
                 <button type="button" aria-pressed={it.recibida >= it.quantity} onClick={() => setItems(p => p.map((x, i) => i === idx ? { ...x, recibida: x.recibida >= x.quantity ? 0 : x.quantity } : x))}
-                  className={`btn-flat w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${it.recibida >= it.quantity ? "bg-[#1f8500] border-[#1f8500] text-white" : "border-[var(--d-border)] text-transparent"} sobre-verde`}><Check className="w-5 h-5" /></button>
+                  className={`btn-flat w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${it.recibida >= it.quantity ? "bg-[#00953f] border-[#00953f] text-white" : "border-[var(--d-border)] text-transparent"} sobre-verde`}><Check className="w-5 h-5" /></button>
                 <div className="flex-1 min-w-0"><div className="text-sm text-[var(--d-text)] truncate">{it.product_name}</div><div className="text-[11px] text-[var(--d-muted)]">pedido: {it.quantity} {it.unit}</div></div>
                 <input type="number" inputMode="decimal" min={0} value={it.recibida} onChange={e => setItems(p => p.map((x, i) => i === idx ? { ...x, recibida: Number(e.target.value) } : x))} className="w-20 rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-2 py-1.5 text-sm text-right" aria-label={`Cantidad recibida de ${it.product_name}`} />
               </li>
@@ -166,7 +166,7 @@ export default function EntregaPage() {
       </section>
 
       <div className="campo-bottom-bar fixed left-0 right-0 bottom-0 md:left-[220px] p-3 bg-[var(--d-surface)] border-t border-[var(--d-border)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-        <button onClick={enviar} disabled={sending || bloqueada || !!done || items.length === 0} className="w-full max-w-2xl mx-auto block rounded-full bg-[#1f8500] hover:bg-[#35c801] text-white font-bold py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg sobre-verde">
+        <button onClick={enviar} disabled={sending || bloqueada || !!done || items.length === 0} className="w-full max-w-2xl mx-auto block rounded-full bg-[#00953f] hover:bg-[#35c801] text-white font-bold py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg sobre-verde">
           {sending ? <span className="inline-flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" />Guardando…</span> : items.every(i => i.recibida >= i.quantity) ? "Registrar entrega completa" : "Registrar entrega parcial"}
         </button>
       </div>

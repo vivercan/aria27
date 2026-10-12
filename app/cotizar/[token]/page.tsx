@@ -70,7 +70,7 @@ export default function CotizarPublico() {
           <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
             <h2 className="text-lg font-bold">Tu cotización</h2>
             <input ref={fileRef} type="file" accept="application/pdf,image/*" className="hidden" onChange={e => setArchivo(e.target.files?.[0] || null)} />
-            <button type="button" onClick={() => fileRef.current?.click()} className={`mt-3 w-full rounded-2xl border-2 border-dashed px-4 py-6 text-center ${archivo ? "border-[#1f8500] bg-[#1f8500]/5" : "border-slate-300"} sobre-verde`}>
+            <button type="button" onClick={() => fileRef.current?.click()} className={`mt-3 w-full rounded-2xl border-2 border-dashed px-4 py-6 text-center ${archivo ? "border-[#00953f] bg-[#00953f]/5" : "border-slate-300"} sobre-verde`}>
               <div className="text-3xl">{archivo ? "📎" : "📄"}</div>
               <div className="mt-1 font-semibold">{archivo ? archivo.name : "Sube tu cotización (PDF o foto)"}</div>
               <div className="text-[12px] text-slate-500">{archivo ? `${(archivo.size / 1024 / 1024).toFixed(1)} MB · toca para cambiar` : "Máximo 10 MB"}</div>

@@ -55,7 +55,7 @@ export default function CalendarioPage() {
   const first = new Date(cur.getFullYear(), cur.getMonth(), 1); const offset = (first.getDay() + 6) % 7; const nDays = new Date(cur.getFullYear(), cur.getMonth() + 1, 0).getDate();
   const cells: Array<string | null> = [...Array(offset).fill(null), ...Array.from({ length: nDays }, (_, i) => iso(new Date(cur.getFullYear(), cur.getMonth(), i + 1)))];
   const list = byDay[sel] || [];
-  const COL: Record<Ev["kind"], string> = { tarea: "#0073ea", requi: "#b85507", entrega: "#1f8500" };
+  const COL: Record<Ev["kind"], string> = { tarea: "#0073ea", requi: "#b85507", entrega: "#00953f" };
   const Icon = ({ k }: { k: Ev["kind"] }) => <Ficha ico={k === "tarea" ? IcoTarea : k === "entrega" ? IcoCamion : IcoSaco} color={COL[k]} size="sm" />;
   const proximos = evs.filter(e => !e.done && e.date > sel).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
 
@@ -68,7 +68,7 @@ export default function CalendarioPage() {
         <div className="text-[17px] text-[var(--d-text)] font-bold capitalize">{MESES[cur.getMonth()]} {cur.getFullYear()}</div>
         <button onClick={() => setCur(new Date(cur.getFullYear(), cur.getMonth() + 1, 1))} className="btn-flat p-2.5 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)]" aria-label="Mes siguiente"><ChevronRight className="w-5 h-5" /></button>
       </div>
-      <div className="flex gap-3 justify-center text-[11.5px] font-semibold text-[var(--d-muted)]">{([["Actividades", "#0073ea"], ["Pedidos", "#b85507"], ["Entregas", "#1f8500"]] as const).map(([l, c]) => <span key={l} className="inline-flex items-center gap-1"><i className="w-2 h-2 rounded-full" style={{ background: c }} />{l}</span>)}</div>
+      <div className="flex gap-3 justify-center text-[11.5px] font-semibold text-[var(--d-muted)]">{([["Actividades", "#0073ea"], ["Pedidos", "#b85507"], ["Entregas", "#00953f"]] as const).map(([l, c]) => <span key={l} className="inline-flex items-center gap-1"><i className="w-2 h-2 rounded-full" style={{ background: c }} />{l}</span>)}</div>
       <div className="mt-2 grid grid-cols-7 text-center text-[11px] font-semibold text-[var(--d-muted)]">{DIAS.map(d => <div key={d} className="py-1">{d}</div>)}</div>
       <div className="grid grid-cols-7 gap-1">
         {cells.map((d, i) => d === null ? <div key={`e${i}`} /> : (() => { const l = byDay[d] || []; const isSel = d === sel; const isHoy = d === iso(hoy); const pend = l.filter(e => !e.done); return (

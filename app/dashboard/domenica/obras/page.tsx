@@ -57,7 +57,7 @@ export default function ObrasDomPage() {
                 {x.detenidas.length > 0 && <div className="mt-2 inline-flex rounded-full bg-[#7e3bdd] px-3 py-1.5 text-[12px] font-bold text-white">{x.detenidas.length} solicitud{x.detenidas.length === 1 ? "" : "es"} esperando +3 días</div>}
                 <div className="mt-3">
                   <div className="flex justify-between text-[11.5px]"><span className="text-[var(--d-muted)]">Gastado {fmtMoney(x.gastado)}</span><span className="text-[var(--d-text-2)] font-semibold">{x.presupuesto ? `${x.pctGasto}% de ${fmtMoney(x.presupuesto)}` : ""}</span></div>
-                  {!!x.presupuesto && <div className="mt-1 h-2 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${Math.min(100, x.pctGasto ?? 0)}%`, background: (x.pctGasto ?? 0) > 100 ? "#d0304a" : (x.pctGasto ?? 0) > 85 ? "#b85507" : "#1f8500" }} /></div>}
+                  {!!x.presupuesto && <div className="mt-1 h-2 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${Math.min(100, x.pctGasto ?? 0)}%`, background: (x.pctGasto ?? 0) > 100 ? "#d0304a" : (x.pctGasto ?? 0) > 85 ? "#b85507" : "#00953f" }} /></div>}
                 </div>
               </Link>); })}
             {filas.length === 0 && <div className="md:col-span-2 rounded-2xl border border-dashed border-[var(--d-border)] p-8 text-center text-sm text-[var(--d-muted)]">No hay obras con ese nombre.</div>}

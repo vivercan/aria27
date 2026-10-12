@@ -177,7 +177,7 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
             {fila({ k: "req", ico: IcoSaco, c: "#0073ea", t: "Requisición", d: "Material o servicio. Se cotiza y se paga", on: () => ir("/dashboard/requisiciones/requisiciones/nuevo?tipo=MATERIALES") })}
             {fila({ k: "tarea", ico: IcoTarea, c: "#b85507", t: "Tarea", d: "Encárgale algo a alguien", on: () => ir("/dashboard/actividades?nueva=1") })}
             {fila({ k: "pago", ico: IcoBillete, c: "#007a87", t: "Pago de servicio", d: "En efectivo. Va directo a pago", on: () => ir("/dashboard/requisiciones/requisiciones/nuevo?tipo=PAGO") })}
-            {fila({ k: "entrega", ico: IcoCamion, c: "#1f8500", t: "Registrar una entrega", d: "Llegó material: foto y quién recibió", on: () => ir("/dashboard/campo/evidencia") })}
+            {fila({ k: "entrega", ico: IcoCamion, c: "#00953f", t: "Registrar una entrega", d: "Llegó material: foto y quién recibió", on: () => ir("/dashboard/campo/evidencia") })}
           </div>); })()}
 
         {(fase === "lista" || fase === "grabando") && (
@@ -207,7 +207,7 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
             <ul className="space-y-2 max-h-[45vh] overflow-y-auto">
               {pends.map((p, i) => (
                 <li key={i} className={`flex items-start gap-3 rounded-2xl border border-[var(--d-border)] p-3 ${p.quitar ? "opacity-40" : ""}`}>
-                  <button type="button" onClick={() => setPends(x => x.map((y, k) => k === i ? { ...y, quitar: !y.quitar } : y))} aria-label={p.quitar ? "Volver a incluir" : "Quitar"} className={`mt-0.5 shrink-0 w-6 h-6 rounded-lg flex items-center justify-center ${p.quitar ? "border-2 border-[var(--d-border)]" : "bg-[#1f8500]"} sobre-verde`}>{!p.quitar && <Check className="w-4 h-4 text-white" strokeWidth={3} />}</button>
+                  <button type="button" onClick={() => setPends(x => x.map((y, k) => k === i ? { ...y, quitar: !y.quitar } : y))} aria-label={p.quitar ? "Volver a incluir" : "Quitar"} className={`mt-0.5 shrink-0 w-6 h-6 rounded-lg flex items-center justify-center ${p.quitar ? "border-2 border-[var(--d-border)]" : "bg-[#00953f]"} sobre-verde`}>{!p.quitar && <Check className="w-4 h-4 text-white" strokeWidth={3} />}</button>
                   <div className="flex-1 min-w-0">
                     <div className="text-[15px] font-semibold text-[var(--d-text)] leading-snug">{p.titulo}</div>
                     <div className="mt-1 flex flex-wrap gap-1.5 text-[12px] font-semibold">
@@ -219,7 +219,7 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
                 </li>))}
             </ul>
             {err && <div className="mt-3 rounded-xl bg-[#d0304a] px-3 py-2 text-sm font-semibold text-white">{err}</div>}
-            <button onClick={guardarPendientes} disabled={guardando || !pends.some(p => !p.quitar)} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1f8500] py-4 text-[16px] font-bold text-white disabled:opacity-50 sobre-verde">{guardando ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Guardar {pends.filter(p => !p.quitar).length} en mi agenda</button>
+            <button onClick={guardarPendientes} disabled={guardando || !pends.some(p => !p.quitar)} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#00953f] py-4 text-[16px] font-bold text-white disabled:opacity-50 sobre-verde">{guardando ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Guardar {pends.filter(p => !p.quitar).length} en mi agenda</button>
             <button onClick={() => { setFase("lista"); setTimeout(() => grabarRef.current?.(), 200); }} className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--d-card-2)] py-3 text-[14px] font-semibold text-[var(--d-text-2)]"><Mic className="w-4 h-4" />Agregar más por voz</button>
           </div>)}
 

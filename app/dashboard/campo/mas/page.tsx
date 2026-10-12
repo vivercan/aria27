@@ -18,14 +18,14 @@ type Item = { href: string; t: string; d: string; icon: Ico; color: string; role
 // 11-Oct-2026: sin carpetas ("N opciones"). Todo a la vista, de lo general (lo de todos los días) a lo particular.
 const SECCIONES: { titulo: string; items: Item[] }[] = [
   { titulo: "Lo de todos los días", items: [
-    { href: "/dashboard/campo/autorizar", t: "Autorizar", d: "Lo que espera tu visto bueno", icon: IcoSello, color: "#1f8500", roles: ["admin", "direccion", "validador", "residente"] },
+    { href: "/dashboard/campo/autorizar", t: "Autorizar", d: "Lo que espera tu visto bueno", icon: IcoSello, color: "#00953f", roles: ["admin", "direccion", "validador", "residente"] },
     { href: "/dashboard/campo/calendario", t: "Calendario", d: "Qué hay cada día: entregas y pendientes", icon: IcoCalendario, color: "#b85507" },
     { href: "/dashboard/campo/evidencia", t: "Registrar una entrega", d: "Llegó material: foto y quién recibió", icon: IcoCamion, color: "#0077ad" },
     { href: "/dashboard/campo/pregunta", t: "Pregúntale a Doménica", d: "“¿Qué está atrasado?”", icon: IcoPregunta, color: "#7e3bdd" },
   ] },
   { titulo: "Mis obras", items: [
     { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gastos y bitácora del día", icon: IcoObra, color: "#c9410f" },
-    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Revisar calidad y seguridad con foto y firma", icon: IcoRevision, color: "#1f8500" },
+    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Revisar calidad y seguridad con foto y firma", icon: IcoRevision, color: "#00953f" },
     { href: "/dashboard/domenica/planos", t: "Planos", d: "Ver planos y marcar pendientes", icon: IcoPlano, color: "#0073ea" },
     { href: "/dashboard/obras/catalogo", t: "Lista de obras", d: "Datos y ubicación de cada obra", icon: IcoCasco, color: "#c2461a" },
   ] },
@@ -41,7 +41,7 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
   { titulo: "Para organizar el trabajo", items: [
     { href: "/dashboard/domenica/plantillas", t: "Listas de pasos", d: "Ej. arranque de obra: crea todas las tareas de un jalón", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
     { href: "/dashboard/domenica/recurrentes", t: "Lo que se repite", d: "Tareas que se crean solas cada semana o mes", icon: Repeat as unknown as Ico, color: "#0073ea" },
-    { href: "/dashboard/domenica/carga", t: "Quién está muy cargado", d: "Antes de encargar, ve quién tiene menos", icon: BarChart3 as unknown as Ico, color: "#1f8500", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+    { href: "/dashboard/domenica/carga", t: "Quién está muy cargado", d: "Antes de encargar, ve quién tiene menos", icon: BarChart3 as unknown as Ico, color: "#00953f", roles: ["admin", "rh", "direccion", "validador", "compras"] },
     { href: "/dashboard/domenica/automatizaciones", t: "Avisos automáticos", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#b85507", roles: ["admin", "rh", "direccion", "validador", "compras"] },
     { href: "/dashboard/domenica", t: "Todas las herramientas", d: "Línea de tiempo, qué va primero y más", icon: IcoOrganizar, color: "#55657c" },
   ] },

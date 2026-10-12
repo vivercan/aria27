@@ -97,7 +97,7 @@ export default function CampoHome() {
       const a = accionPara(r, me.role, me.email);
       const boton = a === "AUTORIZAR_RESPONSABLE" ? "Autorizar" : a === "COTIZAR" ? "Cotizar" : a === "APROBAR_DIRECCION" ? "Aprobar" : a === "PAGAR" ? "Pagar" : "Ver";
       const autoriza = a === "AUTORIZAR_RESPONSABLE" || a === "APROBAR_DIRECCION";
-      out.push({ obra: r.cost_center_name, key: "r" + r.id, href: autoriza ? "/dashboard/campo/autorizar" : `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, titulo: `${r.folio} · ${r.cost_center_name || ""}`, sub: statusLabel(r.status) + (r.proveedor ? ` · ${r.proveedor}` : ""), boton, color: autoriza ? "#1f8500" : "#b85507", icon: "req", urg: 2 });
+      out.push({ obra: r.cost_center_name, key: "r" + r.id, href: autoriza ? "/dashboard/campo/autorizar" : `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, titulo: `${r.folio} · ${r.cost_center_name || ""}`, sub: statusLabel(r.status) + (r.proveedor ? ` · ${r.proveedor}` : ""), boton, color: autoriza ? "#00953f" : "#b85507", icon: "req", urg: 2 });
     }
     for (const a of acts) {
       const d = diasAtraso(a); const h = venceHoy(a); const col = columnaDe(a); const rg = enRiesgo(a, hoyIso);
@@ -131,7 +131,7 @@ export default function CampoHome() {
 
         {/* Estás en una obra (geocerca): lo de esa obra primero */}
         {aqui && (
-          <div className="dom-in mt-3 flex items-center gap-3 rounded-2xl px-3.5 py-3 bg-[#1f8500]">
+          <div className="dom-in mt-3 flex items-center gap-3 rounded-2xl px-3.5 py-3 bg-[#00953f]">
             <MapPin className="w-6 h-6 text-white shrink-0" />
             <div className="flex-1 min-w-0 text-white"><div className="text-[13px] font-semibold text-white/90">Estás en</div><div className="text-[16px] font-bold truncate">{aqui.nombre}</div></div>
             <Link href={`/dashboard/domenica/obras/${aqui.id}`} className="shrink-0 rounded-xl bg-white px-4 py-2.5 text-[15px] font-bold text-[#1f7a00]">Ver obra</Link>
@@ -143,7 +143,7 @@ export default function CampoHome() {
           <h2 className="mb-2 text-[15px] font-bold text-[var(--d-text)]">Lo que te toca ahora</h2>
           {loading ? <Esqueleto filas={1} alto={132} /> : items.length === 0 ? (
             <div className="dom-card rounded-3xl px-4 py-4 flex items-center gap-3">
-              <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#1f8500] flex items-center justify-center"><svg viewBox="0 0 24 24" className="w-7 h-7"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+              <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#00953f] flex items-center justify-center"><svg viewBox="0 0 24 24" className="w-7 h-7"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
               <div className="flex-1 min-w-0"><div className="text-[18px] font-bold text-[var(--d-text)]">¡Todo al día!</div><div className="text-[15px] text-[var(--d-muted)]">{enCurso ? `No te toca nada. Tienes ${enCurso} solicitud${enCurso === 1 ? "" : "es"} en camino.` : "No te toca nada por ahora."}</div></div>
             </div>
           ) : (() => { const it = items[0]; return (
@@ -154,7 +154,7 @@ export default function CampoHome() {
               </div>
               <div className="relative mt-3 flex items-center justify-between gap-2">
                 <span className="text-[14px] text-[var(--d-muted)]">{items.length > 1 ? `Después: ${items.length - 1} más` : "Es lo único pendiente"}</span>
-                <span className="rounded-2xl px-5 py-3 text-[17px] font-bold" style={{ background: it.color === "#1f8500" ? "#1f8500" : it.color, color: "#fff" }}>{it.boton} →</span>
+                <span className="rounded-2xl px-5 py-3 text-[17px] font-bold" style={{ background: it.color === "#00953f" ? "#00953f" : it.color, color: "#fff" }}>{it.boton} →</span>
               </div>
             </Link>); })()}
         </section>
@@ -171,7 +171,7 @@ export default function CampoHome() {
                     <div className="text-[16px] font-semibold text-[var(--d-text)] truncate">{it.titulo}</div>
                     <div className="text-[14px] text-[var(--d-muted)] truncate">{it.sub}</div>
                   </div>
-                  <span className="shrink-0 rounded-xl px-3 py-2 text-[14px] font-bold text-white" style={{ background: it.color === "#1f8500" ? "#1f8500" : it.color }}>{it.boton}</span>
+                  <span className="shrink-0 rounded-xl px-3 py-2 text-[14px] font-bold text-white" style={{ background: it.color === "#00953f" ? "#00953f" : it.color }}>{it.boton}</span>
                 </Link>
               </li>
               ))}
@@ -195,9 +195,9 @@ export default function CampoHome() {
           </div>
           <Link href="/dashboard/requisiciones/requisiciones/nuevo?tipo=PAGO" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#007a87] px-4 py-3.5 text-white active:scale-[0.99] transition">
             <IcoBillete className="w-8 h-8 shrink-0" color="#fff" fondo="#007a87" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Pago de servicio</span><span className="block text-[13.5px] text-white/90">En efectivo. Va directo a pago</span></span></Link>
-          <Link href="/dashboard/campo/evidencia" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#1f8500] px-4 py-3.5 text-white active:scale-[0.99] transition">
-            <IcoCamion className="w-8 h-8 shrink-0" color="#fff" fondo="#1f8500" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Registrar una entrega{porEntregar.length ? ` (${porEntregar.length})` : ""}</span><span className="block text-[13.5px] text-white/90">Llegó material: foto y quién recibió</span></span></Link>
-          {porAutorizar > 0 && <Link href="/dashboard/campo/autorizar" className="mt-2 flex items-center gap-3 rounded-2xl dom-card px-4 py-3.5 active:scale-[0.99] transition"><Ficha ico={IcoSello} color="#1f8500" /><span className="flex-1 text-[16px] font-bold text-[var(--d-text)]">Autorizar ({porAutorizar})</span><ChevronRight className="w-5 h-5 text-[var(--d-faint)]" /></Link>}
+          <Link href="/dashboard/campo/evidencia" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#00953f] px-4 py-3.5 text-white active:scale-[0.99] transition">
+            <IcoCamion className="w-8 h-8 shrink-0" color="#fff" fondo="#00953f" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Registrar una entrega{porEntregar.length ? ` (${porEntregar.length})` : ""}</span><span className="block text-[13.5px] text-white/90">Llegó material: foto y quién recibió</span></span></Link>
+          {porAutorizar > 0 && <Link href="/dashboard/campo/autorizar" className="mt-2 flex items-center gap-3 rounded-2xl dom-card px-4 py-3.5 active:scale-[0.99] transition"><Ficha ico={IcoSello} color="#00953f" /><span className="flex-1 text-[16px] font-bold text-[var(--d-text)]">Autorizar ({porAutorizar})</span><ChevronRight className="w-5 h-5 text-[var(--d-faint)]" /></Link>}
           <p className="mt-3 text-center text-[14px] text-[var(--d-muted)]">Obras, calendario, equipo y ajustes están en <b className="text-[var(--d-text)]">Más</b>, abajo a la derecha.</p>
         </section>
 
