@@ -16,5 +16,6 @@ describe("una sola regla de acceso para Doménica y ARIA27", () => {
     expect(rutaPermitida("/dashboard/campo/autorizar", "residente", perms)).toBe(true);
   });
   it("sin rol conocido todavía, no esconde nada", () => expect(rutaPermitida("/dashboard/finanzas", "", {})).toBe(true));
+  it("si la pantalla redirige, se revisa el destino", () => expect(rutaPermitida("/dashboard/administracion/siroc", "usuario", { administracion: ["*"] })).toBe(false));
   it("rutas sin regla quedan abiertas", () => expect(rutaPermitida("/dashboard/actividades", "residente", perms)).toBe(true));
 });

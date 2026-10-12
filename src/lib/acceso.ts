@@ -29,6 +29,9 @@ export const ROLES_RUTA: [string, string[]][] = [
   ["/dashboard/requisiciones/productos", ["admin", "compras", "direccion", "rh"]],
 ];
 
+/** Pantallas que solo redirigen a otra: se revisa el destino */
+const REDIRIGE: Record<string, string> = { "/dashboard/administracion/siroc": "/dashboard/obras/siroc" };
+
 const esAdmin = (r: string) => r === "admin" || r === "Administrador";
 
 /** Solo la regla de rol de Doménica (lo que el guardián de módulo no cubre) */
@@ -43,7 +46,8 @@ export function rolPermiteRuta(path: string, role: string): boolean {
 export function rutaPermitida(href: string, role: string, perms: UserPermissions): boolean {
   if (!href || !href.startsWith("/dashboard")) return true;
   if (!role) return true; // aún no sabemos quién es: no esconder nada
-  const p = href.split("?")[0].split("#")[0];
+  let p = href.split("?")[0].split("#")[0];
+  p = REDIRIGE[p] || p;
   const seg = p.split("/").filter(Boolean); // ["dashboard", mod, sub?]
   const mod = seg[1];
   if (mod && MODULO[mod]) {
