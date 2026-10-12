@@ -532,7 +532,7 @@ export default function RequisicionesStatusPage() {
             {listaMovil.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({listaMovil.length - nMovil})</button>}
             {listaMovil.length === 0 && (qMovil ? <Vacio dibujo="buscar" titulo="No encontramos nada" texto={`Nada coincide con “${qMovil}”.`} accion={{ label: "Borrar búsqueda", onClick: () => setQMovil("") }} />
               : tabActiva === "toca" ? <Vacio dibujo="listo" titulo="Nada te toca" texto="Cuando algo necesite tu autorización o pago, aparece aquí." />
-              : <Vacio dibujo="caja" titulo="Aún no pides nada" texto="Usa el botón + de abajo para pedir material." />)}
+              : <Vacio dibujo="caja" titulo="Aún no pides nada" texto="Toca el botón azul + Nuevo de abajo y elige Pedir material." />)}
           </div>
         </div>
         <div className="hidden md:flex rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] overflow-hidden flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>
