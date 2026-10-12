@@ -44,8 +44,8 @@ export default function Guia() {
   const cerrar = () => { setAbierta(false); try { localStorage.setItem(CLAVE, "1"); } catch { /* */ } };
   const p = PASOS[i]; const ultimo = i === PASOS.length - 1;
   return (
-    <div role="dialog" aria-modal="true" aria-label="Cómo se usa Doménica" className="fixed inset-0 z-[95] flex items-end justify-center bg-black/55" onClick={cerrar}>
-      <div onClick={e => e.stopPropagation()} className="dom-in w-full max-w-md rounded-t-[28px] bg-[var(--d-surface)] px-5 pt-5" style={{ paddingBottom: "calc(max(env(safe-area-inset-bottom), 18px) + 76px)" }}>
+    <div role="dialog" aria-modal="true" aria-label="Cómo se usa Doménica" className="aria-sheet fixed inset-0 z-[95] flex items-end justify-center bg-black/55" onClick={cerrar}>
+      <div onClick={e => e.stopPropagation()} className="dom-in w-full max-w-md rounded-t-[28px] bg-[var(--d-surface)] px-5 pt-5" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 18px)" }}>
         <div className="flex items-center justify-between">
           <div className="flex gap-1.5" aria-label={`Paso ${i + 1} de ${PASOS.length}`}>{PASOS.map((_, k) => <span key={k} className={`h-2 rounded-full transition-all ${k === i ? "w-6 bg-[#0073ea]" : "w-2 bg-[var(--d-border)]"}`} />)}</div>
           <button type="button" onClick={cerrar} className="h-11 px-3 text-[15px] font-semibold text-[var(--d-muted)]">Saltar</button>
