@@ -254,7 +254,8 @@ export default function ActividadesPage() {
     const col = columnaDe(a); const cl = chkDe(a.id); const hechos = cl.filter(c => c.hecho).length; const nUpd = updCount[a.id] || 0;
     const prio = PRIORIDADES.find(p => p.id === prioridadDe(a.prioridad));
     return (
-      <button key={a.id} data-card type="button" draggable={vista === "tablero"} onDragStart={() => setDragId(a.id)} onDragEnd={() => setDragId(null)} onClick={() => { if (suprimirClick.current) { suprimirClick.current = false; return; } setAbierta(a.id); }}
+      // 12-Oct · auditoría: la tarjeta ya no es <button> (tenía otro botón adentro: el círculo de terminar); se abre con clic, Enter o Espacio
+      <div key={a.id} data-card role="group" tabIndex={0} aria-label={`Abrir actividad ${a.folio ? numeroCorto(a.folio) + " " : ""}${a.titulo}`} draggable={vista === "tablero"} onDragStart={() => setDragId(a.id)} onDragEnd={() => setDragId(null)} onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) { e.preventDefault(); setAbierta(a.id); } }} onClick={() => { if (suprimirClick.current) { suprimirClick.current = false; return; } setAbierta(a.id); }}
         className={`group w-full text-left rounded-xl border border-[var(--d-border)] bg-[var(--d-surface)] hover:bg-[var(--d-surface)] hover:border-[var(--d-border)] active:scale-[0.99] transition shadow-[var(--d-shadow)] overflow-hidden ${dragId === a.id ? "opacity-40" : ""}`}>
         <div className="flex">
           <span className="w-1 shrink-0" style={{ background: COLUMNAS.find(c => c.id === col)!.color }} />
@@ -264,7 +265,7 @@ export default function ActividadesPage() {
                 onClick={e => { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); }}
                 onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); } }}
                 className="-m-2 p-2 shrink-0 inline-flex">
-                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#00953f] border-[#00953f] text-white" : "border-[var(--d-faint)] hover:border-[#00953f] hover:bg-[#00953f]/15"} sobre-verde`}>
+                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#00873f] border-[#00873f] text-white" : "border-[var(--d-faint)] hover:border-[#00873f] hover:bg-[#00873f]/15"} sobre-verde`}>
                   {col === "TERMINADA" ? <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 dom-pop" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg> : null}
                 </span>
               </span>
@@ -289,7 +290,7 @@ export default function ActividadesPage() {
             </div>
           </div>
         </div>
-      </button>
+      </div>
     );
   };
 
@@ -311,7 +312,7 @@ export default function ActividadesPage() {
       }}
       onPointerCancel={() => { const sw = swipe.current; swipe.current = null; if (sw?.el) { sw.el.style.transition = "transform .22s ease"; sw.el.style.transform = "translateX(0)"; } }}>
       <div data-fondo className="absolute inset-0 flex items-center justify-between px-4 text-sm font-bold opacity-0">
-        <span className="text-white bg-[#00953f] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4 sobre-verde">Terminar</span>
+        <span className="text-white bg-[#00873f] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4 sobre-verde">Terminar</span>
         <span className="text-white bg-[#d0304a] absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-4">Atorada</span>
       </div>
       <div className="relative">{tarjeta(a)}</div>
@@ -397,10 +398,15 @@ export default function ActividadesPage() {
     </button>
   );
 
+  // 12-Oct · auditoría: los chips de arriba antes no hacían nada visible; ahora llevan al grupo
+  const irAGrupo = (id: string | null, v: "mi" | "tablero") => {
+    setVista(v); if (id) setColapsados(c => ({ ...c, [id]: false }));
+    setTimeout(() => { try { document.getElementById(id ? `grupo-${id}` : "tablero-col")?.scrollIntoView({ behavior: "smooth", block: "start" }); } catch { /* */ } }, 120);
+  };
   const grupo = (id: string, titulo: string, color: string, list: Actividad[]) => {
     if (list.length === 0) return null; const col = !!colapsados[id];
     return (
-      <section key={id} className="mb-4">
+      <section key={id} id={`grupo-${id}`} className="mb-4 scroll-mt-24">
         <button onClick={() => setColapsados(c => ({ ...c, [id]: !c[id] }))} className="flex items-center gap-2 mb-2 w-full text-left">
           {col ? <ChevronRight className="w-4 h-4" style={{ color }} /> : <ChevronDown className="w-4 h-4" style={{ color }} />}
           <span className="text-sm font-bold" style={{ color }}>{titulo}</span><span className="text-xs text-[var(--d-muted)]">{list.length}</span>
@@ -427,14 +433,14 @@ export default function ActividadesPage() {
         {/* KPIs */}
         {/* Celular: solo lo que urge, en chips de color sólido (si es 0 no aparece) */}
         <div className="md:hidden mt-3 flex flex-wrap gap-1.5">
-          {([["Atrasadas", kpi.atrasadas, "#d0304a"], ["Atoradas", kpi.atoradas, "#c2410c"], ["Vencen hoy", kpi.hoy, "#b85507"], ["En proceso", kpi.enProceso, "#0073ea"]] as const).filter(([, n]) => n > 0).map(([l, n, c]) => (
-            <button key={l} onClick={() => setVista("mi")} className="rounded-full px-3 py-1.5 text-[12.5px] font-bold text-white" style={{ background: c }}>{n} {l.toLowerCase()}</button>))}
+          {([["Atrasadas", kpi.atrasadas, "#d0304a", "atr", "mi"], ["Atoradas", kpi.atoradas, "#c2410c", null, "tablero"], ["Vencen hoy", kpi.hoy, "#b85507", "hoy", "mi"], ["En proceso", kpi.enProceso, "#0073ea", null, "tablero"]] as const).filter(([, n]) => n > 0).map(([l, n, c, g, v]) => (
+            <button key={l} onClick={() => irAGrupo(g, v)} className="rounded-full px-3 py-1.5 text-[12.5px] font-bold text-white" style={{ background: c }}>{n} {l.toLowerCase()}</button>))}
         </div>
         <div className="hidden md:flex mt-4 gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                     {kpiBtn("En proceso", kpi.enProceso, "#fdab3d", () => setVista("tablero"))}
           {kpiBtn("Atoradas", kpi.atoradas, "#d0304a", () => setVista("tablero"))}
-          {kpiBtn("Atrasadas", kpi.atrasadas, "#c9410f", () => setVista("mi"))}
-          {kpiBtn("Vencen hoy", kpi.hoy, "#ffcb00", () => setVista("mi"))}
+          {kpiBtn("Atrasadas", kpi.atrasadas, "#c9410f", () => irAGrupo("atr", "mi"))}
+          {kpiBtn("Vencen hoy", kpi.hoy, "#ffcb00", () => irAGrupo("hoy", "mi"))}
           {kpiBtn("En riesgo", visibles.filter(x => enRiesgo(x, ymd(new Date()))).length, "#fdab3d", () => setVista("mi"))}
         </div>
 
@@ -460,8 +466,8 @@ export default function ActividadesPage() {
             <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar actividad, número, obra o persona" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] pl-9 pr-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           </div>
           {q.trim() && <div className="w-full"><FolioCruzado q={q} /></div>}
-          <select value={fObra} onChange={e => setFObra(e.target.value)} className="rounded-xl px-3 py-2 text-sm max-w-[170px]"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select>
-          {esSuper && <select value={fPersona} onChange={e => setFPersona(e.target.value)} className="rounded-xl px-3 py-2 text-sm max-w-[170px]"><option value="">Todas las personas</option>{emps.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}</select>}
+          <select aria-label="Filtrar por obra" value={fObra} onChange={e => setFObra(e.target.value)} className="rounded-xl px-3 py-2 text-sm max-w-[170px]"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select>
+          {esSuper && <select aria-label="Filtrar por persona" value={fPersona} onChange={e => setFPersona(e.target.value)} className="rounded-xl px-3 py-2 text-sm max-w-[170px]"><option value="">Todas las personas</option>{emps.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}</select>}
           </div>
         </div>
 
@@ -548,7 +554,7 @@ export default function ActividadesPage() {
 
       {nueva && me && <Nueva emps={emps} obras={obras} miEmp={miEmp} carga={carga} onClose={() => setNueva(false)} onCreated={async (id, notif) => { setNueva(false); await cargar(); setAbierta(id); flash("ok", notif ? "Creada y avisada por WhatsApp" : "Actividad creada"); }} flash={flash} />}
 
-      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#00953f] text-white" : "bg-[#d0304a] text-white"} sobre-verde`}>{toast.m}</div>}
+      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#00873f] text-white" : "bg-[#d0304a] text-white"} sobre-verde`}>{toast.m}</div>}
     </div>
   );
 }
@@ -692,13 +698,13 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
               ) : (
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <button type="button" onClick={() => setRegresando(true)} className="h-12 rounded-xl border-2 border-[#d0304a] text-[15px] font-bold text-[var(--d-danger)]">Regresar</button>
-                  <button type="button" onClick={async () => { try { await api(`/api/actividades/${a.id}/aprobar`, "POST", { accion: "aprobar" }); flash("ok", "Aprobada. Le avisamos por WhatsApp"); onUpd(); try { window.dispatchEvent(new Event("dom:revisar")); } catch { /* */ } } catch (e) { flash("err", (e as Error).message); } }} className="h-12 rounded-xl bg-[#00953f] text-[15px] font-bold text-white">Aprobar</button>
+                  <button type="button" onClick={async () => { try { await api(`/api/actividades/${a.id}/aprobar`, "POST", { accion: "aprobar" }); flash("ok", "Aprobada. Le avisamos por WhatsApp"); onUpd(); try { window.dispatchEvent(new Event("dom:revisar")); } catch { /* */ } } catch (e) { flash("err", (e as Error).message); } }} className="h-12 rounded-xl bg-[#00873f] text-[15px] font-bold text-white">Aprobar</button>
                 </div>
               )}
             </div>
           )}
           {a.por_aprobar && !(laAsigneYo(a, me.email) || esSuper) && <div className="rounded-xl bg-[#b85507]/10 px-3 py-2 text-[14px] font-semibold text-[var(--d-text)]">Terminada · esperando el visto bueno de quien la encargó</div>}
-          {!a.por_aprobar && a.aprobada_at && <div className="rounded-xl bg-[#00953f]/10 px-3 py-2 text-[14px] font-semibold text-[var(--d-ok)]">Aprobada{a.aprobada_por === "automatico" ? " sola (nadie contestó en 3 días)" : ""}</div>}
+          {!a.por_aprobar && a.aprobada_at && <div className="rounded-xl bg-[#00873f]/10 px-3 py-2 text-[14px] font-semibold text-[var(--d-ok)]">Aprobada{a.aprobada_por === "automatico" ? " sola (nadie contestó en 3 días)" : ""}</div>}
 
           {/* Avance */}
           <div>
@@ -706,7 +712,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
             <input type="range" min={0} max={100} step={5} value={avance} disabled={!puedeEditar} onChange={e => setAvance(Number(e.target.value))} onMouseUp={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }} onTouchEnd={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }}
               className="rango w-full" style={{ ["--p" as string]: `${avance}%` } as React.CSSProperties} />
             <div className="mt-2 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => (
-              <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#00953f] text-white" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"} sobre-verde`}>{p}%</button>))}</div>
+              <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#00873f] text-white" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"} sobre-verde`}>{p}%</button>))}</div>
           </div>
 
           </div>
@@ -745,7 +751,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
           {/* Checklist */}
           <div>
             <div className="flex items-center justify-between mb-2"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Pasos</span>{checklist.length > 0 && <span className="text-xs text-[var(--d-text-2)]">{hechos} de {checklist.length}</span>}</div>
-            {checklist.length > 0 && <div className="mb-2 h-1.5 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full bg-[#00953f] transition-all" style={{ width: `${(hechos / checklist.length) * 100}%` }} /></div>}
+            {checklist.length > 0 && <div className="mb-2 h-1.5 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full bg-[#00873f] transition-all" style={{ width: `${(hechos / checklist.length) * 100}%` }} /></div>}
             <div className="space-y-1">{checklist.map(c => (
               <div key={c.id} className="group flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-[var(--d-hover)]">
                 <button onClick={() => toggleChk(c)} className="shrink-0" aria-label={c.hecho ? "Desmarcar" : "Marcar"}>{c.hecho ? <CheckSquare className="w-5 h-5 text-[#1f8f00]" /> : <Square className="w-5 h-5 text-[var(--d-muted)]" />}</button>
@@ -792,7 +798,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
 
         <div className="px-5 py-3 border-t border-[var(--d-border)] flex items-center gap-2" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
           {puedeBorrar && <button onClick={borrar} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-[var(--d-danger)] hover:bg-[#d0304a]/10"><Trash2 className="w-4 h-4" />Borrar</button>}
-          {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#00953f] px-5 py-2.5 text-sm font-bold text-white active:scale-95 sobre-verde"><svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>Terminada</button>}
+          {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#00873f] px-5 py-2.5 text-sm font-bold text-white active:scale-95 sobre-verde"><svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>Terminada</button>}
         </div>
       </div>
     </div>

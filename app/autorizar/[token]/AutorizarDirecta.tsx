@@ -35,7 +35,7 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
     <div className="min-h-screen bg-[#f6f7fa] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
       <header className="bg-white relative">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center gap-3">
-          <span className="w-10 h-10 rounded-xl bg-[#00953f] flex items-center justify-center"><IcoSello className="w-6 h-6" color="#fff" fondo="#00953f" /></span>
+          <span className="w-10 h-10 rounded-xl bg-[#00873f] flex items-center justify-center"><IcoSello className="w-6 h-6" color="#fff" fondo="#00873f" /></span>
           <div><div className="font-bold leading-tight">Autorizar solicitud</div><div className="text-[12px] text-slate-500">Grupo Constructor Urbano Avante</div></div>
         </div>
       </header>
@@ -43,7 +43,7 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
       <main className="max-w-xl mx-auto px-4 py-5">
         {paso === "listo" ? (
           <div className="rounded-3xl bg-white p-8 text-center shadow-sm">
-            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center text-white text-3xl font-bold ${final === "APROBADA" ? "bg-[#00953f]" : "bg-[#d0304a]"} sobre-verde`}>{final === "APROBADA" ? "✓" : "✕"}</div>
+            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center text-white text-3xl font-bold ${final === "APROBADA" ? "bg-[#00873f]" : "bg-[#d0304a]"} sobre-verde`}>{final === "APROBADA" ? "✓" : "✕"}</div>
             <h1 className="mt-4 text-2xl font-bold">{final === "APROBADA" ? "Autorizada" : "Rechazada"}</h1>
             <p className="mt-1 text-slate-600">{d.folio} · {d.obra}. Ya le avisamos a {d.quien || "quien la pidió"}{final === "APROBADA" && d.efectivo ? " y a Administración para el pago" : ""}.</p>
           </div>
@@ -63,7 +63,7 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
             )}
             <div className="mt-4 flex items-end justify-between gap-3">
               <div><div className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Total</div><div className="text-[30px] font-bold leading-none">{$(d.total)}</div></div>
-              <div className="text-right text-[12.5px] text-slate-600">{d.efectivo && <span className="inline-block mb-1 rounded-md bg-[#00953f] px-2 py-0.5 text-[11px] font-bold text-white sobre-verde">EFECTIVO</span>}<div>{d.proveedor || ""}</div>{d.banco && <div className="text-slate-400">{d.banco}</div>}</div>
+              <div className="text-right text-[12.5px] text-slate-600">{d.efectivo && <span className="inline-block mb-1 rounded-md bg-[#00873f] px-2 py-0.5 text-[11px] font-bold text-white sobre-verde">EFECTIVO</span>}<div>{d.proveedor || ""}</div>{d.banco && <div className="text-slate-400">{d.banco}</div>}</div>
             </div>
           </div>
 
@@ -83,7 +83,7 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
               {err && <div className="mb-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{err}</div>}
               <div className="grid grid-cols-[1fr_2fr] gap-2">
                 <button onClick={() => setPaso("rechazar")} className="rounded-2xl border-2 border-[#d0304a] bg-white py-4 text-[16px] font-bold text-[#d0304a]">Rechazar</button>
-                <button disabled={busy} onClick={() => paso === "confirmar" ? enviar("AUTORIZAR") : setPaso("confirmar")} className={`rounded-2xl py-4 text-[16px] font-bold text-white ${paso === "confirmar" ? "bg-[#2fb800]" : "bg-[#00953f]"} sobre-verde`}>{busy ? "Autorizando…" : paso === "confirmar" ? `Confirmar ${$(d.total)}` : "Autorizar"}</button>
+                <button disabled={busy} onClick={() => paso === "confirmar" ? enviar("AUTORIZAR") : setPaso("confirmar")} className={`rounded-2xl py-4 text-[16px] font-bold text-white ${paso === "confirmar" ? "bg-[#2fb800]" : "bg-[#00873f]"} sobre-verde`}>{busy ? "Autorizando…" : paso === "confirmar" ? `Confirmar ${$(d.total)}` : "Autorizar"}</button>
               </div>
               {paso === "confirmar" && <p className="mt-2 text-center text-[13px] text-slate-500">Toca otra vez para confirmar.</p>}
             </div>

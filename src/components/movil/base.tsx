@@ -40,7 +40,7 @@ export function Contacto({ tel }: { tel?: string | null }) {
   return (
     <span className="flex gap-1.5 shrink-0">
       <a href={`tel:+${mx}`} onClick={e => e.stopPropagation()} aria-label="Llamar" className="w-10 h-10 rounded-xl bg-[#0073ea] flex items-center justify-center"><Phone className="w-[18px] h-[18px] text-white" /></a>
-      <a href={`https://wa.me/${mx}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} aria-label="WhatsApp" className="w-10 h-10 rounded-xl bg-[#00953f] flex items-center justify-center"><MessageCircle className="w-[18px] h-[18px] text-white" /></a>
+      <a href={`https://wa.me/${mx}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} aria-label="WhatsApp" className="w-10 h-10 rounded-xl bg-[#00873f] flex items-center justify-center"><MessageCircle className="w-[18px] h-[18px] text-white" /></a>
     </span>
   );
 }

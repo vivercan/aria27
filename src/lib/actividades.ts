@@ -43,7 +43,7 @@ export const COLUMNAS: { id: ColumnaId; label: string; color: string; soft: stri
   { id: "POR_HACER", label: "Por hacer", color: "#0073ea", soft: "rgba(87,155,252,0.14)", text: "var(--d-link)" },
   { id: "EN_PROCESO", label: "En proceso", color: "#b85507", soft: "rgba(253,171,61,0.14)", text: "var(--d-warn)" },
   { id: "BLOQUEADA", label: "Atorada", color: "#d0304a", soft: "rgba(226,68,92,0.14)", text: "var(--d-danger)" },
-  { id: "TERMINADA", label: "Terminada", color: "#3cde01", soft: "rgba(60,222,1,0.14)", text: "var(--d-ok)" },
+  { id: "TERMINADA", label: "Terminada", color: "#00873f", soft: "rgba(0,135,63,0.12)", text: "var(--d-ok)" },
 ];
 
 export const PRIORIDADES: { id: string; label: string; color: string }[] = [

@@ -94,7 +94,7 @@ function Usar({ p, emps, obras, miEmp, obraInicial, onClose, flash }: { p: Plant
   if (hecho) return (
     <Hoja titulo="¡Listo!" onClose={onClose}>
       <div className="py-6 text-center">
-        <div className="mx-auto w-16 h-16 rounded-[20px] bg-[#00953f] flex items-center justify-center"><svg viewBox="0 0 24 24" className="w-9 h-9" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></div>
+        <div className="mx-auto w-16 h-16 rounded-[20px] bg-[#00873f] flex items-center justify-center"><svg viewBox="0 0 24 24" className="w-9 h-9" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></div>
         <div className="mt-3 text-lg font-bold text-[var(--d-text)]">Se crearon {hecho.creadas} actividades</div>
         <div className="text-sm text-[var(--d-muted)]">{hecho.avisados ? `Avisamos por WhatsApp a ${hecho.avisados} persona${hecho.avisados === 1 ? "" : "s"}.` : "Cada responsable las ve en su Mi trabajo."}</div>
         <div className="mt-5 flex flex-col sm:flex-row gap-2 justify-center">

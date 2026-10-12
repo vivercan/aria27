@@ -460,6 +460,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       {/* ─── Sidebar ─── */}
       <aside
         aria-label="Menú principal"
+        inert={esMovil && !mobileOpen ? true : undefined}
         className={`fixed left-0 top-0 h-full w-[220px] flex flex-col z-40 transition-transform duration-200 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         style={{
           backgroundColor: sidebarBg,
@@ -591,7 +592,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                         fontWeight: 700,
                         letterSpacing: "0.14em",
                         textTransform: "uppercase",
-                        color: isDark ? "rgba(148,190,245,0.38)" : "#94a3b8",
+                        color: isDark ? "rgba(148,190,245,0.72)" : "#64748b",
                         flexShrink: 0,
                       }}>
                         Admin
@@ -803,7 +804,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             {/* Current module indicator — desktop only */}
             {currentModule && (
               <span
-                className="hidden md:block text-[13px] font-semibold"
+                className="hdr-modulo hidden md:block text-[13px] font-semibold"
                 style={{
                   color: isDark ? "rgba(210,230,255,0.80)" : "#1e293b",
                   letterSpacing: "-0.01em",
@@ -823,15 +824,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
               {/* Date + Avatar — grouped pill container */}
               <div
-                className="hidden md:flex items-center gap-2.5 px-3 rounded-xl"
+                className="hdr-pildora hidden md:flex items-center gap-2.5 px-3 rounded-xl"
                 style={{
                   height: "34px",
                   background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
                   border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
                 }}
               >
-                <div suppressHydrationWarning style={{fontSize:11,fontWeight:600,whiteSpace:"nowrap",color:isDark?"rgba(195,220,255,0.75)":"#475569",letterSpacing:"0.02em",textTransform:"capitalize"}}>
-                  {new Date().toLocaleDateString("es-MX",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}
+                <div className="hdr-fecha" suppressHydrationWarning style={{fontSize:11,fontWeight:600,whiteSpace:"nowrap",color:isDark?"rgba(195,220,255,0.75)":"#475569",letterSpacing:"0.02em"}}>
+                  {(() => { const d = new Date(); const w = d.toLocaleDateString("es-MX", { weekday: "short" }).replace(".", ""); return `${w.charAt(0).toUpperCase()}${w.slice(1)} ${d.getDate()} ${d.toLocaleDateString("es-MX", { month: "short" }).replace(".", "")} ${d.getFullYear()}`; })()}
                 </div>
                 
               </div>

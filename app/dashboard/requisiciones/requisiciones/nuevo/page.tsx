@@ -621,18 +621,18 @@ export default function NewRequisitionPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]"><span className="md:hidden">Obra</span><span className="hidden md:inline">Obra / Centro</span></label>
-              <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={selectedCostCenterId??""} onChange={e => setSelectedCostCenterId(e.target.value||null)}>
+              <select aria-label="Obra" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={selectedCostCenterId??""} onChange={e => setSelectedCostCenterId(e.target.value||null)}>
                 <option value="">Seleccione...</option>
                 {costCenters.map((c,i) => <option key={c.id} value={c.id}>{i+1}. {c.name}</option>)}
               </select>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]"><span className="md:hidden">¿Para cuándo lo necesitas?</span><span className="hidden md:inline">Fecha Requerida *</span></label>
-              <input type="date" required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
+              <input aria-label="¿Para cuándo lo necesitas?" type="date" required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
             </div>
             {tipoSolicitud !== "DESTAJO" && <div className={`space-y-1 ${avz}`}>
               <label className="text-xs font-medium text-[var(--d-text-2)]">Tipo / Subcategoría</label>
-              <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={subcategoria} onChange={e => setSubcategoria(e.target.value)}>
+              <select aria-label="Tipo o subcategoría" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={subcategoria} onChange={e => setSubcategoria(e.target.value)}>
                 <option value="">MATERIALES (por defecto)</option>
                 {subcategorias.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -641,7 +641,7 @@ export default function NewRequisitionPage() {
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]">Prioridad</label>
-              <select
+              <select aria-label="Prioridad"
                 className={`w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-aria-accent ${
                   prioridad === "CRITICO" ? "border-red-500/60 bg-red-500/10 text-red-300" :
                   prioridad === "URGENTE" ? "border-orange-500/60 bg-orange-500/10 text-orange-300" :
@@ -676,7 +676,7 @@ export default function NewRequisitionPage() {
           <div className={`mt-3 grid-cols-1 md:grid-cols-3 gap-3 ${masDetalles ? "grid" : "hidden md:grid"}`}>
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]">Forma de pago</label>
-              <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={formaPago} onChange={e => setFormaPago(e.target.value)}>
+              <select aria-label="Forma de pago" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={formaPago} onChange={e => setFormaPago(e.target.value)}>
                 <option value="EFECTIVO">Efectivo</option>
                 <option value="TRANSFERENCIA">Transferencia</option>
                 <option value="CHEQUE">Cheque</option>
@@ -684,11 +684,11 @@ export default function NewRequisitionPage() {
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]">Fecha de pago</label>
-              <input type="date" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={fechaPago} onChange={e => setFechaPago(e.target.value)} />
+              <input aria-label="Fecha de pago" type="date" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={fechaPago} onChange={e => setFechaPago(e.target.value)} />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]">IVA</label>
-              <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={ivaPorcentaje} onChange={e => setIvaPorcentaje(Number(e.target.value))}>
+              <select aria-label="IVA" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={ivaPorcentaje} onChange={e => setIvaPorcentaje(Number(e.target.value))}>
                 <option value={0}>0% (Sin IVA)</option>
                 <option value={3}>3%</option>
                 <option value={7}>7%</option>
@@ -784,7 +784,7 @@ export default function NewRequisitionPage() {
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className={`space-y-1 ${avz}`}>
               <label className="text-xs font-medium text-[var(--d-text-2)]">Tipo de compra *</label>
-              <select required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={descripcionCompra} onChange={e => setDescripcionCompra(e.target.value)}>
+              <select aria-label="Tipo de compra" required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={descripcionCompra} onChange={e => setDescripcionCompra(e.target.value)}>
                 <option value="">Selecciona tipo...</option>
                 {tiposCompra.map(t => <option key={t} value={t}>{t.charAt(0) + t.slice(1).toLowerCase()}</option>)}
               </select>
@@ -922,7 +922,7 @@ export default function NewRequisitionPage() {
                     </div>
                     <div className="space-y-1">
                       <label className="text-[11px] text-[var(--d-muted)]">Unidad</label>
-                      <select className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-1.5 text-sm outline-none focus:border-aria-accent" value={manualUnit} onChange={e => setManualUnit(e.target.value)}>
+                      <select aria-label="Unidad" className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-1.5 text-sm outline-none focus:border-aria-accent" value={manualUnit} onChange={e => setManualUnit(e.target.value)}>
                         {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                       </select>
                     </div>
@@ -983,7 +983,7 @@ export default function NewRequisitionPage() {
                   <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center bg-[var(--d-sunken)] rounded-xl px-3 py-2">
                     <input required className="bg-transparent text-sm outline-none border-b border-[var(--d-border)] pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
                     <input type="number" required step="0.01" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" placeholder="Cant" value={r.cantidad||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, cantidad: Number(e.target.value)} : x))} title="Acepta negativos para anticipos descontados" />
-                    <select className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" value={r.unidad || "PZA"} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad: e.target.value} : x))}>
+                    <select aria-label="Unidad" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" value={r.unidad || "PZA"} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad: e.target.value} : x))}>
                       {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
                     <input type="number" required step="0.01" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" placeholder="$" value={r.monto||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, monto: Number(e.target.value)} : x))} />
@@ -1004,14 +1004,14 @@ export default function NewRequisitionPage() {
               <div className="max-h-96 overflow-auto space-y-2">
                 {combRows.map(r => (
                   <div key={r.tempId} className="grid grid-cols-[90px_70px_90px_90px_1fr_110px_30px] gap-2 items-center bg-[var(--d-sunken)] rounded-xl px-3 py-2">
-                    <select required className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-sm" value={r.tipo} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo: e.target.value} : x))}>
+                    <select aria-label="Tipo" required className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-sm" value={r.tipo} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo: e.target.value} : x))}>
                       <option>DIESEL</option><option>MAGNA</option><option>PREMIUM</option><option>GAS LP</option>
                     </select>
                     <input type="number" required min="0.01" step="0.01" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" placeholder="Litros" value={r.litros||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, litros: Number(e.target.value)} : x))} />
                     <input type="number" required min="0.01" step="0.01" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-center text-sm" placeholder="$ / Litro" value={r.precio_unitario||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, precio_unitario: Number(e.target.value)} : x))} />
                     <div className="text-right text-xs text-amber-300 font-medium pr-1">${((r.litros||0) * (r.precio_unitario||0)).toLocaleString("es-MX", {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
                     <input required className="bg-transparent text-sm outline-none border-b border-[var(--d-border)] pb-1" placeholder="Unidad destino (ej: Retroexcavadora CAT 420F)" value={r.unidad_destino} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad_destino: e.target.value} : x))} />
-                    <select className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-sm" value={r.tipo_unidad} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo_unidad: e.target.value} : x))}>
+                    <select aria-label="Tipo de unidad" className="bg-[var(--d-input)] rounded-lg px-2 py-1 text-sm" value={r.tipo_unidad} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo_unidad: e.target.value} : x))}>
                       <option>CAMION</option><option>RETROEXCAVADORA</option><option>CARGADOR</option><option>COMPACTADOR</option><option>CAMIONETA</option><option>PIPA</option><option>OTRO</option>
                     </select>
                     <button onClick={() => setCombRows(prev => prev.filter(x => x.tempId !== r.tempId))} className="rounded-full bg-red-500/70 p-1 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>

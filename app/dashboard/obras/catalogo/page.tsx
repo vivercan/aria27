@@ -308,6 +308,7 @@ function CatalogoObrasPageWeb() {
             />
           </div>
           <select
+            aria-label="Filtrar obras por estado"
             value={filtroEstado}
             onChange={e => setFiltroEstado(e.target.value)}
             className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm"
@@ -337,10 +338,10 @@ function CatalogoObrasPageWeb() {
         {lote && sel.size > 0 && (
           <div className="mt-2 grid grid-cols-1 md:grid-cols-5 gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
             <p className="md:col-span-5 text-xs text-[#7f93b0]">Cambia solo lo que llenes; lo que dejes vacío no se toca. Se aplica a las {sel.size} obras seleccionadas.</p>
-            <select value={lote.estado} onChange={e => setLote({ ...lote, estado: e.target.value })} className="px-3 py-2 rounded-lg text-sm"><option value="">Estado (sin cambio)</option>{STATUS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select>
-            <select value={lote.responsable_email} onChange={e => setLote({ ...lote, responsable_email: e.target.value })} className="px-3 py-2 rounded-lg text-sm"><option value="">Responsable (sin cambio)</option><option value="__ninguno__">Quitar responsable</option>{usuarios.filter(u => ["residente", "validador", "direccion", "admin", "compras"].includes(u.role)).map(u => <option key={u.email} value={u.email}>{u.name}</option>)}</select>
-            <input value={lote.cliente} onChange={e => setLote({ ...lote, cliente: e.target.value })} placeholder="Cliente (sin cambio)" className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
-            <input value={lote.radio_metros} onChange={e => setLote({ ...lote, radio_metros: e.target.value })} type="number" min="1" max="5000" placeholder="Radio geocerca m (sin cambio)" className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
+            <select aria-label="Nuevo estado" value={lote.estado} onChange={e => setLote({ ...lote, estado: e.target.value })} className="px-3 py-2 rounded-lg text-sm"><option value="">Estado (sin cambio)</option>{STATUS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select>
+            <select aria-label="Nuevo responsable" value={lote.responsable_email} onChange={e => setLote({ ...lote, responsable_email: e.target.value })} className="px-3 py-2 rounded-lg text-sm"><option value="">Responsable (sin cambio)</option><option value="__ninguno__">Quitar responsable</option>{usuarios.filter(u => ["residente", "validador", "direccion", "admin", "compras"].includes(u.role)).map(u => <option key={u.email} value={u.email}>{u.name}</option>)}</select>
+            <input aria-label="Nuevo cliente" value={lote.cliente} onChange={e => setLote({ ...lote, cliente: e.target.value })} placeholder="Cliente (sin cambio)" className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
+            <input aria-label="Nuevo radio de geocerca en metros" value={lote.radio_metros} onChange={e => setLote({ ...lote, radio_metros: e.target.value })} type="number" min="1" max="5000" placeholder="Radio geocerca m (sin cambio)" className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             <div className="flex gap-2"><button disabled={trabajando} onClick={() => enLote("editar", [...sel], lote)} className="flex-1 px-3 py-2 rounded-lg bg-aria-accent text-slate-900 text-sm font-bold disabled:opacity-50">{trabajando ? "Guardando…" : "Aplicar"}</button><button onClick={() => setLote(null)} className="px-3 py-2 rounded-lg text-[#c9d8ed] text-sm hover:bg-white/[0.06]">Cancelar</button></div>
           </div>
         )}

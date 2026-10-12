@@ -52,7 +52,7 @@ export default function ChecadasMovil() {
                     <div className="shrink-0 flex flex-col items-end gap-1">
                       {a.retardo && <span className="rounded-md bg-[#b85507] px-1.5 py-0.5 text-[11px] font-bold text-white">{a.minutos_retardo ? `${a.minutos_retardo} min tarde` : "Retardo"}</span>}
                       {a.hora_entrada && a.dentro_geocerca_entrada === false && <span className="rounded-md bg-[#d0304a] px-1.5 py-0.5 text-[11px] font-bold text-white">Fuera de obra</span>}
-                      {a.hora_entrada && a.dentro_geocerca_entrada && !a.retardo && <span className="rounded-md bg-[#00953f] px-1.5 py-0.5 text-[11px] font-bold text-white sobre-verde">A tiempo</span>}
+                      {a.hora_entrada && a.dentro_geocerca_entrada && !a.retardo && <span className="rounded-md bg-[#00873f] px-1.5 py-0.5 text-[11px] font-bold text-white sobre-verde">A tiempo</span>}
                     </div>
                   </div>); })}
               </div>

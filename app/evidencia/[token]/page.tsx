@@ -30,7 +30,7 @@ export default function EvidenciaPublica() {
     <div className="min-h-screen bg-[#f6f7fa] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
       <header className="bg-white shadow-[0_8px_24px_-16px_rgba(15,23,42,.5)] relative">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#00953f] text-white font-extrabold italic flex items-center justify-center sobre-verde">GA</div>
+          <div className="w-10 h-10 rounded-xl bg-[#00873f] text-white font-extrabold italic flex items-center justify-center sobre-verde">GA</div>
           <div><div className="font-bold leading-tight">Grupo Constructor Urbano Avante</div><div className="text-[12px] text-slate-500">Fotos de avance</div></div>
         </div>
         <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#d0304a 78%,#fdab3d)" }} />
@@ -43,9 +43,9 @@ export default function EvidenciaPublica() {
             <h1 className="mt-1 text-2xl font-bold leading-tight">{d.titulo}</h1>
             <div className="mt-1 text-[13px] text-slate-600">{d.obra ? `Obra: ${d.obra} · ` : ""}Entrega: {fecha(d.entrega)}</div>
             <div className="mt-3"><div className="flex justify-between text-[12px] text-slate-500"><span>Avance registrado</span><b className="text-slate-800">{d.avance}%</b></div>
-              <div className="mt-1 h-2.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full rounded-full bg-[#00953f]" style={{ width: `${d.avance}%` }} /></div></div>
+              <div className="mt-1 h-2.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full rounded-full bg-[#00873f]" style={{ width: `${d.avance}%` }} /></div></div>
           </div>
-          {listo > 0 && <div className="mt-4 rounded-2xl bg-[#00953f]/10 border border-[#00953f]/40 p-4 text-center font-semibold text-[#2fb800]">✅ ¡Listo! Se enviaron {listo} foto{listo === 1 ? "" : "s"}. Ya le avisamos al responsable.</div>}
+          {listo > 0 && <div className="mt-4 rounded-2xl bg-[#00873f]/10 border border-[#00873f]/40 p-4 text-center font-semibold text-[#2fb800]">✅ ¡Listo! Se enviaron {listo} foto{listo === 1 ? "" : "s"}. Ya le avisamos al responsable.</div>}
           <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
             <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { agregar(e.target.files); e.target.value = ""; }} />
             <input ref={galRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => { agregar(e.target.files); e.target.value = ""; }} />
@@ -60,10 +60,10 @@ export default function EvidenciaPublica() {
               </div>))}</div>}
             <div className="mt-1 text-[11.5px] text-slate-500">Hasta 5 fotos por envío.</div>
             <div className="mt-4"><span className="text-[13px] font-semibold text-slate-700">¿Cuánto lleva? (opcional)</span>
-              <div className="mt-1 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => <button key={p} type="button" onClick={() => setAvance(avance === p ? null : p)} className={`rounded-xl py-2.5 text-sm font-bold ${avance === p ? "bg-[#00953f] text-white" : "bg-slate-100 text-slate-700"} sobre-verde`}>{p}%</button>)}</div></div>
+              <div className="mt-1 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => <button key={p} type="button" onClick={() => setAvance(avance === p ? null : p)} className={`rounded-xl py-2.5 text-sm font-bold ${avance === p ? "bg-[#00873f] text-white" : "bg-slate-100 text-slate-700"} sobre-verde`}>{p}%</button>)}</div></div>
             <label className="mt-4 block"><span className="text-[13px] font-semibold text-slate-700">Comentario (opcional)</span><textarea value={comentario} onChange={e => setComentario(e.target.value)} rows={3} placeholder="Qué se hizo, qué falta, qué necesitas…" className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-[16px] outline-none focus:border-[#0073ea]" /></label>
             {msg && <div className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{msg}</div>}
-            <button type="button" onClick={enviar} disabled={enviando} className="mt-4 w-full rounded-2xl bg-[#00953f] py-4 text-base font-bold text-white disabled:opacity-60 sobre-verde">{enviando ? "Enviando…" : "Enviar fotos"}</button>
+            <button type="button" onClick={enviar} disabled={enviando} className="mt-4 w-full rounded-2xl bg-[#00873f] py-4 text-base font-bold text-white disabled:opacity-60 sobre-verde">{enviando ? "Enviando…" : "Enviar fotos"}</button>
           </div>
           <p className="mt-6 text-center text-[11px] text-slate-400">Link solo para esta actividad. Vence el {fecha(d.vence)}. No lo compartas.</p>
         </>)}

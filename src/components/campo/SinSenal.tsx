@@ -18,7 +18,7 @@ export default function SinSenal() {
   if (enLinea && !n && !mandado) return null;
   const txt = mandado ? `Listo: se mandó lo que guardaste sin señal (${mandado})` : !enLinea ? `Sin señal. Sigue trabajando: ${n ? `${n} guardado${n === 1 ? "" : "s"} en el teléfono` : "lo que hagas se guarda"} y se manda solo.` : `${n} por mandar… en cuanto haya buena señal`;
   return (
-    <div className="md:hidden fixed left-3 right-3 z-40 rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 text-[13px] font-semibold text-white shadow-lg" style={{ bottom: "calc(4.9rem + env(safe-area-inset-bottom))", background: mandado ? "#00953f" : "#0f172a" }} role="status">
+    <div className="md:hidden fixed left-3 right-3 z-40 rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 text-[13px] font-semibold text-white shadow-lg" style={{ bottom: "calc(4.9rem + env(safe-area-inset-bottom))", background: mandado ? "#00873f" : "#0f172a" }} role="status">
       <IcoSinSenal className="w-5 h-5 shrink-0" color="#fff" /><span className="flex-1">{txt}</span>
     </div>
   );

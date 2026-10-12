@@ -984,7 +984,7 @@ export default function InboxPage() {
                 <button onClick={()=>setSelectDropdown(p=>!p)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors"
                   style={{background:seleccionados.size>0?"rgba(123,182,255,0.18)":"rgba(255,255,255,0.07)",border:`1px solid ${seleccionados.size>0?G.blue:G.border}`,cursor:"pointer",color:seleccionados.size>0?G.blue:G.secondary,fontSize:12,fontWeight:seleccionados.size>0?600:400}}>
-                  <input type="checkbox" checked={todosSeleccionados} onChange={()=>{}}
+                  <input type="checkbox" aria-label="Seleccionar todos" checked={todosSeleccionados} onChange={()=>{}}
                     ref={el=>{if(el) el.indeterminate=algunosSeleccionados;}}
                     style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",pointerEvents:"none",flexShrink:0}}/>
                   <span>{seleccionados.size>0?`${seleccionados.size} sel.`:"Seleccionar"}</span>
@@ -1106,7 +1106,7 @@ export default function InboxPage() {
                           transition:"opacity 0.12s",cursor:"pointer"
                         }}
                         onClick={e=>{e.stopPropagation();toggleSel(em.seqno);}}>
-                        <input type="checkbox" checked={isSel} onChange={()=>{}}
+                        <input type="checkbox" aria-label="Seleccionar" checked={isSel} onChange={()=>{}}
                           style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",pointerEvents:"none",display:"block"}}/>
                       </div>
 

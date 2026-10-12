@@ -1393,10 +1393,10 @@ body.dom-ruta .aria-sheet [style*="background"]::after { content: none !importan
 
 /* Barra de avance propia (Chrome pinta oscura la parte vacía con acentos claros) */
 .rango { -webkit-appearance: none; appearance: none; height: 34px; background: transparent; outline: none; cursor: pointer; }
-.rango::-webkit-slider-runnable-track { height: 10px; border-radius: 999px; background: linear-gradient(to right, #3cde01 var(--p, 0%), var(--d-card-2) var(--p, 0%)); }
-.rango::-moz-range-track { height: 10px; border-radius: 999px; background: linear-gradient(to right, #3cde01 var(--p, 0%), var(--d-card-2) var(--p, 0%)); }
-.rango::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -9px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; box-shadow: 0 1px 4px rgba(15,23,42,.25); }
-.rango::-moz-range-thumb { width: 24px; height: 24px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; }
+.rango::-webkit-slider-runnable-track { height: 10px; border-radius: 999px; background: linear-gradient(to right, #00873f var(--p, 0%), var(--d-card-2) var(--p, 0%)); }
+.rango::-moz-range-track { height: 10px; border-radius: 999px; background: linear-gradient(to right, #00873f var(--p, 0%), var(--d-card-2) var(--p, 0%)); }
+.rango::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -9px; border-radius: 999px; background: #fff; border: 3px solid #00873f; box-shadow: 0 1px 4px rgba(15,23,42,.25); }
+.rango::-moz-range-thumb { width: 24px; height: 24px; border-radius: 999px; background: #fff; border: 3px solid #00873f; }
 
 /* 11-Oct-2026: con una hoja abierta en el celular, la barra de abajo se esconde (el + ya no "muerde" la hoja) */
 @media (max-width: 767px) { body:has(.aria-sheet) nav[aria-label="Navegación"] { display: none; } }
@@ -1442,3 +1442,8 @@ body.dom-ruta.dom-oscuro {
 }
 body.dom-ruta.dom-oscuro main > header.sticky { background: #2c2f35 !important; border-bottom: 1px solid rgba(255,255,255,.08) !important; }
 body.dom-ruta.dom-oscuro .aria-raiz, body.dom-ruta.dom-oscuro main { background: #26292f !important; }
+
+/* 12-Oct-2026 · auditoría: en pantallas Doménica de la web el encabezado es claro; el texto venía en azul pálido (contraste 1.2:1) */
+body.dom-ruta .hdr-modulo { color: var(--d-text) !important; }
+body.dom-ruta .hdr-fecha { color: var(--d-muted) !important; }
+body.dom-ruta .hdr-pildora { background: var(--d-card-2) !important; border-color: var(--d-border) !important; }

@@ -22,7 +22,7 @@ export default function PlanosPage() {
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-4xl mx-auto">
         <DomHeader icon={IcoPlano} from="#0073ea" titulo="Planos" desc="Toca un punto del plano para dejar un pendiente, una nota o una foto justo donde está."
           accion={<button onClick={() => setSubir(true)} className={boton}><Upload className="w-4 h-4" />Subir</button>} />
-        <select value={obra} onChange={e => setObra(e.target.value)} className={`${campo} mt-4`}><option value="">Todas las obras</option>{base.obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select>
+        <select aria-label="Obra" value={obra} onChange={e => setObra(e.target.value)} className={`${campo} mt-4`}><option value="">Todas las obras</option>{base.obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select>
         {lista === null ? <div className="mt-4"><Esqueleto filas={3} alto={84} /></div> : lista.length === 0 ? (
           <div className="mt-5 dom-card rounded-3xl"><Vacio ico={IcoPlano} color="#0073ea" titulo="Aún no hay planos" texto="Sube el plano como foto o PDF y empieza a marcar pendientes encima." accion={{ label: "Subir un plano", onClick: () => setSubir(true) }} /></div>
         ) : (
@@ -59,7 +59,7 @@ function Subir({ obras, obraInicial, onClose, onSaved, flash }: { obras: { id: s
   return (
     <Hoja titulo="Subir plano" onClose={onClose} pie={<button onClick={guardar} disabled={busy} className={`${boton} w-full py-3`}>{busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}Subir</button>}>
       <input ref={ref} type="file" accept="image/*,application/pdf" className="hidden" onChange={e => setFile(e.target.files?.[0] || null)} />
-      <button type="button" onClick={() => ref.current?.click()} className={`w-full rounded-2xl border-2 border-dashed px-4 py-6 text-center ${file ? "border-[#00953f]" : "border-[var(--d-border)]"}`}><div className="flex justify-center"><IcoPlano className="w-9 h-9" color="#0073ea" /></div><div className="mt-1 font-semibold text-[var(--d-text)]">{file ? file.name : "Elige el plano (foto o PDF)"}</div></button>
+      <button type="button" onClick={() => ref.current?.click()} className={`w-full rounded-2xl border-2 border-dashed px-4 py-6 text-center ${file ? "border-[#00873f]" : "border-[var(--d-border)]"}`}><div className="flex justify-center"><IcoPlano className="w-9 h-9" color="#0073ea" /></div><div className="mt-1 font-semibold text-[var(--d-text)]">{file ? file.name : "Elige el plano (foto o PDF)"}</div></button>
       <label className="block mt-4"><span className={etiqueta}>Obra</span><select value={obra} onChange={e => setObra(e.target.value)} className={campo}><option value="">Elige…</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select></label>
       <label className="block mt-3"><span className={etiqueta}>Nombre</span><input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Ej. Planta baja arquitectónico" className={campo} /></label>
       <div className="mt-3"><span className={etiqueta}>Tipo (opcional)</span><div className="mt-1 flex flex-wrap gap-2">{["Arquitectónico", "Estructural", "Eléctrico", "Hidráulico", "Sanitario"].map(d => <button key={d} type="button" onClick={() => setDisc(disc === d ? "" : d)} className={`rounded-full px-3 py-1.5 text-[13px] font-semibold ${disc === d ? "bg-[#0073ea] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{d}</button>)}</div></div>

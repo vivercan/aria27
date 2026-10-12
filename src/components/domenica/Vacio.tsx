@@ -5,7 +5,7 @@ import { IcoTarea, IcoSaco, type Ico } from "@/components/domenica/IconosObra";
 const Palomita: Ico = ({ className, color = "#fff" }) => <svg viewBox="0 0 24 24" className={className} fill="none" stroke={color} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>;
 const Lupa: Ico = ({ className, color = "#fff" }) => <svg viewBox="0 0 24 24" className={className} fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round" aria-hidden><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></svg>;
 const DIBUJOS: Record<string, { ico: Ico; color: string }> = {
-  listo: { ico: Palomita, color: "#00953f" }, caja: { ico: IcoSaco, color: "#0073ea" }, buscar: { ico: Lupa, color: "#7e3bdd" }, lista: { ico: IcoTarea, color: "#b85507" },
+  listo: { ico: Palomita, color: "#00873f" }, caja: { ico: IcoSaco, color: "#0073ea" }, buscar: { ico: Lupa, color: "#7e3bdd" }, lista: { ico: IcoTarea, color: "#b85507" },
 };
 
 export function Vacio({ dibujo = "listo", ico, color, titulo, texto, accion }: { dibujo?: keyof typeof DIBUJOS; ico?: Ico; color?: string; titulo: string; texto?: string; accion?: { label: string; href?: string; onClick?: () => void } }) {

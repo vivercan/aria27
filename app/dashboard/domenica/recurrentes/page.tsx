@@ -64,7 +64,7 @@ export default function RecurrentesPage() {
               {lista.map((r, i) => (
                 <div key={r.id} className={`dom-card dom-in rounded-2xl p-4 ${r.activa ? "" : "opacity-60"}`} style={{ animationDelay: `${i * 50}ms` }}>
                   <div className="flex items-start gap-3">
-                    <button onClick={() => toggle(r)} aria-label={r.activa ? "Pausar" : "Activar"} className={`mt-0.5 shrink-0 w-11 h-6 rounded-full relative transition ${r.activa ? "bg-[#00953f]" : "bg-[var(--d-border)]"} sobre-verde`}><span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${r.activa ? "left-[22px]" : "left-0.5"}`} /></button>
+                    <button onClick={() => toggle(r)} aria-label={r.activa ? "Pausar" : "Activar"} className={`mt-0.5 shrink-0 w-11 h-6 rounded-full relative transition ${r.activa ? "bg-[#00873f]" : "bg-[var(--d-border)]"} sobre-verde`}><span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${r.activa ? "left-[22px]" : "left-0.5"}`} /></button>
                     <div className="flex-1 min-w-0">
                       <div className="text-[15px] font-semibold text-[var(--d-text)]">{r.titulo}</div>
                       <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-[var(--d-muted)]">

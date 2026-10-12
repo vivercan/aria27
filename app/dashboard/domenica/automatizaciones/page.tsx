@@ -107,7 +107,7 @@ export default function AutomatizacionesPage() {
                 {reglas.map(r => (
                   <div key={r.id} className={`rounded-2xl border p-4 ${r.activa ? "border-[var(--d-border)] bg-[var(--d-card)]" : "border-[var(--d-border)] bg-[var(--d-card)] opacity-70"}`}>
                     <div className="flex items-start gap-3">
-                      <button disabled={!puede} onClick={() => toggle(r, "activa")} aria-label={r.activa ? "Apagar" : "Encender"} className={`mt-0.5 shrink-0 w-11 h-6 rounded-full relative transition ${r.activa ? "bg-[#00953f]" : "bg-[var(--d-border)]"} sobre-verde`}><span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${r.activa ? "left-[22px]" : "left-0.5"}`} /></button>
+                      <button disabled={!puede} onClick={() => toggle(r, "activa")} aria-label={r.activa ? "Apagar" : "Encender"} className={`mt-0.5 shrink-0 w-11 h-6 rounded-full relative transition ${r.activa ? "bg-[#00873f]" : "bg-[var(--d-border)]"} sobre-verde`}><span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${r.activa ? "left-[22px]" : "left-0.5"}`} /></button>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2"><span className="text-[14.5px] font-semibold text-[var(--d-text)]">{r.nombre}</span>
                           {r.modo_prueba && <span className="inline-flex items-center gap-1 rounded-md bg-[#a25ddc]/20 text-[var(--d-purple)] text-[11px] font-semibold px-1.5 py-0.5"><FlaskConical className="w-3 h-3" />Prueba: solo te llega a ti</span>}</div>
@@ -155,11 +155,11 @@ export default function AutomatizacionesPage() {
                     <input type="number" min={1} value={String(edit.params.antiguedad_max ?? 30)} onChange={e => setEdit({ ...edit, params: { ...edit.params, antiguedad_max: e.target.value } })} className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)]" /></label>}
                 </div>
               </div>
-              <div className="rounded-2xl border border-[#00953f]/30 bg-[#00953f]/[0.05] p-4 space-y-3">
+              <div className="rounded-2xl border border-[#00873f]/30 bg-[#00873f]/[0.05] p-4 space-y-3">
                 <div className="text-[11px] uppercase tracking-wide text-[var(--d-ok)] font-bold">Entonces…</div>
                 <div className="grid grid-cols-2 gap-2">
                   {([["AVISAR", "Avisar", Bell], ["CREAR_ACTIVIDAD", "Crear una actividad", ClipboardCheck]] as const).map(([v, l, I]) => (
-                    <button key={v} onClick={() => setEdit({ ...edit, accion: v })} className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold ${edit.accion === v ? "bg-[#00953f] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"} sobre-verde`}><I className="w-4 h-4" />{l}</button>))}
+                    <button key={v} onClick={() => setEdit({ ...edit, accion: v })} className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold ${edit.accion === v ? "bg-[#00873f] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"} sobre-verde`}><I className="w-4 h-4" />{l}</button>))}
                 </div>
                 {edit.accion === "AVISAR" ? (<>
                   <div className="flex flex-wrap gap-2">
@@ -210,7 +210,7 @@ export default function AutomatizacionesPage() {
           </div>
         </div>
       )}
-      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#00953f] text-white" : "bg-[#d0304a] text-white"} sobre-verde`}>{toast.m}</div>}
+      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#00873f] text-white" : "bg-[#d0304a] text-white"} sobre-verde`}>{toast.m}</div>}
     </div>
   );
 }

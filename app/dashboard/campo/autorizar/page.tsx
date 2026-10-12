@@ -70,7 +70,7 @@ export default function AutorizarPage() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-40 max-w-2xl mx-auto">
         <div className="flex items-center gap-3">
-          <Ficha ico={IcoSello} color="#00953f" size="lg" />
+          <Ficha ico={IcoSello} color="#00873f" size="lg" />
           <div className="flex-1 min-w-0"><h1 className="text-[22px] font-bold text-[var(--d-text)] leading-tight whitespace-nowrap">Por autorizar</h1>
             <p className="text-[13px] text-[var(--d-muted)]">{lista === null ? "Cargando…" : visibles.length ? `${visibles.length} esperan · ${$(suma)}` : "Nada pendiente aquí"}</p></div>
           {visibles.length > 1 && <button onClick={() => { setVarias(v => !v); setSel(new Set()); }} className={`shrink-0 rounded-xl px-2.5 py-2 text-[12px] font-bold ${varias ? "bg-[#0f172a] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{varias ? "Listo" : "Elegir varias"}</button>}
@@ -78,7 +78,7 @@ export default function AutorizarPage() {
 
         {dir && cuenta("OBRA") > 0 && cuenta("DIRECCION") > 0 && (
           <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-[var(--d-card-2)] p-1">
-            {(["OBRA", "DIRECCION"] as const).map(n => <button key={n} onClick={() => { setNivel(n); setVarias(false); setSel(new Set()); }} className={`rounded-xl py-2.5 text-[14px] font-bold ${nivel === n ? "bg-[var(--d-card)] text-[var(--d-text)] shadow-sm" : "text-[var(--d-muted)]"}`}>{n === "OBRA" ? "En obra" : "Dirección"} <span className="ml-1 rounded-full bg-[#00953f] px-1.5 text-[11px] text-white sobre-verde">{cuenta(n)}</span></button>)}
+            {(["OBRA", "DIRECCION"] as const).map(n => <button key={n} onClick={() => { setNivel(n); setVarias(false); setSel(new Set()); }} className={`rounded-xl py-2.5 text-[14px] font-bold ${nivel === n ? "bg-[var(--d-card)] text-[var(--d-text)] shadow-sm" : "text-[var(--d-muted)]"}`}>{n === "OBRA" ? "En obra" : "Dirección"} <span className="ml-1 rounded-full bg-[#00873f] px-1.5 text-[11px] text-white sobre-verde">{cuenta(n)}</span></button>)}
           </div>
         )}
 
@@ -88,10 +88,10 @@ export default function AutorizarPage() {
           ) : visibles.map((p, i) => {
             const marcado = sel.has(p.id); const tarde = p.dias > 7;
             return (
-              <div key={p.id} className="dom-card dom-in rounded-3xl p-4" style={{ animationDelay: `${Math.min(i, 8) * 40}ms`, boxShadow: marcado ? "inset 0 0 0 2px #00953f" : undefined }}
+              <div key={p.id} className="dom-card dom-in rounded-3xl p-4" style={{ animationDelay: `${Math.min(i, 8) * 40}ms`, boxShadow: marcado ? "inset 0 0 0 2px #00873f" : undefined }}
                 onClick={varias && !p.comparativa ? () => setSel(s => { const n = new Set(s); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; }) : undefined}>
                 <div className="flex items-start gap-3">
-                  {varias && !p.comparativa && <span className={`mt-1 shrink-0 w-6 h-6 rounded-lg flex items-center justify-center ${marcado ? "bg-[#00953f]" : "border-2 border-[var(--d-border)]"} sobre-verde`}>{marcado && <Check className="w-4 h-4 text-white" strokeWidth={3} />}</span>}
+                  {varias && !p.comparativa && <span className={`mt-1 shrink-0 w-6 h-6 rounded-lg flex items-center justify-center ${marcado ? "bg-[#00873f]" : "border-2 border-[var(--d-border)]"} sobre-verde`}>{marcado && <Check className="w-4 h-4 text-white" strokeWidth={3} />}</span>}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-[15px] font-bold text-[var(--d-text)] truncate">{p.obra || "Sin obra"}</span>
@@ -105,7 +105,7 @@ export default function AutorizarPage() {
                 <div className="mt-3 flex items-end justify-between gap-2">
                   <div className="min-w-0">
                     <div className="text-[24px] font-bold leading-none text-[var(--d-text)]">{$(p.total)}</div>
-                    <div className="mt-1 flex flex-wrap gap-1">{p.efectivo && <span className="rounded-md bg-[#00953f] px-1.5 py-0.5 text-[11px] font-bold text-white sobre-verde">EFECTIVO</span>}{p.proveedor && <span className="text-[11.5px] text-[var(--d-muted)] truncate">{p.proveedor}</span>}</div>
+                    <div className="mt-1 flex flex-wrap gap-1">{p.efectivo && <span className="rounded-md bg-[#00873f] px-1.5 py-0.5 text-[11px] font-bold text-white sobre-verde">EFECTIVO</span>}{p.proveedor && <span className="text-[11.5px] text-[var(--d-muted)] truncate">{p.proveedor}</span>}</div>
                   </div>
                 </div>
                 {!varias && (p.comparativa ? (
@@ -113,7 +113,7 @@ export default function AutorizarPage() {
                 ) : (
                   <div className="mt-3 grid grid-cols-[1fr_2fr] gap-2">
                     <button onClick={() => setRechazo([p])} className="rounded-2xl border-2 border-[#d0304a] py-3 text-[15px] font-bold text-[var(--d-danger)] active:scale-[0.98]">Rechazar</button>
-                    <button disabled={!!busy} onClick={() => confirmar === p.id ? autorizar([p]) : setConfirmar(p.id)} className={`rounded-2xl py-3 text-[15px] font-bold text-white active:scale-[0.98] inline-flex items-center justify-center gap-1.5 ${confirmar === p.id ? "bg-[#2fb800]" : "bg-[#00953f]"} sobre-verde`}>
+                    <button disabled={!!busy} onClick={() => confirmar === p.id ? autorizar([p]) : setConfirmar(p.id)} className={`rounded-2xl py-3 text-[15px] font-bold text-white active:scale-[0.98] inline-flex items-center justify-center gap-1.5 ${confirmar === p.id ? "bg-[#2fb800]" : "bg-[#00873f]"} sobre-verde`}>
                       {busy === p.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}{confirmar === p.id ? "Toca para confirmar" : "Autorizar"}
                     </button>
                   </div>
@@ -127,7 +127,7 @@ export default function AutorizarPage() {
         <div className="fixed left-0 right-0 z-30 px-3" style={{ bottom: "calc(5.4rem + env(safe-area-inset-bottom))" }}>
           <div className="max-w-2xl mx-auto grid grid-cols-[1fr_2fr] gap-2 rounded-2xl bg-[var(--d-card)] p-2 shadow-[0_10px_30px_-10px_rgba(15,23,42,.45)] border border-[var(--d-border)]">
             <button onClick={() => setRechazo(selLista)} className="rounded-xl border-2 border-[#d0304a] py-3 text-[14px] font-bold text-[var(--d-danger)]">Rechazar {selLista.length}</button>
-            <button disabled={!!busy} onClick={() => { if (window.confirm(`¿Autorizar ${selLista.length} solicitudes por ${$(selLista.reduce((s, x) => s + x.total, 0))}?`)) autorizar(selLista); }} className="rounded-xl bg-[#00953f] py-3 text-[14px] font-bold text-white inline-flex items-center justify-center gap-1.5 sobre-verde">{busy === "lote" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Autorizar {selLista.length} · {$(selLista.reduce((s, x) => s + x.total, 0))}</button>
+            <button disabled={!!busy} onClick={() => { if (window.confirm(`¿Autorizar ${selLista.length} solicitudes por ${$(selLista.reduce((s, x) => s + x.total, 0))}?`)) autorizar(selLista); }} className="rounded-xl bg-[#00873f] py-3 text-[14px] font-bold text-white inline-flex items-center justify-center gap-1.5 sobre-verde">{busy === "lote" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Autorizar {selLista.length} · {$(selLista.reduce((s, x) => s + x.total, 0))}</button>
           </div>
         </div>
       )}

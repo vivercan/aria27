@@ -24,11 +24,11 @@ const GRUPOS: { titulo: string; piezas: Pieza[] }[] = [
     { t: "Lo que se repite", d: "Tareas que se crean solas: cada lunes, cada día 1", href: "/dashboard/domenica/recurrentes", icon: Repeat, color: "#a25ddc", estado: "listo" },
   ] },
   { titulo: "Coordinar", piezas: [
-    { t: "Actividades", d: "Lo mío, por estado o en lista", href: "/dashboard/actividades", icon: LayoutGrid, color: "#00953f", estado: "listo" },
-    { t: "Espacio por obra", d: "Actividades, solicitudes, entregas y avance de cada obra", href: "/dashboard/domenica/obras", icon: Building2, color: "#00953f", estado: "listo" },
-    { t: "Menciones", d: "Escribe @Daisy en un comentario y le avisa", href: "/dashboard/actividades", icon: AtSign, color: "#00953f", estado: "listo" },
-    { t: "Quién está muy cargado", d: "Antes de encargar, ve quién tiene menos trabajo", href: "/dashboard/domenica/carga", icon: Users, color: "#00953f", estado: "listo" },
-    { t: "Enlaces para proveedores", d: "Sin cuenta: el proveedor cotiza y el destajista sube fotos de avance", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#00953f", estado: "listo" },
+    { t: "Actividades", d: "Lo mío, por estado o en lista", href: "/dashboard/actividades", icon: LayoutGrid, color: "#00873f", estado: "listo" },
+    { t: "Espacio por obra", d: "Actividades, solicitudes, entregas y avance de cada obra", href: "/dashboard/domenica/obras", icon: Building2, color: "#00873f", estado: "listo" },
+    { t: "Menciones", d: "Escribe @Daisy en un comentario y le avisa", href: "/dashboard/actividades", icon: AtSign, color: "#00873f", estado: "listo" },
+    { t: "Quién está muy cargado", d: "Antes de encargar, ve quién tiene menos trabajo", href: "/dashboard/domenica/carga", icon: Users, color: "#00873f", estado: "listo" },
+    { t: "Enlaces para proveedores", d: "Sin cuenta: el proveedor cotiza y el destajista sube fotos de avance", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#00873f", estado: "listo" },
   ] },
   { titulo: "En la obra", piezas: [
     { t: "Bitácora diaria", d: "Se arma sola con avances, fotos y entregas; se comparte en PDF", href: "/dashboard/domenica/obras", icon: BookOpen, color: "#0077ad", estado: "listo" },
@@ -77,7 +77,7 @@ export default function DomenicaHub() {
                 <div className={`dom-card dom-in h-full rounded-2xl p-4 flex items-start gap-3 transition ${p.href ? "hover:-translate-y-0.5" : "opacity-70"}`}>
                   <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${p.color}22` }}><Icon className="w-5 h-5" style={{ color: p.color }} /></span>
                   <div className="flex-1 min-w-0"><div className="flex items-center gap-2"><span className={`text-[14px] font-semibold ${p.href ? "text-[var(--d-text)]" : "text-[var(--d-muted)]"}`}>{p.t}</span>
-                    {(p.estado as string) !== "listo" && <span className={`text-[11px] font-bold rounded px-1.5 py-0.5 ${(p.estado as string) === "listo" ? "bg-[#00953f]/15 text-[var(--d-ok)]" : p.estado === "parcial" ? "bg-[#579bfc]/20 text-[var(--d-link)]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"} sobre-verde`}>{(p.estado as string) === "listo" ? "Listo" : p.estado === "parcial" ? "Disponible" : "En construcción"}</span>}</div>
+                    {(p.estado as string) !== "listo" && <span className={`text-[11px] font-bold rounded px-1.5 py-0.5 ${(p.estado as string) === "listo" ? "bg-[#00873f]/15 text-[var(--d-ok)]" : p.estado === "parcial" ? "bg-[#579bfc]/20 text-[var(--d-link)]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"} sobre-verde`}>{(p.estado as string) === "listo" ? "Listo" : p.estado === "parcial" ? "Disponible" : "En construcción"}</span>}</div>
                     <div className="text-[12px] text-[var(--d-muted)]">{p.d}</div></div>
                   {p.href && <ChevronRight className="w-4 h-4 text-[var(--d-faint)] mt-1" />}
                 </div>);
