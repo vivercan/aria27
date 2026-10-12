@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { guardarEmpleado } from "@/lib/personal-api";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Upload, CheckCircle2, AlertTriangle, Loader2, Download } from "lucide-react";
@@ -61,17 +62,18 @@ const DEFS: Record<Entity, EntityDef> = {
     required: ["full_name"],
     optional: ["puesto", "curp", "rfc", "nss", "telefono", "fecha_ingreso", "sueldo_diario", "obra_asignada"],
     sample: "full_name,puesto,curp,rfc,nss,telefono,fecha_ingreso,sueldo_diario,obra_asignada\nJuan Perez Lopez,ALBAÑIL,PELJ800101HASPRN01,PELJ800101XYZ,12345678901,4491234567,2026-01-15,450,MIRAVALLE",
+    // 12-Oct-2026: columnas reales de la tabla employees (antes usaba puesto/telefono/sueldo_diario/activo, que no existen)
     mapRow: (r) => ({
       full_name: r.full_name?.trim(),
-      puesto: r.puesto?.trim() || null,
+      position: r.puesto?.trim() || null,
       curp: r.curp?.trim().toUpperCase() || null,
       rfc: r.rfc?.trim().toUpperCase() || null,
       nss: r.nss?.trim() || null,
-      telefono: r.telefono?.trim() || null,
+      whatsapp: r.telefono ? r.telefono.replace(/\D/g, "").slice(-10) || null : null,
       fecha_ingreso: r.fecha_ingreso?.trim() || null,
-      sueldo_diario: r.sueldo_diario ? parseFloat(r.sueldo_diario) || 0 : 0,
-      obra_asignada: r.obra_asignada?.trim() || null,
-      activo: true,
+      salario_diario: r.sueldo_diario ? parseFloat(r.sueldo_diario) || null : null,
+      project_site: r.obra_asignada?.trim() || null,
+      status: "ACTIVO",
     }),
   },
   obras: {
@@ -161,7 +163,10 @@ export default function ImportCSV() {
     const chunks: Record<string, unknown>[][] = [];
     for (let i = 0; i < dryRun.valid.length; i += 50) chunks.push(dryRun.valid.slice(i, i + 50));
     for (const chunk of chunks) {
-      const { error } = await supabase.from(def.table).insert(chunk);
+      // 12-Oct-2026: los empleados se guardan por el servidor protegido (sus datos sensibles ya no se escriben con la llave pública)
+      const { error } = def.table === "employees"
+        ? await (async () => { for (const row of chunk) { const r = await guardarEmpleado(null, row); if (r.error) return r; } return { error: null }; })()
+        : await supabase.from(def.table).insert(chunk);
       if (error) {
         fail += chunk.length;
         errors.push((error as {message?: string})?.message || "Error desconocido");

@@ -375,7 +375,7 @@ export async function POST(request: NextRequest) {
         const respNombre = String(responsableUser?.display_name || responsableUser?.name || "Responsable").slice(0, 60);
         const queSePide = String(materialesResumen || body.motivo_solicitud || body.descripcion_compra || "materiales").slice(0, 120);
         await sendWhatsAppTemplateOrFallback(
-          { template: "aria_autorizar_responsable", params: [respNombre, displayName, queSePide, obra, folio], buttonToken: String(req.id) },
+          { template: "aria_autoriza_obra_v2", params: [respNombre, displayName, queSePide, obra, folio], buttonToken: String(req.id) },
           { template: "requisicion_creada", params: [`[AUTORIZAR] ${folio}`, displayName, obra, fechaReq] },
           respPhone, { origen: "req-creada-responsable", enviadoPor: usuario.email });
         notificados.push(`Responsable: ${responsableEmail}`);
@@ -442,7 +442,11 @@ export async function POST(request: NextRequest) {
           // FIX 549: 'aria_requisicion_gasto' nunca se creo/aprobo en Meta (20 fallos/mes en wa_log).
           // Se usa directo la plantilla aprobada con prefijo en el folio. Si algun dia se aprueba
           // la de gasto, volver a intentarla aqui primero.
-          await sendWhatsAppLogged("requisicion_compras", [`[GASTO POR PAGAR] ${folio}`, obra, urgencyText, (body.motivo_solicitud ? String(body.motivo_solicitud).slice(0,60) : materialesResumen)], comprasUser.phone, { origen: "req-creada-compras-gasto", enviadoPor: usuario.email });
+          // 12-Oct-2026: plantilla nueva con botón (aria_gasto_por_pagar); mientras Meta la aprueba, cae a requisicion_compras con prefijo
+          await sendWhatsAppTemplateOrFallback(
+            { template: "aria_gasto_por_pagar", params: [String(comprasUser.display_name || comprasUser.name || "Compras").split(" ")[0], folio, obra, (body.motivo_solicitud ? String(body.motivo_solicitud).slice(0,60) : String(materialesResumen || "gasto").slice(0, 60))], buttonToken: String(req.id) },
+            { template: "requisicion_compras", params: [`[GASTO POR PAGAR] ${folio}`, obra, urgencyText, (body.motivo_solicitud ? String(body.motivo_solicitud).slice(0,60) : materialesResumen)] },
+            comprasUser.phone as string, { origen: "req-creada-compras-gasto", enviadoPor: usuario.email });
         } else {
           await sendWhatsAppLogged("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-creada-compras", enviadoPor: usuario.email });
         }

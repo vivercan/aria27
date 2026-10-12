@@ -195,6 +195,9 @@ const TEMPLATE_CONFIG: Record<string, {
   aria_solicitud_estado:      { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 4, description: "Avance de estado al creador (boton abre la requi)" },
   aria_actividad_asignada:    { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 4, description: "Actividad asignada (boton abre actividades)" },
   aria_entrega_pendiente:     { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 3, description: "Registrar entrega (boton abre la pantalla de entrega)" },
+  // 12-Oct-2026: reemplazos de las que Meta nunca aprobó (mientras se aprueban, el envío cae a la plantilla de respaldo)
+  aria_autoriza_obra_v2:      { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 5, description: "Responsable de obra: autorizar requi (boton abre la requi)" },
+  aria_gasto_por_pagar:       { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 4, description: "Gasto por pagar a Compras (boton abre la requi)" },
   aria_tarea_status: {
     language: "es_MX",
     paramCount: 3,
