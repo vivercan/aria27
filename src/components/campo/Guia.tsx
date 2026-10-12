@@ -26,7 +26,7 @@ const PASOS: Paso[] = [
   { titulo: "Abajo están tus 4 lugares", texto: "Siempre en el mismo sitio. Si te pierdes, toca Inicio.",
     dibujo: <div className="space-y-2">{fila(IcoInicio, "Inicio", "Lo que te toca hoy")}{fila(IcoSolicitudes, "Solicitudes", "Lo que pediste y su avance")}{fila(IcoActividades, "Actividades", "Tus pendientes y encargos")}{fila(IcoMas, "Más", "Obras, equipo, ajustes y ayuda")}</div> },
   { titulo: "El botón azul + Nuevo", texto: "Está en medio, abajo. Con él creas cualquier cosa.",
-    dibujo: <div className="grid grid-cols-3 gap-2">{ficha(IcoSaco, "#0073ea", "Pedir material")}{ficha(IcoTarea, "#b85507", "Encargar algo")}{ficha(IcoCamion, "#1f8500", "Registrar entrega")}</div> },
+    dibujo: <div className="grid grid-cols-3 gap-2">{ficha(IcoSaco, "#0073ea", "Requisición")}{ficha(IcoTarea, "#b85507", "Tarea")}{ficha(IcoCamion, "#1f8500", "Registrar entrega")}</div> },
   { titulo: "O simplemente háblale", texto: "Toca “Habla con Doménica” y dile lo que necesitas, como a una persona: “pide 10 bultos de cemento para Tanque”.",
     dibujo: <div className="rounded-2xl bg-[#6d35c9] px-4 py-4 text-white text-left"><b className="block text-[17px]">Habla con Doménica</b><span className="block text-[14px] text-white/90">Ella arma la solicitud y tú solo confirmas.</span></div> },
 ];

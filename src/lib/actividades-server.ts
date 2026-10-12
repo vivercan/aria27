@@ -4,6 +4,7 @@
  * Meta no acepta saltos de linea en parametros: todo mensaje va en una sola linea.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { siguienteFolio } from "@/lib/folio";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { pushAEmail } from "@/lib/push";
 
@@ -90,8 +91,9 @@ export async function crearActividad(db: SupabaseClient, a: NuevaActividad, porE
   const prioridad = PRIOS_CREAR.includes(String(a.prioridad || "").toUpperCase()) ? String(a.prioridad).toUpperCase() : "MEDIA";
   const fechaInicio = /^\d{4}-\d{2}-\d{2}$/.test(String(a.fecha_inicio || "")) ? String(a.fecha_inicio) : null;
   const hora = normHora(a.hora);
+  const folio = await siguienteFolio(db, "TAR"); // mismo consecutivo que las requisiciones
   const { data: ins, error } = await db.from("tareas_asignadas").insert({
-    titulo, descripcion: String(a.descripcion || "").trim().slice(0, 2000) || null,
+    folio, titulo, descripcion: String(a.descripcion || "").trim().slice(0, 2000) || null,
     asignado_id: a.asignado_id, asignado_nombre: asignado.nombre, asignado_email: asignado.email,
     asignado_por: por, asignado_por_email: por,
     obra: obra || (String(a.obra || "").trim() || null), obra_id: obraId,

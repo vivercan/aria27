@@ -6,6 +6,7 @@
  * Fuente: tareas_asignadas (la misma que contesta el bot de WhatsApp). Cambios por /api/actividades (historial + avisos WA).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { numeroCorto } from "@/lib/folio";
 import { celebrar } from "@/lib/celebrar";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -196,7 +197,7 @@ export default function ActividadesPage() {
       if (ambito === "todas" && !esSuper && !esMia(a, me.email, miEmp) && !laAsigneYo(a, me.email)) return false;
       if (fObra && a.obra_id !== fObra && norm(a.obra || "") !== norm(obras.find(o => o.id === fObra)?.nombre || "~")) return false;
       if (fPersona && a.asignado_id !== fPersona) return false;
-      if (nq && !norm(`${a.titulo} ${a.descripcion || ""} ${a.obra || ""} ${a.asignado_nombre || ""}`).includes(nq)) return false;
+      if (nq && !norm(`${a.folio || ""} ${a.titulo} ${a.descripcion || ""} ${a.obra || ""} ${a.asignado_nombre || ""}`).includes(nq)) return false;
       return true;
     });
   }, [acts, me, miEmp, ambito, fObra, fPersona, q, obras, esSuper]);
@@ -266,7 +267,7 @@ export default function ActividadesPage() {
                   {col === "TERMINADA" ? <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 dom-pop" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg> : null}
                 </span>
               </span>
-              <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.titulo}</div>
+              <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.folio && <span className="mr-1 text-[12px] font-bold text-[var(--d-muted)]">{numeroCorto(a.folio)}</span>}{a.titulo}</div>
               {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
             </div>
             {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Riesgo:</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
@@ -638,6 +639,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
         <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
         {/* Cabecera */}
         <div className="px-5 pt-3 md:pt-5 pb-3 border-b border-[var(--d-border)]">
+          {a.folio && <div className="text-[12.5px] font-bold text-[var(--d-muted)] mb-0.5">Tarea {numeroCorto(a.folio)}</div>}
           <div className="flex items-start gap-2">
             <textarea value={titulo} disabled={!puedeEditar} onChange={e => setTitulo(e.target.value)} onBlur={() => { if (titulo.trim() && titulo.trim() !== a.titulo) onPatch({ titulo: titulo.trim() }, { titulo: titulo.trim() }); }} rows={2}
               className="flex-1 resize-none bg-transparent text-lg font-bold text-[var(--d-text)] leading-snug focus:outline-none focus:bg-[var(--d-hover)] rounded-lg px-1 -mx-1" />

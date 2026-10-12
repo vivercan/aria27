@@ -188,11 +188,13 @@ export default function CampoHome() {
             <span className="flex-1 min-w-0"><span className="block text-[17px] font-bold leading-tight">Habla con Doménica</span><span className="block text-[14px] text-white/90">Dile lo que necesitas y ella lo arma</span></span>
           </button>
           <div className="mt-2 grid grid-cols-2 gap-2">
-            <Link href="/dashboard/requisiciones/requisiciones/nuevo" className="rounded-2xl bg-[#0073ea] p-3.5 text-white flex flex-col gap-1.5 min-h-[112px] active:scale-[0.98] transition">
-              <IcoSaco className="w-8 h-8" color="#fff" fondo="#0073ea" /><span className="text-[16px] font-bold leading-tight">Pedir material</span><span className="text-[13.5px] leading-tight text-white/90">Cemento, varilla, un servicio…</span></Link>
+            <Link href="/dashboard/requisiciones/requisiciones/nuevo?tipo=MATERIALES" className="rounded-2xl bg-[#0073ea] p-3.5 text-white flex flex-col gap-1.5 min-h-[112px] active:scale-[0.98] transition">
+              <IcoSaco className="w-8 h-8" color="#fff" fondo="#0073ea" /><span className="text-[16px] font-bold leading-tight">Requisición</span><span className="text-[13.5px] leading-tight text-white/90">Material o servicio. Se cotiza y se paga</span></Link>
             <Link href="/dashboard/actividades?nueva=1" className="rounded-2xl bg-[#b85507] p-3.5 text-white flex flex-col gap-1.5 min-h-[112px] active:scale-[0.98] transition">
-              <IcoTarea className="w-8 h-8" color="#fff" fondo="#b85507" /><span className="text-[16px] font-bold leading-tight">Encargar algo</span><span className="text-[13.5px] leading-tight text-white/90">Una tarea para alguien</span></Link>
+              <IcoTarea className="w-8 h-8" color="#fff" fondo="#b85507" /><span className="text-[16px] font-bold leading-tight">Tarea</span><span className="text-[13.5px] leading-tight text-white/90">Encárgale algo a alguien</span></Link>
           </div>
+          <Link href="/dashboard/requisiciones/requisiciones/nuevo?tipo=PAGO" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#7a4b00] px-4 py-3.5 text-white active:scale-[0.99] transition">
+            <IcoSaco className="w-8 h-8 shrink-0" color="#fff" fondo="#7a4b00" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Pago de servicio</span><span className="block text-[13.5px] text-white/90">En efectivo. Va directo a pago, sin cotizar</span></span></Link>
           <Link href="/dashboard/campo/evidencia" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#1f8500] px-4 py-3.5 text-white active:scale-[0.99] transition">
             <IcoCamion className="w-8 h-8 shrink-0" color="#fff" fondo="#1f8500" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Registrar una entrega{porEntregar.length ? ` (${porEntregar.length})` : ""}</span><span className="block text-[13.5px] text-white/90">Llegó material: foto y quién recibió</span></span></Link>
           {porAutorizar > 0 && <Link href="/dashboard/campo/autorizar" className="mt-2 flex items-center gap-3 rounded-2xl dom-card px-4 py-3.5 active:scale-[0.99] transition"><Ficha ico={IcoSello} color="#1f8500" /><span className="flex-1 text-[16px] font-bold text-[var(--d-text)]">Autorizar ({porAutorizar})</span><ChevronRight className="w-5 h-5 text-[var(--d-faint)]" /></Link>}

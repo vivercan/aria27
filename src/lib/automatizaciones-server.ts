@@ -1,5 +1,6 @@
 /** ARIA Doménica · ejecutor de automatizaciones (servidor) · 10-Oct-2026 */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { siguienteFolio } from "@/lib/folio";
 import { avisarWA, personaPorEmail, personaPorEmpleado } from "@/lib/actividades-server";
 import { componerMensaje, evaluar, type Caso, type Regla } from "@/lib/automatizaciones";
 
@@ -51,7 +52,8 @@ export async function correrRegla(db: SupabaseClient, r: Regla, opts: { dry?: bo
       const titulo = `${(r.accion_params.titulo || r.nombre).slice(0, 80)}: ${c.etiqueta}`.slice(0, 200);
       if (!opts.dry && !prueba && asignado) {
         const venc = new Date(ahora.getTime() + 86400000); const f = `${venc.getFullYear()}-${String(venc.getMonth() + 1).padStart(2, "0")}-${String(venc.getDate()).padStart(2, "0")}`;
-        const { error } = await db.from("tareas_asignadas").insert({ titulo, descripcion: `Creada por la automatización "${r.nombre}". ${c.obra ? `Obra: ${c.obra}. ` : ""}Ver: ${c.url}`, asignado_id: r.accion_params.empleado_id, asignado_nombre: asignado.nombre, asignado_email: asignado.email, asignado_por: "automatizacion", asignado_por_email: r.creada_por || null, obra: c.obra || null, fecha_compromiso: f, prioridad: "ALTA", estatus: "PENDIENTE", avance: 0 });
+        const folio = await siguienteFolio(db, "TAR");
+        const { error } = await db.from("tareas_asignadas").insert({ folio, titulo, descripcion: `Creada por la automatización "${r.nombre}". ${c.obra ? `Obra: ${c.obra}. ` : ""}Ver: ${c.url}`, asignado_id: r.accion_params.empleado_id, asignado_nombre: asignado.nombre, asignado_email: asignado.email, asignado_por: "automatizacion", asignado_por_email: r.creada_por || null, obra: c.obra || null, fecha_compromiso: f, prioridad: "ALTA", estatus: "PENDIENTE", avance: 0 });
         if (!error) res.actividadesCreadas++;
       }
       res.envios.push({ email: asignado?.email || "", nombre: asignado?.nombre || "", casos: 1, mensaje: titulo, enviado: !opts.dry && !prueba });

@@ -259,7 +259,8 @@ export default function NewRequisitionPage() {
     const comentariosParam = searchParams.get("comentarios");
     const matsParam = searchParams.get("mats");
     const tipoParam = searchParams.get("tipo");
-    if (tipoParam === "DESTAJO") { setTipoSolicitud("DESTAJO"); setPasoM(2); } else if (matsParam || tipoParam === "MATERIALES" || searchParams.get("obra")) { setTipoSolicitud("MATERIALES"); setPasoM(2); }
+    if (tipoParam === "PAGO") { setTipoSolicitud("MATERIALES"); setDescripcionCompra("SERVICIOS"); setFormaPago("EFECTIVO"); setPasoM(2); } // 11-Oct · Nuevo › Pago de servicio (efectivo, va directo a pago)
+    else if (tipoParam === "DESTAJO") { setTipoSolicitud("DESTAJO"); setPasoM(2); } else if (matsParam || tipoParam === "MATERIALES" || searchParams.get("obra")) { setTipoSolicitud("MATERIALES"); setPasoM(2); }
 
     if (obra) {
       const match = costCenters.find(c =>
