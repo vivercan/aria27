@@ -46,7 +46,9 @@ Lo que dijo: """${texto}"""`;
     if (!m) return NextResponse.json({ opcion: null, opciones: [] });
     const o = JSON.parse(m[0]) as { opcion?: string; seguridad?: number; otras?: string[] };
     const valido = (id?: string) => !!id && (!!intencionPorId(id) || EXTRA.some(e => e.id === id));
-    const opcion = valido(o.opcion) ? String(o.opcion) : null;
+    let opcion = valido(o.opcion) ? String(o.opcion) : null;
+    // "Pedir material" con detalle (qué cosas) → se arma el pedido, no solo se abre la pantalla vacía
+    if (opcion === "pedir_material" && texto.split(/\s+/).length >= 5) opcion = "material";
     const seguridad = Math.max(0, Math.min(1, Number(o.seguridad) || 0));
     const otras = (Array.isArray(o.otras) ? o.otras : []).map(String).filter(x => valido(x) && x !== opcion).slice(0, 2);
     const ficha = (id: string) => { const i = intencionPorId(id); if (i) return { id, nombre: i.nombre, explica: i.explica, href: i.href };

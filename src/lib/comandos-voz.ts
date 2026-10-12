@@ -57,6 +57,8 @@ export function interpretar(original: string): Comando {
 
   // 4) Herramientas por su nombre (o como la gente le dice)
   const d = d0;
+  // Con poca evidencia (una sola palabra suelta como "necesito") no se adivina: lo confirma la IA o la persona
+  if (d.tipo === "clara" && d.puntos < 4 && !tieneFuerte(original, d.intencion) && t.split(" ").length >= 4) return { tipo: "elegir", opciones: [aOpcion(d.intencion)], texto: original };
   if (d.tipo === "clara") {
     const i = d.intencion;
     if (i.id === "anotar_pendientes") return { tipo: "pendientes", texto: "" };

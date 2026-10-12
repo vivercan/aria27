@@ -13,6 +13,7 @@ export function pareceRegunta(texto: string): boolean {
   // ("que me toca", "que hay", "que falta"), porque "Que Miguel revise…" es una ORDEN.
   if (/^\s*¿?\s*qu[eé]/i.test(texto) && /^\s*¿?\s*qué/i.test(texto)) return true;
   if (/^que (me|nos|le|hay|esta|estan|falta|faltan|tengo|tenemos|paso|pasa|sigue|llevo|llevamos|tal|onda|obras?|actividades|solicitudes|pendientes)\b/.test(t)) return true;
+  if (/^hay que\b/.test(t)) return false; // "hay que comprar…" es orden, no pregunta
   if (/^(cuanto|cuantos|cuantas|cuando|como|quien|quienes|donde|cual|cuales|hay|tengo|tenemos|me toca|dime|ensename|muestrame|resumen|resume|en que)\b/.test(t)) return true;
   return false;
 }

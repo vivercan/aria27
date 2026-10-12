@@ -68,6 +68,14 @@ Reglas:
 - "solicitudes" son pedidos de material/gastos; "actividades" son tareas. "dias_tarde" > 0 es atrasada. "estado" de solicitudes ya está en palabras.
 - Solo lees: si te piden crear o cambiar algo, explica que lo haga con el botón + o con el botón que le propones.
 - Para dinero usa "gasto_por_obra_mes" (lo PEDIDO en solicitudes por mes "AAAA-MM"; aclara que es lo pedido, no lo pagado). Nunca menciones pantallas, reportes o botones que no estén en tus acciones.
+- Si preguntan CÓMO SE HACE algo en la app, explícalo en 2-3 pasos con estas reglas (y propone el botón):
+  · Pedir material o servicio: botón azul "+ Nuevo" › Pedir material › qué, dónde/cuándo, tu lista › Enviar. Destajo (anticipo, pago semanal, finiquito): Pedir material › Destajo. Ruta "pedir".
+  · Encargar algo a alguien: "+ Nuevo" › Encargar algo › persona, fecha y hora › Crear y avisar (le llega por WhatsApp). Ruta "actividades".
+  · Registrar lo que llegó: "+ Nuevo" › Registrar una entrega › foto y quién recibió. Ruta "entregas".
+  · Autorizar: Inicio › Autorizar, o Más › Autorizar; un toque en Autorizar o Rechazar. Ruta "autorizar".
+  · Anotar pendientes propios: "Habla con Doménica" y di "anota…"; se acomodan en el Calendario. Ruta "calendario".
+  · Terminar una actividad: Actividades › toca el círculo. Quien no usa la app contesta por WhatsApp "ya quedó", "ya mero" o "no hay material".
+  · Letra grande o colores: Más › Ajustes. Guía: botón "Ayuda" de arriba.
 Responde SOLO JSON: {"respuesta":"texto","acciones":[{"label":"máx 4 palabras","tipo":"actividad|solicitud|obra|autorizar|pantalla","id":"id exacto si aplica","ruta":"actividades|solicitudes|autorizar|obras|calendario|entregas|pedir (solo si tipo=pantalla)"}]} con 0 a 3 acciones útiles.`;
     const mensajes = [
       ...historial.flatMap((h: { q: string; a: string }) => [{ role: "user", content: h.q }, { role: "assistant", content: JSON.stringify({ respuesta: h.a, acciones: [] }) }]),

@@ -125,7 +125,7 @@ export function leer(texto: string): Lectura[] {
 }
 
 export type Decision =
-  | { tipo: "clara"; intencion: Intencion }
+  | { tipo: "clara"; intencion: Intencion; puntos: number }
   | { tipo: "dudosa"; opciones: Intencion[] }
   | { tipo: "ninguna" };
 
@@ -135,9 +135,9 @@ export function decidir(texto: string): Decision {
   if (!l.length) return { tipo: "ninguna" };
   const [a, b] = l;
   const it = (id: IdIntencion) => INTENCIONES.find(x => x.id === id)!;
-  if (a.puntos >= 6 && (!b || a.puntos - b.puntos >= 3)) return { tipo: "clara", intencion: it(a.id) };
-  if (a.puntos >= 4 && (!b || a.puntos - b.puntos >= 2)) return { tipo: "clara", intencion: it(a.id) };
-  if (a.puntos >= 2 && (!b || a.puntos >= 2 * b.puntos)) return { tipo: "clara", intencion: it(a.id) };
+  if (a.puntos >= 6 && (!b || a.puntos - b.puntos >= 3)) return { tipo: "clara", intencion: it(a.id), puntos: a.puntos };
+  if (a.puntos >= 4 && (!b || a.puntos - b.puntos >= 2)) return { tipo: "clara", intencion: it(a.id), puntos: a.puntos };
+  if (a.puntos >= 2 && (!b || a.puntos >= 2 * b.puntos)) return { tipo: "clara", intencion: it(a.id), puntos: a.puntos };
   const opciones = l.filter(x => x.puntos >= Math.max(2, a.puntos - 3)).slice(0, 3).map(x => it(x.id));
   return opciones.length ? { tipo: "dudosa", opciones } : { tipo: "ninguna" };
 }
