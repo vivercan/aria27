@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
     const c = b.cambios || {};
     const up: Record<string, unknown> = {};
     if (typeof c.estado === "string" && ESTADOS.includes(c.estado)) up.estado = c.estado;
-    if (typeof c.responsable_email === "string") up.responsable_email = c.responsable_email.trim().toLowerCase() || null;
+    // vacío = sin cambio; "__ninguno__" = quitar responsable
+    if (typeof c.responsable_email === "string" && c.responsable_email.trim()) up.responsable_email = c.responsable_email === "__ninguno__" ? null : c.responsable_email.trim().toLowerCase();
     if (typeof c.cliente === "string" && c.cliente.trim()) up.cliente = c.cliente.trim().slice(0, 200);
     if (typeof c.empresa === "string" && c.empresa.trim()) up.empresa = c.empresa.trim().slice(0, 200);
     if (c.radio_metros != null && c.radio_metros !== "") { const r = parseInt(String(c.radio_metros)); if (r >= 1 && r <= 5000) up.radio_metros = r; }
