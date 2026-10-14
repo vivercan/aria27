@@ -7,6 +7,8 @@
 export type Actividad = {
   id: string;
   folio?: string | null;
+  wa_estado?: string | null;
+  wa_error?: string | null;
   titulo: string;
   descripcion?: string | null;
   asignado_id?: string | null;

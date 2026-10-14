@@ -647,7 +647,9 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
         <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
         {/* Cabecera */}
         <div className="px-5 pt-3 md:pt-5 pb-3 border-b border-[var(--d-border)]">
-          {a.folio && <div className="text-[12.5px] font-bold text-[var(--d-muted)] mb-0.5">Tarea {numeroCorto(a.folio)}</div>}
+          {(a.folio || a.wa_estado) && <div className="flex flex-wrap items-center gap-2 text-[12.5px] font-bold text-[var(--d-muted)] mb-0.5">{a.folio && <span>Tarea {numeroCorto(a.folio)}</span>}
+            {/* 14-Oct-2026: si el aviso por WhatsApp se entregó, se leyó o no le llegó (lo reporta Meta) */}
+            {a.wa_estado && <span title={a.wa_error || ""} className={`rounded-md px-1.5 py-0.5 ${a.wa_estado === "failed" ? "bg-[#d0304a] text-white" : a.wa_estado === "read" ? "bg-[#00873f] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>WhatsApp: {({ sent: "enviado", delivered: "entregado", read: "leído", failed: "no le llegó" } as Record<string, string>)[a.wa_estado] || a.wa_estado}{a.wa_estado === "failed" && a.wa_error ? ` · ${a.wa_error}` : ""}</span>}</div>}
           <div className="flex items-start gap-2">
             <textarea value={titulo} disabled={!puedeEditar} onChange={e => setTitulo(e.target.value)} onBlur={() => { if (titulo.trim() && titulo.trim() !== a.titulo) onPatch({ titulo: titulo.trim() }, { titulo: titulo.trim() }); }} rows={2}
               className="flex-1 resize-none bg-transparent text-lg font-bold text-[var(--d-text)] leading-snug focus:outline-none focus:bg-[var(--d-hover)] rounded-lg px-1 -mx-1" />

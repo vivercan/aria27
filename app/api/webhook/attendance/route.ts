@@ -767,6 +767,11 @@ export async function POST(request: NextRequest) {
     const changes = entry?.changes?.[0];
     const value = changes?.value;
 
+    // 14-Oct-2026: Meta avisa si cada WhatsApp se entregó, se leyó o falló → se guarda y, si falla, se reporta a quien lo mandó
+    if (Array.isArray(value?.statuses) && value.statuses.length) {
+      try { const { registrarEstados } = await import("@/lib/wa-entrega"); const n = await registrarEstados(getSupabaseAdmin(), value.statuses); return NextResponse.json({ status: "estados", n }); }
+      catch (e) { log.warn("No se pudo registrar estado de WhatsApp", { error: (e as Error)?.message }); return NextResponse.json({ status: "estados-error" }); }
+    }
     if (!value?.messages?.[0]) {
       return NextResponse.json({ status: "no message" });
     }

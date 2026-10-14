@@ -10,7 +10,7 @@ const t = (f: string) => Date.parse(f.slice(0, 10) + "T12:00:00Z");
 export type Riesgo = { motivo: string; esperado: number; lleva: number } | null;
 
 export function enRiesgo(a: Actividad, hoyISO: string): Riesgo {
-  if (columnaDe(a) === "TERMINADA" || !a.fecha_compromiso || diasAtraso(a) > 0) return null;
+  if (columnaDe(a) === "TERMINADA" || !a.fecha_compromiso || diasAtraso(a, new Date(hoyISO + "T12:00:00")) > 0) return null;
   const lleva = Number(a.avance) || 0;
   const fin = t(a.fecha_compromiso); const hoy = t(hoyISO);
   const faltan = Math.round((fin - hoy) / DIA);

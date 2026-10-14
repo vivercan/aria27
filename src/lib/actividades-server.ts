@@ -120,6 +120,8 @@ export async function crearActividad(db: SupabaseClient, a: NuevaActividad, porE
       asignado.phone, { origen: "actividad-asignada", enviadoPor: por },
     );
     notificado = !!r.success;
+    // 14-Oct-2026: se guarda el id del WhatsApp para saber después si se entregó, se leyó o falló
+    try { await db.from("tareas_asignadas").update({ wa_message_id: r.messageId || null, wa_estado: r.success ? "sent" : "failed", wa_error: r.success ? null : String(r.error || "no se pudo enviar").slice(0, 200), wa_estado_at: new Date().toISOString() }).eq("id", id); } catch { /* best effort */ }
   }
   // 11-Oct-2026 (JJ): también por correo (Resend) a quien se la asignaron, con fecha y hora
   if (avisar === "todo" && esOtro && asignado.email) {
