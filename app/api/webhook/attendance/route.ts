@@ -833,6 +833,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: "asistencia processed" });
     }
 
+    // ====== "¿YA LLEGÓ?" (14-Oct-2026): "SI 757", "NO 757", "SI TODAS" cierran o dejan viva la solicitud vieja ======
+    if (message.type === "text") {
+      try {
+        const { mensajeDeSeguimiento } = await import("@/lib/requi-seguimiento");
+        const rs = await mensajeDeSeguimiento(db, message.text?.body || "", phone10);
+        if (rs.manejado) { if (rs.respuesta) await sendWhatsApp(from, rs.respuesta); return NextResponse.json({ status: "seguimiento requi" }); }
+      } catch (eSeg: unknown) { log.error("seguimiento requi fallo, sigue flow normal", { err: String(eSeg) }); }
+    }
+
     // ====== ACTIVIDADES (11-Oct-2026): "ya quedó", "50", "no hay cemento", APROBAR, fotos y notas de voz de la tarea ======
     // Antes estas respuestas caían en el menú de ayuda o se leían como gasto, y nunca llegaban a la actividad.
     try {

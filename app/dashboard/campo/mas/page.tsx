@@ -23,6 +23,7 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
     { href: "/dashboard/campo/autorizar", t: "Autorizar", d: "Lo que espera tu visto bueno", icon: IcoSello, color: "#00873f", roles: ["admin", "direccion", "validador", "residente"] },
     { href: "/dashboard/campo/calendario", t: "Calendario", d: "Qué hay cada día: entregas y pendientes", icon: IcoCalendario, color: "#b85507" },
     { href: "/dashboard/campo/evidencia", t: "Registrar una entrega", d: "Llegó material: foto y quién recibió", icon: IcoCamion, color: "#0077ad" },
+    { href: "/dashboard/requisiciones/requisiciones/ya-llego", t: "¿Ya llegó?", d: "Cierra con un toque las solicitudes viejas", icon: IcoCamion, color: "#0073ea" },
     { href: "/dashboard/campo/pregunta", t: "Pregúntale a Doménica", d: "“¿Qué está atrasado?”", icon: IcoPregunta, color: "#7e3bdd" },
   ] },
   { titulo: "Mis obras", items: [
@@ -44,6 +45,7 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
     { href: "/dashboard/domenica/plantillas", t: "Listas de pasos", d: "Ej. arranque de obra: crea todas las tareas de un jalón", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
     { href: "/dashboard/domenica/recurrentes", t: "Lo que se repite", d: "Tareas que se crean solas cada semana o mes", icon: Repeat as unknown as Ico, color: "#0073ea" },
     { href: "/dashboard/domenica/carga", t: "Quién está muy cargado", d: "Antes de encargar, ve quién tiene menos", icon: BarChart3 as unknown as Ico, color: "#00873f", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+    { href: "/dashboard/domenica/uso", t: "¿Quién está usando Doménica?", d: "Quién no entra y quién tiene cosas atoradas", icon: IcoEquipo, color: "#7e3bdd", roles: ["admin", "rh", "direccion"] },
     { href: "/dashboard/domenica/automatizaciones", t: "Avisos automáticos", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#b85507", roles: ["admin", "rh", "direccion", "validador", "compras"] },
     { href: "/dashboard/domenica", t: "Todas las herramientas", d: "Línea de tiempo, qué va primero y más", icon: IcoOrganizar, color: "#55657c" },
   ] },

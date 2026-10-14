@@ -24,6 +24,7 @@ const SUB_LIBRE: Record<string, string[]> = { talento: ["tareas"] };
 export const ROLES_RUTA: [string, string[]][] = [
   ["/dashboard/campo/autorizar", ["admin", "direccion", "validador", "residente"]],
   ["/dashboard/domenica/carga", ["admin", "rh", "direccion", "validador", "compras"]],
+  ["/dashboard/domenica/uso", ["admin", "rh", "direccion"]],
   ["/dashboard/domenica/automatizaciones", ["admin", "rh", "direccion", "validador", "compras"]],
   ["/dashboard/requisiciones/proveedores", ["admin", "compras", "direccion", "rh", "validador"]],
   ["/dashboard/requisiciones/productos", ["admin", "compras", "direccion", "rh"]],

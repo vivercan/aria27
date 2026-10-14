@@ -28,6 +28,7 @@ const GRUPOS: { titulo: string; piezas: Pieza[] }[] = [
     { t: "Espacio por obra", d: "Actividades, solicitudes, entregas y avance de cada obra", href: "/dashboard/domenica/obras", icon: Building2, color: "#00873f", estado: "listo" },
     { t: "Menciones", d: "Escribe @Daisy en un comentario y le avisa", href: "/dashboard/actividades", icon: AtSign, color: "#00873f", estado: "listo" },
     { t: "Quién está muy cargado", d: "Antes de encargar, ve quién tiene menos trabajo", href: "/dashboard/domenica/carga", icon: Users, color: "#00873f", estado: "listo" },
+    { t: "¿Quién está usando Doménica?", d: "Quién no entra y quién tiene cosas atoradas", href: "/dashboard/domenica/uso", icon: BarChart3, color: "#7e3bdd", estado: "listo" },
     { t: "Enlaces para proveedores", d: "Sin cuenta: el proveedor cotiza y el destajista sube fotos de avance", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#00873f", estado: "listo" },
   ] },
   { titulo: "En la obra", piezas: [

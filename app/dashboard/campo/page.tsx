@@ -4,6 +4,7 @@
  * 1) Saludo  2) 3 numeros que importan  3) 4 acciones grandes  4) "Lo que te toca" (solicitudes + actividades en una sola lista)
  * Todo con un toque. Sin menus escondidos.
  */
+import YaLlegoAviso from "@/components/YaLlegoAviso";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -137,6 +138,9 @@ export default function CampoHome() {
             <Link href={`/dashboard/domenica/obras/${aqui.id}`} className="shrink-0 rounded-xl bg-white px-4 py-2.5 text-[15px] font-bold text-[#1f7a00]">Ver obra</Link>
           </div>
         )}
+
+        {/* 14-Oct-2026: solicitudes viejas sin cerrar → ¿ya llegaron? */}
+        <YaLlegoAviso className="mt-3" />
 
         {/* 1) LO QUE TE TOCA AHORA: una sola cosa grande */}
         <section className="mt-4">

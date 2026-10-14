@@ -67,6 +67,7 @@ const searchableItems = [
   { name: "Plantillas de actividades", icon: ChevronRight, href: "/dashboard/domenica/plantillas" },
   { name: "Actividades recurrentes", icon: ChevronRight, href: "/dashboard/domenica/recurrentes" },
   { name: "Carga de trabajo", icon: ChevronRight, href: "/dashboard/domenica/carga" },
+  { name: "¿Quién usa Doménica?", icon: ChevronRight, href: "/dashboard/domenica/uso" },
   { name: "Espacio por obra / tablero de obra", icon: ChevronRight, href: "/dashboard/domenica/obras" },
   { name: "Revisiones de calidad y seguridad", icon: ChevronRight, href: "/dashboard/domenica/revisiones" },
   { name: "Planos con marcas", icon: ChevronRight, href: "/dashboard/domenica/planos" },

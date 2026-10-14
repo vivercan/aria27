@@ -17,6 +17,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import CotizacionesProveedor from "@/components/CotizacionesProveedor";
 import EntregasDeRequi from "@/components/EntregasDeRequi";
 import FolioCruzado from "@/components/FolioCruzado";
+import YaLlegoAviso from "@/components/YaLlegoAviso";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
 import { fmtMoney, fmtDate } from "@/lib/formatters";
@@ -500,7 +501,7 @@ export default function RequisicionesStatusPage() {
           onSelect={lf.setSelect}
           shown={visibles.length} total={requisiciones.length}
           isActive={lf.isActive} onClear={lf.clear}
-        /><FolioCruzado q={lf.search} /></div>
+        /><FolioCruzado q={lf.search} /><YaLlegoAviso className="mt-3 max-w-xl" /></div>
       )}
 
       {loading ? (
@@ -517,6 +518,7 @@ export default function RequisicionesStatusPage() {
                 {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#b85507] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
               </button>))}
           </div>
+          <YaLlegoAviso className="mt-3" />
           <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar por número, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 h-12 text-[16px] text-[var(--d-text)]" />
           <FolioCruzado q={qMovil} />
           <div className="mt-3 space-y-2">
