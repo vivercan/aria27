@@ -133,7 +133,12 @@ export async function mensajeDeSeguimiento(db: SupabaseClient, texto: string, ph
     if (!objetivo.length) return { manejado: true, respuesta: "No tengo solicitudes pendientes de confirmar a tu nombre. Si es otra, contesta con el número, por ejemplo: SI 757." };
   } else {
     const r = abiertas.find(x => numeroFolio(x.folio) === lr.num);
-    if (!r) return { manejado: true, respuesta: `No encontré la solicitud ${lr.num} abierta a tu nombre. Revisa el número en Doménica › Solicitudes.` };
+    if (!r) {
+      // Si a esta persona no le hemos preguntado nada, el mensaje no era para esto: que lo atienda el resto del bot
+      const lePreguntamos = abiertas.some(x => correos.includes(String(x.user_email || "").toLowerCase()) && ms(x.seg_preguntado_at) >= Date.now() - 22 * DIA);
+      if (!lePreguntamos) return { manejado: false };
+      return { manejado: true, respuesta: `No encontré la solicitud ${lr.num} abierta a tu nombre. Revisa el número en Doménica › Solicitudes.` };
+    }
     objetivo = [r];
   }
   const ok: string[] = [];

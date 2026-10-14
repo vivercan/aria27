@@ -59,7 +59,8 @@ export async function GET(req: NextRequest) {
       email, nombre, rol, telefono: tel,
       ultimoIngreso: em ? ultimo.get(em) || null : null, diasSinEntrar: em ? diasDesde(ultimo.get(em), hoy) : null,
       actividadesAbiertas: mias.length, actividadesAtrasadas: mias.filter(a => diasAtraso(a, hoy) > 0).length,
-      leTocanSolicitudes: em ? reqs.filter(r => meToca(r, rol, em)).length : 0,
+      // admin puede mover todo: contarle "le tocan" todas sería ruido; solo cuenta para los demás roles
+      leTocanSolicitudes: em && rol !== "admin" && rol !== "administrador" ? reqs.filter(r => meToca(r, rol, em)).length : 0,
       solicitudesViejas: em ? reqs.filter(r => (r.user_email || "").toLowerCase() === em && esViejaSinCerrar(r, hoy)).length : 0,
       porRevisar: em ? acts.filter(a => a.por_aprobar && String(a.asignado_por_email || a.asignado_por || "").toLowerCase() === em).length : 0,
       ultimoWhatsApp: tel ? ultWa.get(ult10(tel)) || null : null, soloWhatsApp,
