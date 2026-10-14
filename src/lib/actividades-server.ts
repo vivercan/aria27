@@ -201,3 +201,29 @@ ${a.descripcion ? `<p style="margin:14px 0 0;color:#334155;font-size:14px;line-h
     return r.success;
   } catch { return false; }
 }
+
+/** 14-Oct-2026 · Reenvía el aviso de "nueva actividad" por WhatsApp (cuando no le llegó, p. ej. cuenta bloqueada en Meta).
+ *  Lo usan el botón "Reenviar aviso" de la ficha y el reintento automático. */
+export async function reenviarAvisoAsignacion(db: SupabaseClient, id: string, porEmail: string, origen = "actividad-reenvio"):
+  Promise<{ ok: boolean; error?: string; para?: string }> {
+  const { data } = await db.from("tareas_asignadas").select("id, titulo, obra, fecha_compromiso, hora_compromiso, asignado_id, asignado_nombre, asignado_por, asignado_por_email, estatus, wa_reintentos").eq("id", id).maybeSingle();
+  const t = data as { id: string; titulo: string; obra?: string | null; fecha_compromiso?: string | null; hora_compromiso?: string | null; asignado_id?: string | null; asignado_nombre?: string | null; asignado_por?: string | null; asignado_por_email?: string | null; estatus?: string | null; wa_reintentos?: number | null } | null;
+  if (!t) return { ok: false, error: "Actividad no encontrada" };
+  if (["COMPLETADA", "CANCELADA"].includes(String(t.estatus || "").toUpperCase())) return { ok: false, error: "La actividad ya está cerrada" };
+  if (/\bqa\b[\s\S]*no procesar/i.test(t.titulo)) return { ok: false, error: "Prueba QA: no se avisa a nadie" };
+  const p = await personaPorEmpleado(db, t.asignado_id);
+  if (!p?.phone) return { ok: false, error: `${t.asignado_nombre || "La persona"} no tiene WhatsApp registrado en Personal` };
+  const de = await personaPorEmail(db, t.asignado_por_email || t.asignado_por || "");
+  const nombre = (p.nombre || "").split(" ")[0] || "Hola";
+  const fecha = cuando(t.fecha_compromiso, t.hora_compromiso);
+  const r = await sendWhatsAppTemplateOrFallback(
+    { template: "aria_actividad_asignada", params: [nombre, t.titulo.slice(0, 80), (t.obra || "oficina").slice(0, 60), fecha], buttonToken: t.id },
+    { template: "aria_tarea_status", params: [nombre, "1", limpiar(`Actividad de ${de?.nombre || t.asignado_por || "la oficina"}: ${t.titulo.slice(0, 120)}${t.obra ? ` en ${t.obra}` : ""}. Entrega: ${fecha}. Contesta LISTO, AVANCE 50 o BLOQUEADO y el motivo.`)] },
+    p.phone, { origen, enviadoPor: porEmail },
+  );
+  try {
+    await db.from("tareas_asignadas").update({ wa_message_id: r.messageId || null, wa_estado: r.success ? "sent" : "failed", wa_error: r.success ? null : String(r.error || "no se pudo enviar").slice(0, 200), wa_estado_at: new Date().toISOString(), wa_reintentos: (Number(t.wa_reintentos) || 0) + 1 }).eq("id", t.id);
+  } catch { /* best effort */ }
+  await registrarActualizacion(db, { tarea_id: t.id, autor_email: porEmail, tipo: "sistema", texto: r.success ? `Se reenvió el aviso por WhatsApp a ${p.nombre}` : `No se pudo reenviar el aviso por WhatsApp a ${p.nombre}` });
+  return r.success ? { ok: true, para: p.nombre } : { ok: false, error: String(r.error || "No se pudo enviar el WhatsApp") };
+}

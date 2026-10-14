@@ -43,3 +43,6 @@ grant select (id, employee_number, full_name, "position", project_site, departme
   hora_entrada, hora_salida, dias_laborales, centro_trabajo_id, fecha_ingreso, fecha_baja, empresa_id, usuario_email) on table "Personal" to anon, authenticated;
 -- REQ-2026-00587 cancelada por indicación de JJ (estaba Pendiente y en $0.00):
 -- update requisitions set status='CANCELADA' where folio='REQ-2026-00587';
+
+-- 14-Oct-2026 · reintentos de aviso por WhatsApp de actividades
+alter table tareas_asignadas add column if not exists wa_reintentos int not null default 0;
