@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { avisarWA, personaPorEmail } from "@/lib/actividades-server";
 import { esCorreoPrueba } from "@/lib/modo-prueba";
-import { ABIERTAS, COLS_SEG, conResumen, diasSinMover, esViejaSinCerrar, numeroFolio, queEs, tocaPreguntarHoy, type RequiSeg } from "@/lib/requi-seguimiento";
+import { ABIERTAS, COLS_SEG, conResumen, diasSinMover, esViejaSinCerrar, mensajeYaLlego, tocaPreguntarHoy, type RequiSeg } from "@/lib/requi-seguimiento";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,14 +35,12 @@ export async function GET(req: NextRequest) {
     const lista = await conResumen(db, todas.sort((a, b) => diasSinMover(b, hoy) - diasSinMover(a, hoy)).slice(0, POR_MENSAJE));
     const total = pendientesPorPersona.get(email) || lista.length;
     const p = await personaPorEmail(db, email);
-    const partes = lista.map((r, i) => `${i + 1}) #${numeroFolio(r.folio)} ${queEs(r)} · ${String(r.cost_center_name || "").slice(0, 30)} (${diasSinMover(r, hoy)} días)`);
-    const ej = numeroFolio(lista[0].folio);
-    const msg = `Tienes ${total} solicitud${total === 1 ? "" : "es"} de hace más de 15 días sin cerrar. ¿Ya llegaron? ${partes.join(" | ")}${total > lista.length ? ` y ${total - lista.length} más en la app` : ""}. Contesta SI ${ej} si ya llegó, NO ${ej} si sigue pendiente, o SI TODAS si ya llegaron las de este mensaje. También en Doménica › Solicitudes › ¿Ya llegó?`;
+    const { msg, incluidas } = mensajeYaLlego(total, lista, hoy);
     if (dry) { enviados.push(`DRY ${email} -> ${msg}`); continue; }
     await avisarWA(p, msg, "requis-viejas", "cron", { title: `📦 ¿Ya llegaron? ${total} solicitud${total === 1 ? "" : "es"} sin cerrar`, url: "/dashboard/requisiciones/requisiciones/ya-llego", tag: "ya-llego" });
     const ahora = new Date().toISOString();
-    for (const r of lista) await db.from("requisitions").update({ seg_preguntado_at: ahora, seg_preguntas: (Number(r.seg_preguntas) || 0) + 1 }).eq("id", r.id);
-    enviados.push(`${email}:${lista.length}/${total}`);
+    for (const r of incluidas) await db.from("requisitions").update({ seg_preguntado_at: ahora, seg_preguntas: (Number(r.seg_preguntas) || 0) + 1 }).eq("id", r.id);
+    enviados.push(`${email}:${incluidas.length}/${total}`);
   }
   return NextResponse.json({ ok: true, personas: porPersona.size, enviados });
 }

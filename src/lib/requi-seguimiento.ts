@@ -53,7 +53,22 @@ export function tocaPreguntarHoy(r: RequiSeg, hoy = new Date()): boolean {
 }
 export const numeroFolio = (folio?: string | null) => { const m = String(folio || "").match(/(\d+)\s*$/); return m ? Number(m[1]) : null; };
 export const esEfectivo = (r: Pick<RequiSeg, "purchase_status" | "forma_pago">) => r.purchase_status === "GASTO_EFECTIVO_PENDIENTE" || /EFECTIVO|CAJA/i.test(String(r.forma_pago || ""));
-export const queEs = (r: RequiSeg) => String(r.resumen || r.descripcion_corta || r.descripcion_compra || "material").replace(/\s+/g, " ").trim().slice(0, 45);
+export const queEs = (r: RequiSeg) => String(r.resumen || r.descripcion_corta || r.descripcion_compra || "material").replace(/\s+/g, " ").trim().slice(0, 48);
+
+/** Mensaje de WhatsApp "¿ya llegaron?": cabe en 700 caracteres (límite de la plantilla) sin cortar las instrucciones */
+export function mensajeYaLlego(total: number, lista: RequiSeg[], hoy = new Date()): { msg: string; incluidas: RequiSeg[] } {
+  const ej = numeroFolio(lista[0]?.folio);
+  const pie = (n: number) => `${total > n ? ` (y ${total - n} más en la app)` : ""}. Contesta SI ${ej} si ya llegó, NO ${ej} si sigue pendiente, o SI TODAS si ya llegaron las de este mensaje. También en Doménica › Solicitudes › ¿Ya llegó?`;
+  const cab = `Tienes ${total} solicitud${total === 1 ? "" : "es"} con más de 15 días sin cerrar. ¿Ya llegaron? `;
+  const partes: string[] = []; const incluidas: RequiSeg[] = [];
+  for (const r of lista) {
+    const obra = String(r.cost_center_name || "").replace(/^(FRACCIONAMIENTO|FRACC\.?)\s+/i, "").slice(0, 22).trim();
+    const linea = `${partes.length + 1}) #${numeroFolio(r.folio)} ${queEs(r)} (${obra ? `${obra}, ` : ""}${diasSinMover(r, hoy)} días)`;
+    if ((cab + [...partes, linea].join(" | ") + pie(partes.length + 1)).length > 690) break;
+    partes.push(linea); incluidas.push(r);
+  }
+  return { msg: cab + partes.join(" | ") + pie(partes.length), incluidas };
+}
 
 /** "VAPORTITE 550 19 LTS y 3 más" — lo que se pidió, para que la persona reconozca la solicitud (no solo "MATERIALES") */
 export async function conResumen<T extends RequiSeg>(db: SupabaseClient, lista: T[]): Promise<T[]> {
@@ -63,7 +78,7 @@ export async function conResumen<T extends RequiSeg>(db: SupabaseClient, lista: 
     const { data } = await db.from("requisition_items").select("requisition_id, product_name").in("requisition_id", lista.slice(i, i + 200).map(r => r.id));
     for (const it of (data || []) as { requisition_id: string; product_name: string | null }[]) if (it.product_name) m.set(it.requisition_id, [...(m.get(it.requisition_id) || []), it.product_name.trim()]);
   }
-  return lista.map(r => { const xs = m.get(r.id) || []; return { ...r, resumen: xs.length ? `${xs[0].slice(0, 60)}${xs.length > 1 ? ` y ${xs.length - 1} más` : ""}` : null }; });
+  return lista.map(r => { const xs = m.get(r.id) || []; return { ...r, resumen: xs.length ? `${xs[0].replace(/\s+/g, " ").slice(0, 34).trim()}${xs.length > 1 ? ` y ${xs.length - 1} más` : ""}` : null }; });
 }
 
 /** Respuesta por WhatsApp: "SI 757", "sí, llegó la 757", "NO 757", "SI TODAS". null si no es una respuesta de este seguimiento. */

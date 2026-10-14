@@ -53,3 +53,15 @@ describe("cuándo preguntar", () => {
   });
   it("número del folio", () => { expect(numeroFolio("REQ-2026-00757")).toBe(757); expect(numeroFolio(null)).toBeNull(); });
 });
+
+import { mensajeYaLlego } from "@/lib/requi-seguimiento";
+describe("mensaje de WhatsApp", () => {
+  it("cabe en 700 y no corta las instrucciones", () => {
+    const l = Array.from({ length: 6 }, (_, i) => base({ id: String(i), folio: `REQ-2026-00${600 + i}`, resumen: "WF10586 FILTRO DIESEL (363-5819 - PF y 3 más", cost_center_name: "FRACCIONAMIENTO VILLAS DE LA UNIVERSIDAD" }));
+    const { msg, incluidas } = mensajeYaLlego(30, l, hoy);
+    expect(msg.length).toBeLessThanOrEqual(690);
+    expect(msg).toContain("SI TODAS");
+    expect(msg).toContain(`y ${30 - incluidas.length} más en la app`);
+    expect(incluidas.length).toBeGreaterThanOrEqual(4);
+  });
+});
