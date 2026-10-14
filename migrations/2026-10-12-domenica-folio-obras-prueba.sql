@@ -46,3 +46,6 @@ grant select (id, employee_number, full_name, "position", project_site, departme
 
 -- 14-Oct-2026 · reintentos de aviso por WhatsApp de actividades
 alter table tareas_asignadas add column if not exists wa_reintentos int not null default 0;
+
+-- 14-Oct-2026 · ¿Ya llegó? (seguimiento de solicitudes viejas)
+alter table requisitions add column if not exists seg_preguntado_at timestamptz, add column if not exists seg_preguntas int not null default 0, add column if not exists seg_respuesta text, add column if not exists seg_respuesta_at timestamptz;
