@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { ABIERTAS, COLS_SEG, diasSinMover, esViejaSinCerrar, puedeContestar, responderSeguimiento, type RequiSeg } from "@/lib/requi-seguimiento";
+import { ABIERTAS, COLS_SEG, conResumen, diasSinMover, esViejaSinCerrar, puedeContestar, responderSeguimiento, type RequiSeg } from "@/lib/requi-seguimiento";
 
 export const dynamic = "force-dynamic";
 const VEN_TODAS = ["admin", "administrador", "compras", "validador", "direccion"];
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await q;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   const hoy = new Date();
-  const lista = ((data || []) as RequiSeg[]).filter(r => esViejaSinCerrar(r, hoy)).map(r => ({ ...r, dias: diasSinMover(r, hoy) }));
+  const lista = (await conResumen(db, ((data || []) as RequiSeg[]).filter(r => esViejaSinCerrar(r, hoy)))).map(r => ({ ...r, dias: diasSinMover(r, hoy) }));
   return NextResponse.json({ ok: true, todas, puedeVerTodas: VEN_TODAS.includes(role), lista });
 }
 

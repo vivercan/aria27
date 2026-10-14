@@ -12,7 +12,7 @@ import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
 import { IcoCamion } from "@/components/domenica/IconosObra";
 
-type R = { id: string; folio: string | null; status: string | null; user_email?: string | null; cost_center_name?: string | null; descripcion_corta?: string | null; descripcion_compra?: string | null; purchase_status?: string | null; forma_pago?: string | null; seg_respuesta?: string | null; dias: number };
+type R = { id: string; folio: string | null; resumen?: string | null; proveedor?: string | null; status: string | null; user_email?: string | null; cost_center_name?: string | null; descripcion_corta?: string | null; descripcion_compra?: string | null; purchase_status?: string | null; forma_pago?: string | null; seg_respuesta?: string | null; dias: number };
 const num = (f?: string | null) => { const m = String(f || "").match(/(\d+)\s*$/); return m ? `#${Number(m[1])}` : "—"; };
 const efectivo = (r: R) => r.purchase_status === "GASTO_EFECTIVO_PENDIENTE" || /EFECTIVO|CAJA/i.test(String(r.forma_pago || ""));
 const quien = (e?: string | null) => String(e || "").split("@")[0].replace(/[._]/g, " ");
@@ -94,8 +94,8 @@ export default function YaLlegoPage() {
                           {efectivo(r) && <span className="rounded-full bg-[#007a87] px-2 py-0.5 text-[11px] font-bold text-white">Efectivo</span>}
                           {r.seg_respuesta === "NO" && <span className="rounded-full bg-[var(--d-card-2)] px-2 py-0.5 text-[11px] font-bold text-[var(--d-text-2)]">Dijeron que aún no</span>}
                         </div>
-                        <div className="mt-1 text-[14px] font-semibold text-[var(--d-text)] truncate">{r.descripcion_corta || r.descripcion_compra || "Material"}</div>
-                        <div className="text-[12.5px] text-[var(--d-muted)] truncate">{r.cost_center_name || "Sin obra"}{todas && r.user_email ? ` · pidió ${quien(r.user_email)}` : ""}</div>
+                        <div className="mt-1 text-[14px] font-semibold text-[var(--d-text)] line-clamp-2">{r.resumen || r.descripcion_corta || r.descripcion_compra || "Material"}</div>
+                        <div className="text-[12.5px] text-[var(--d-muted)] truncate">{r.cost_center_name || "Sin obra"}{r.proveedor ? ` · ${r.proveedor}` : ""}{todas && r.user_email ? ` · pidió ${quien(r.user_email)}` : ""}</div>
                       </div>
                     </div>
                     {cancelarId === r.id ? (

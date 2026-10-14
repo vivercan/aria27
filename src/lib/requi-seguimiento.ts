@@ -22,8 +22,9 @@ export type RequiSeg = {
   user_email?: string | null; cost_center_name?: string | null; descripcion_corta?: string | null; descripcion_compra?: string | null; instructions?: string | null;
   created_at: string; authorized_at?: string | null; responsable_autorizo_at?: string | null; fecha_entrega?: string | null;
   seg_preguntado_at?: string | null; seg_preguntas?: number | null; seg_respuesta?: string | null; seg_respuesta_at?: string | null;
+  proveedor?: string | null; resumen?: string | null;
 };
-export const COLS_SEG = "id, folio, status, tipo_solicitud, purchase_status, forma_pago, user_email, cost_center_name, descripcion_corta, descripcion_compra, instructions, created_at, authorized_at, responsable_autorizo_at, fecha_entrega, seg_preguntado_at, seg_preguntas, seg_respuesta, seg_respuesta_at";
+export const COLS_SEG = "id, folio, status, tipo_solicitud, purchase_status, forma_pago, user_email, cost_center_name, proveedor, descripcion_corta, descripcion_compra, instructions, created_at, authorized_at, responsable_autorizo_at, fecha_entrega, seg_preguntado_at, seg_preguntas, seg_respuesta, seg_respuesta_at";
 
 const DIA = 864e5;
 const ms = (s?: string | null) => (s ? new Date(s).getTime() : 0);
@@ -52,7 +53,18 @@ export function tocaPreguntarHoy(r: RequiSeg, hoy = new Date()): boolean {
 }
 export const numeroFolio = (folio?: string | null) => { const m = String(folio || "").match(/(\d+)\s*$/); return m ? Number(m[1]) : null; };
 export const esEfectivo = (r: Pick<RequiSeg, "purchase_status" | "forma_pago">) => r.purchase_status === "GASTO_EFECTIVO_PENDIENTE" || /EFECTIVO|CAJA/i.test(String(r.forma_pago || ""));
-export const queEs = (r: RequiSeg) => String(r.descripcion_corta || r.descripcion_compra || "material").replace(/\s+/g, " ").trim().slice(0, 40);
+export const queEs = (r: RequiSeg) => String(r.resumen || r.descripcion_corta || r.descripcion_compra || "material").replace(/\s+/g, " ").trim().slice(0, 45);
+
+/** "VAPORTITE 550 19 LTS y 3 más" — lo que se pidió, para que la persona reconozca la solicitud (no solo "MATERIALES") */
+export async function conResumen<T extends RequiSeg>(db: SupabaseClient, lista: T[]): Promise<T[]> {
+  if (!lista.length) return lista;
+  const m = new Map<string, string[]>();
+  for (let i = 0; i < lista.length; i += 200) {
+    const { data } = await db.from("requisition_items").select("requisition_id, product_name").in("requisition_id", lista.slice(i, i + 200).map(r => r.id));
+    for (const it of (data || []) as { requisition_id: string; product_name: string | null }[]) if (it.product_name) m.set(it.requisition_id, [...(m.get(it.requisition_id) || []), it.product_name.trim()]);
+  }
+  return lista.map(r => { const xs = m.get(r.id) || []; return { ...r, resumen: xs.length ? `${xs[0].slice(0, 60)}${xs.length > 1 ? ` y ${xs.length - 1} más` : ""}` : null }; });
+}
 
 /** Respuesta por WhatsApp: "SI 757", "sí, llegó la 757", "NO 757", "SI TODAS". null si no es una respuesta de este seguimiento. */
 export function leerRespuestaSeguimiento(texto: string): { accion: "si" | "no"; num: number | "todas" } | null {

@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { avisarWA, personaPorEmail } from "@/lib/actividades-server";
 import { esCorreoPrueba } from "@/lib/modo-prueba";
-import { ABIERTAS, COLS_SEG, diasSinMover, esViejaSinCerrar, numeroFolio, queEs, tocaPreguntarHoy, type RequiSeg } from "@/lib/requi-seguimiento";
+import { ABIERTAS, COLS_SEG, conResumen, diasSinMover, esViejaSinCerrar, numeroFolio, queEs, tocaPreguntarHoy, type RequiSeg } from "@/lib/requi-seguimiento";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   }
   const enviados: string[] = [];
   for (const [email, todas] of porPersona) {
-    const lista = todas.sort((a, b) => diasSinMover(b, hoy) - diasSinMover(a, hoy)).slice(0, POR_MENSAJE);
+    const lista = await conResumen(db, todas.sort((a, b) => diasSinMover(b, hoy) - diasSinMover(a, hoy)).slice(0, POR_MENSAJE));
     const total = pendientesPorPersona.get(email) || lista.length;
     const p = await personaPorEmail(db, email);
     const partes = lista.map((r, i) => `${i + 1}) #${numeroFolio(r.folio)} ${queEs(r)} · ${String(r.cost_center_name || "").slice(0, 30)} (${diasSinMover(r, hoy)} días)`);
