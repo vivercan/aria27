@@ -22,6 +22,7 @@ export function motivoFalla(e?: EstadoMeta["errors"]): string | null {
     131053: "no se pudo subir el archivo",
     130472: "Meta frenó el mensaje (experimento de Meta con ese número)",
     131000: "error de Meta, se puede reintentar",
+    131042: "la cuenta de WhatsApp de la empresa tiene un problema de pago en Meta (método de pago vencido o rechazado); ningún aviso sale hasta corregirlo",
     131021: "el número de destino es el mismo que el de la empresa",
     132000: "faltan o sobran datos en la plantilla",
     132001: "la plantilla no existe o no está aprobada",
@@ -30,11 +31,24 @@ export function motivoFalla(e?: EstadoMeta["errors"]): string | null {
   return `${m[c] || (x.title || x.message || "error de Meta")} (${c || "?"})`;
 }
 
+let _ultimoAvisoPago = 0;
+/** Si Meta frena TODO por pago (131042), avisa a Administración (máximo cada 6 h) */
+async function avisarProblemaCuenta(db: SupabaseClient, motivo: string) {
+  if (Date.now() - _ultimoAvisoPago < 6 * 3600_000) return; _ultimoAvisoPago = Date.now();
+  try {
+    const { data } = await db.from("users").select("email").eq("role", "admin").eq("active", true).is("usuario_prueba", null);
+    const { avisarEnApp } = await import("@/lib/actividades-server");
+    for (const u of (data || []) as { email: string }[]) await avisarEnApp(u.email, { title: "🚨 WhatsApp detenido por Meta", body: `Ningún WhatsApp está llegando: ${motivo}. Corrígelo en Meta Business › WhatsApp Manager › Pagos.`, url: "/dashboard/domenica", tag: "wa-cuenta" });
+    await db.from("event_log").insert({ tipo: "WA_CUENTA_BLOQUEADA", resumen: `Meta rechaza entregas: ${motivo}`.slice(0, 300), actor: "webhook" });
+  } catch { /* best effort */ }
+}
+
 export async function registrarEstados(db: SupabaseClient, estados: EstadoMeta[]): Promise<number> {
   let n = 0;
   for (const s of estados || []) {
     if (!s?.id || !s.status) continue;
     const motivo = s.status === "failed" ? motivoFalla(s.errors) : null;
+    if (s.status === "failed" && Number(s.errors?.[0]?.code) === 131042) await avisarProblemaCuenta(db, motivo || "problema de pago");
     const { data: fila } = await db.from("wa_log").select("id, estado_entrega").eq("message_id", s.id).maybeSingle();
     const actual = (fila as { estado_entrega?: string | null } | null)?.estado_entrega || "";
     if (fila && (ORDEN[actual] || 0) >= (ORDEN[s.status] || 0) && s.status !== "failed") continue; // no retroceder (leído > entregado)
