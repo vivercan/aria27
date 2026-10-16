@@ -10,7 +10,7 @@ import { useListFilter } from "@/hooks/useListFilter";
 import RequiStepper from "@/components/RequiStepper";
 import { statusLabel, accionPara, puedeRegistrarEntrega, queSigue, ACCION_TXT, meToca } from "@/lib/requi-stepper";
 import { supabase } from "@/lib/supabase";
-import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
+import { handlePrint, handleDownloadPDF, cargarFirmas } from "@/components/RequisicionPrint";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
@@ -295,7 +295,9 @@ export default function RequisicionesStatusPage() {
     setLoadingPrint(req.id);
     const items = await loadItemsForPrint(req.id);
     const solicitanteResuelto = await resolverSolicitanteCompleto(req);
+    const firmas = await cargarFirmas(req.id);
     handlePrint({
+      firmas,
       folio: req.folio,
       fechaCreacion: req.created_at,
       fechaRequerida: req.required_date,
@@ -333,7 +335,9 @@ export default function RequisicionesStatusPage() {
     setLoadingPrint(req.id);
     const items = await loadItemsForPrint(req.id);
     const solicitanteResuelto = await resolverSolicitanteCompleto(req);
+    const firmas = await cargarFirmas(req.id);
     handleDownloadPDF({
+      firmas,
       folio: req.folio,
       fechaCreacion: req.created_at,
       fechaRequerida: req.required_date,

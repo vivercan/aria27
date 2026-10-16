@@ -49,3 +49,7 @@ alter table tareas_asignadas add column if not exists wa_reintentos int not null
 
 -- 14-Oct-2026 · ¿Ya llegó? (seguimiento de solicitudes viejas)
 alter table requisitions add column if not exists seg_preguntado_at timestamptz, add column if not exists seg_preguntas int not null default 0, add column if not exists seg_respuesta text, add column if not exists seg_respuesta_at timestamptz;
+
+-- 16-Oct-2026 · firmas digitales en el PDF de requisición
+create table if not exists firmas_usuarios (email text primary key, nombre text not null, png_base64 text not null, activa boolean not null default true, updated_at timestamptz not null default now());
+alter table firmas_usuarios enable row level security; revoke all on firmas_usuarios from anon, authenticated;

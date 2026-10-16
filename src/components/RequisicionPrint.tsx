@@ -1,5 +1,6 @@
 "use client";
 import { Printer, FileDown, Loader2 } from "lucide-react";
+import type { FirmasRequi } from "@/lib/firmas";
 
 interface Material {
   name: string;
@@ -41,6 +42,8 @@ interface RequisicionPrintProps {
   iva_porcentaje?: number;
   iva_monto?: number;
   total?: number;
+  /** 16-Oct-2026: firma + nombre a mano de quien hizo la requisición, en su caja (ver src/lib/firmas.ts) */
+  firmas?: FirmasRequi;
 }
 
 function formatCurrency(value?: number): string {
@@ -57,12 +60,13 @@ function formatDate(date?: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
+export function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
   const { 
     folio, fechaCreacion, fechaRequerida, solicitante, obra, materiales, comentarios, status,
     categoria, subcategoria, proveedor, forma_pago, tipo_pago, fecha_pago, forma_entrega, 
-    fecha_entrega, uso, notas, subtotal, iva_porcentaje, iva_monto, total
+    fecha_entrega, uso, notas, subtotal, iva_porcentaje, iva_monto, total, firmas
   } = props;
+  const firmaImg = (caja: keyof FirmasRequi) => firmas?.[caja] ? `<img class="firma-img" src="${firmas[caja]!.dataUrl}" alt="Firma de ${firmas[caja]!.nombre}">` : "";
   
   const calcSubtotal = subtotal || materiales.reduce((sum, m) => sum + (m.precio_total || 0), 0);
   const calcIvaPct = iva_porcentaje ?? 0;
@@ -149,11 +153,13 @@ function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
     .totales-value { text-align: right; }
     .totales-final { font-weight: bold; font-size: 11px; }
     
-    .firmas-section { margin-top: 25px; }
-    .firmas-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .firmas-section { margin-top: 18px; }
+    .firmas-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
     .firma-box { text-align: center; width: 45%; }
     .firma-box-third { text-align: center; width: 30%; }
     .firma-line { border-top: 1px solid #000; margin-top: 35px; padding-top: 3px; }
+    .firma-img { display: block; height: 78px; width: auto; max-width: 96%; margin: 0 auto 0; }
+    .firma-img + .firma-line { margin-top: 2px; }
     .firma-name { font-weight: bold; font-size: 8px; }
     .firma-title { font-size: 7px; color: #333; }
     .firma-code { font-size: 6px; color: #666; margin-top: 2px; }
@@ -224,13 +230,14 @@ function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
     <div class="firmas-section">
       <div class="firmas-row" style="margin-top: 0;">
         <div class="firma-box"><div class="firma-line"><div class="firma-name">${proveedor?.nombre || ''}</div><div class="firma-title">PROVEEDOR / RECEPCIÓN</div></div></div>
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">LIC. JESSICA MONTSERRAT GALLARDO ACOSTA</div><div class="firma-title">COMPRAS</div></div></div>
+        <div class="firma-box">${firmaImg("compras")}<div class="firma-line"><div class="firma-name">LIC. JESSICA MONTSERRAT GALLARDO ACOSTA</div><div class="firma-title">COMPRAS</div></div></div>
       </div>
       <div class="firmas-row" style="margin-top: 15px;">
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">ARQ. DAISY SANCHEZ CALVILLO</div><div class="firma-title">REVISIÓN DE MATERIALES</div><div class="firma-code">ELABORADO: RR.HH.ADMC — ${folio.replace('REQ-', 'REQPD-AX-').replace(/-(\d{5})$/, '-$1/' + new Date().getFullYear())}</div></div></div>
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">LIC. DEYANIRA MONTALVO CORONEL</div><div class="firma-title">VALIDACIÓN DE INFORMACIÓN</div></div></div>
+        <div class="firma-box">${firmaImg("revision")}<div class="firma-line"><div class="firma-name">ARQ. DAISY SANCHEZ CALVILLO</div><div class="firma-title">REVISIÓN DE MATERIALES</div><div class="firma-code">ELABORADO: RR.HH.ADMC — ${folio.replace('REQ-', 'REQPD-AX-').replace(/-(\d{5})$/, '-$1/' + new Date().getFullYear())}</div></div></div>
+        <div class="firma-box">${firmaImg("validacion")}<div class="firma-line"><div class="firma-name">LIC. DEYANIRA MONTALVO CORONEL</div><div class="firma-title">VALIDACIÓN DE INFORMACIÓN</div></div></div>
       </div>
-      <div class="firmas-row" style="margin-top: 15px; justify-content: center;">
+      <div class="firmas-row" style="margin-top: 15px; justify-content: ${firmas?.solicitante ? "space-between" : "center"};">
+        ${firmas?.solicitante ? `<div class="firma-box">${firmaImg("solicitante")}<div class="firma-line"><div class="firma-name">${firmas.solicitante.nombre.toUpperCase()}</div><div class="firma-title">SOLICITANTE</div></div></div>` : ""}
         <div class="firma-box"><div class="firma-line"><div class="firma-name">ING. LUIS FERNANDO LÓPEZ MARTÍNEZ</div><div class="firma-title">DIRECTOR GENERAL</div></div></div>
       </div>
     </div>
@@ -259,6 +266,16 @@ function openHTMLMobile(html: string, filename: string, autoPrint: boolean): voi
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+/** 16-Oct-2026: pide al servidor las firmas que van en este PDF (quien la hizo). Si falla, se imprime sin firmas. */
+export async function cargarFirmas(requisitionId: string): Promise<FirmasRequi> {
+  try {
+    const r = await fetch(`/api/requisicion/firmas?id=${encodeURIComponent(requisitionId)}`, { credentials: "include", cache: "no-store" });
+    if (!r.ok) return {};
+    const j = await r.json() as { firmas?: FirmasRequi };
+    return j.firmas || {};
+  } catch { return {}; }
 }
 
 export function handlePrint(props: RequisicionPrintProps) {
