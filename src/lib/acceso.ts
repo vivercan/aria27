@@ -28,6 +28,7 @@ export const ROLES_RUTA: [string, string[]][] = [
   ["/dashboard/domenica/automatizaciones", ["admin", "rh", "direccion", "validador", "compras"]],
   ["/dashboard/requisiciones/proveedores", ["admin", "compras", "direccion", "rh", "validador"]],
   ["/dashboard/requisiciones/productos", ["admin", "compras", "direccion", "rh"]],
+  ["/dashboard/requisiciones/destajos", ["admin", "compras", "direccion", "rh", "validador", "usuario"]],
 ];
 
 /** Pantallas que solo redirigen a otra: se revisa el destino */

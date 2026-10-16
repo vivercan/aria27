@@ -39,6 +39,7 @@ const SECCIONES: { titulo: string; items: Item[] }[] = [
   ] },
   { titulo: "Compras", items: [
     { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Teléfonos y datos de pago", icon: IcoBodega, color: "#0077ad", roles: ["admin", "compras", "direccion", "rh", "validador"] },
+    { href: "/dashboard/requisiciones/destajos", t: "Pagos a destajistas", d: "Por obra y por destajista: autorizado y en trámite", icon: IcoCasco, color: "#b45309", roles: ["admin", "compras", "direccion", "rh", "validador", "usuario"] },
     { href: "/dashboard/requisiciones/productos", t: "Productos", d: "Lista de materiales", icon: Package as unknown as Ico, color: "#0073ea", roles: ["admin", "compras", "direccion", "rh"] },
   ] },
   { titulo: "Para organizar el trabajo", items: [

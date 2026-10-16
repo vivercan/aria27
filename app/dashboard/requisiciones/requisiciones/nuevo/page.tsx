@@ -6,6 +6,8 @@ import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users
 import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import AriaBackButton from "@/components/AriaBackButton";
+import PagosDestajistaSheet from "@/components/PagosDestajista";
+import { resumenDestajo, type PagoDestajo } from "@/lib/destajo";
 
 type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
@@ -125,7 +127,8 @@ export default function NewRequisitionPage() {
   const [destajoTipoPago, setDestajoTipoPago] = useState<"ANTICIPO" | "SEMANA" | "FINIQUITO">("SEMANA");
   const [destajoConcepto, setDestajoConcepto] = useState<string>("");
   const [destajoMonto, setDestajoMonto] = useState<string>("");
-  const [saldoDestajista, setSaldoDestajista] = useState<{ total: number; n: number } | null>(null);
+  const [saldoDestajista, setSaldoDestajista] = useState<ReturnType<typeof resumenDestajo> | null>(null);
+  const [verPagos, setVerPagos] = useState(false);
   const [clabeForm, setClabeForm] = useState({ bank_name: "", bank_clabe: "", bank_account_number: "", nombre_cuenta: "" });
   const [clabeSaving, setClabeSaving] = useState(false);
   const [clabeError, setClabeError] = useState<string | null>(null);
@@ -193,14 +196,11 @@ export default function NewRequisitionPage() {
     const center = costCenters.find(c => c.id === selectedCostCenterId);
     if (!center) return;
     let alive = true;
-    supabase.from("Requisiciones").select("total, monto, status")
+    // 16-Oct-2026 (Daisy): se separa lo ya autorizado de lo que apenas va en trámite; antes se sumaba todo junto
+    supabase.from("Requisiciones").select("id, folio, created_at, total, monto, status")
       .eq("tipo_solicitud", "DESTAJO").eq("proveedor", selectedProveedor.name).eq("cost_center_name", center.name)
       .not("status", "in", "(CANCELADA,RECHAZADA_DIRECCION,RECHAZADA_RESPONSABLE)")
-      .then(({ data }) => {
-        if (!alive) return;
-        const rows = (data || []) as Array<{ total: number | null; monto: number | null }>;
-        setSaldoDestajista({ total: rows.reduce((a, r) => a + Number(r.total ?? r.monto ?? 0), 0), n: rows.length });
-      });
+      .then(({ data }) => { if (alive) setSaldoDestajista(resumenDestajo((data || []) as PagoDestajo[])); });
     return () => { alive = false; };
   }, [tipoSolicitud, selectedProveedor, selectedCostCenterId, costCenters]);
 
@@ -865,12 +865,17 @@ export default function NewRequisitionPage() {
                   <input type="number" inputMode="decimal" min="0" step="0.01" value={destajoMonto} onChange={e => setDestajoMonto(e.target.value)} placeholder="0.00" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] pl-7 pr-3 py-2 text-sm outline-none focus:border-aria-accent" /></div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--d-text-2)]">Saldo con este destajista en esta obra</label>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Pagado a este destajista en esta obra</label>
                 <div className="rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-sm">
                   {!selectedProveedor ? <span className="text-[var(--d-faint)]">Elige destajista</span>
                    : saldoDestajista === null ? <span className="text-[var(--d-faint)]">Calculando…</span>
-                   : <><span className="text-amber-300 font-semibold">${saldoDestajista.total.toLocaleString("es-MX",{minimumFractionDigits:2})}</span><span className="text-[var(--d-muted)] text-xs"> en {saldoDestajista.n} pago{saldoDestajista.n===1?"":"s"} previo{saldoDestajista.n===1?"":"s"}</span></>}
+                   : <div className="space-y-0.5">
+                       <div><span className="font-semibold text-[#2ecc71]">${saldoDestajista.autorizado.toLocaleString("es-MX",{minimumFractionDigits:2})}</span><span className="text-[var(--d-muted)] text-xs"> autorizado ({saldoDestajista.nAutorizado})</span></div>
+                       <div><span className="font-semibold text-amber-300">${saldoDestajista.tramite.toLocaleString("es-MX",{minimumFractionDigits:2})}</span><span className="text-[var(--d-muted)] text-xs"> en trámite ({saldoDestajista.nTramite})</span></div>
+                       <button type="button" onClick={() => setVerPagos(true)} className="text-xs font-semibold text-aria-accent underline underline-offset-2">Ver los {saldoDestajista.n} pagos</button>
+                     </div>}
                 </div>
+                {verPagos && selectedProveedor && <PagosDestajistaSheet proveedor={selectedProveedor.name} obra={costCenters.find(c => c.id === selectedCostCenterId)?.name || null} onClose={() => setVerPagos(false)} />}
               </div>
             </div>
             {Number(destajoMonto) > 0 && destajoConcepto.trim() && (

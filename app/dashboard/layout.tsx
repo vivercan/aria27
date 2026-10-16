@@ -84,6 +84,7 @@ const searchableItems = [
   { name: "Requisiciones", icon: ChevronRight, href: "/dashboard/requisiciones/requisiciones" },
   { name: "Productos", icon: ChevronRight, href: "/dashboard/requisiciones/productos" },
   { name: "Proveedores", icon: ChevronRight, href: "/dashboard/requisiciones/proveedores" },
+  { name: "Pagos a destajistas", icon: ChevronRight, href: "/dashboard/requisiciones/destajos" },
   { name: "Comparativas", icon: ChevronRight, href: "/dashboard/requisiciones/compras" },
   { name: "Historial Comparativas", icon: ChevronRight, href: "/dashboard/requisiciones/comparativas/historial" },
   { name: "Pagos", icon: ChevronRight, href: "/dashboard/requisiciones/pagos" },
