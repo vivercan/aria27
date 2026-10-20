@@ -92,6 +92,7 @@ const searchableItems = [
   { name: "Prospeccion", icon: ChevronRight, href: "/dashboard/requisiciones/prospeccion" },
   { name: "Cotizaciones", icon: ChevronRight, href: "/dashboard/requisiciones/cotizaciones" },
   { name: "Documentacion Legal", icon: ChevronRight, href: "/dashboard/administracion/documentacion" },
+  { name: "e.firma (FIEL)", icon: ChevronRight, href: "/dashboard/administracion/fiel" },
   { name: "Polizas", icon: ChevronRight, href: "/dashboard/administracion/polizas" },
   { name: "Opiniones Cumplimiento", icon: ChevronRight, href: "/dashboard/administracion/opiniones" },
   { name: "Datos de Empresa", icon: ChevronRight, href: "/dashboard/administracion/empresa" },

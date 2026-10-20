@@ -53,3 +53,11 @@ alter table requisitions add column if not exists seg_preguntado_at timestamptz,
 -- 16-Oct-2026 · firmas digitales en el PDF de requisición
 create table if not exists firmas_usuarios (email text primary key, nombre text not null, png_base64 text not null, activa boolean not null default true, updated_at timestamptz not null default now());
 alter table firmas_usuarios enable row level security; revoke all on firmas_usuarios from anon, authenticated;
+
+-- 20-Oct-2026 · Bóveda e.firma (FIEL): archivos en bytea con RLS, contraseña cifrada (pgp_sym), bitácora de accesos
+create table if not exists fiel_registros (id uuid primary key default gen_random_uuid(), tipo text not null check (tipo in ('EMPRESA','REPRESENTANTE')), nombre text not null, rfc text not null, empresa text, representante text, vigencia_desde date, vigencia_hasta date, serie text, correo_sat text, password_enc bytea, notas text, activo boolean not null default true, created_by text, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create table if not exists fiel_archivos (id uuid primary key default gen_random_uuid(), fiel_id uuid not null references fiel_registros(id) on delete cascade, nombre text not null, tipo text not null, tamano int not null, contenido bytea not null, created_at timestamptz not null default now());
+create table if not exists fiel_accesos_log (id uuid primary key default gen_random_uuid(), fiel_id uuid, user_email text not null, accion text not null, archivo text, ip text, user_agent text, created_at timestamptz not null default now());
+alter table fiel_registros enable row level security; alter table fiel_archivos enable row level security; alter table fiel_accesos_log enable row level security;
+revoke all on fiel_registros, fiel_archivos, fiel_accesos_log from anon, authenticated;
+-- funciones fiel_set_password(uuid,text,text) y fiel_get_password(uuid,text): pgp_sym_encrypt/decrypt, security definer, sin acceso para anon/authenticated

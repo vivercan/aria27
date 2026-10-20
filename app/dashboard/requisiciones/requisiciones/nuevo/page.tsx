@@ -6,6 +6,7 @@ import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users
 import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import AriaBackButton from "@/components/AriaBackButton";
+import { motivoNombreInvalido, separarCantidad } from "@/lib/producto-nombre";
 import PagosDestajistaSheet from "@/components/PagosDestajista";
 import { resumenDestajo, type PagoDestajo } from "@/lib/destajo";
 
@@ -923,7 +924,7 @@ export default function NewRequisitionPage() {
                   <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
                     <div className="space-y-1">
                       <label className="text-[11px] text-[var(--d-muted)]">Nombre del producto</label>
-                      <input className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-1.5 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Tornillo galvanizado 3/8..." value={manualName} onChange={e => setManualName(e.target.value)} />
+                      <input className="w-full rounded-lg border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-1.5 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Cepillos para pintar (la cantidad va en Tu lista)" value={manualName} onChange={e => setManualName(e.target.value)} />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[11px] text-[var(--d-muted)]">Unidad</label>
@@ -933,8 +934,11 @@ export default function NewRequisitionPage() {
                     </div>
                     <div className="flex gap-2">
                       <button onClick={async () => {
-                        const nm = manualName.trim();
-                        if (!nm) return;
+                        // 20-Oct-2026: "4" no es un producto (REQ-00863 traía 9 renglones así). Si escriben "4 cepillos", se separa la cantidad.
+                        const sep = separarCantidad(manualName);
+                        const nm = sep.nombre; const qtyIni = sep.qty > 0 ? sep.qty : 1;
+                        const motivo = motivoNombreInvalido(nm);
+                        if (motivo) { setErrorMsg(motivo); return; }
                         const un = manualUnit || "PZA";
                         // FIX P0 19-Jun: ANTES solo agregaba en memoria a esta requi.
                         // Jessica reportaba "ya van 8 concretos que capturo lo mismo".
@@ -949,15 +953,15 @@ export default function NewRequisitionPage() {
                           const d = await r.json();
                           if (d?.ok && d?.product?.id) {
                             // Usar el ID real del producto persistido (para que aparezca en futuras busquedas)
-                            setMaterials(prev => [...prev, { id: d.product.id as number, name: d.product.name || nm, unit: d.product.unit || un, qty: 1, observations: "" }]);
+                            setMaterials(prev => [...prev, { id: d.product.id as number, name: d.product.name || nm, unit: d.product.unit || un, qty: qtyIni, observations: "" }]);
                           } else {
                             // Fallback: agregar solo en memoria con ID temporal
-                            setMaterials(prev => [...prev, { id: manualTempId, name: nm, unit: un, qty: 1, observations: "" }]);
+                            setMaterials(prev => [...prev, { id: manualTempId, name: nm, unit: un, qty: qtyIni, observations: "" }]);
                             setManualTempId(prev => prev - 1);
                           }
                         } catch {
                           // Sin red: agregar solo en memoria como antes
-                          setMaterials(prev => [...prev, { id: manualTempId, name: nm, unit: un, qty: 1, observations: "" }]);
+                          setMaterials(prev => [...prev, { id: manualTempId, name: nm, unit: un, qty: qtyIni, observations: "" }]);
                           setManualTempId(prev => prev - 1);
                         }
                         setManualName(""); setManualUnit("PZA");
@@ -1086,6 +1090,12 @@ export default function NewRequisitionPage() {
                     <input type="number" inputMode="decimal" className="w-20 h-10 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] text-center text-base font-bold text-[var(--d-text)] outline-none" value={m.qty} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Number(e.target.value)} : x))} aria-label="Cantidad" />
                     <button type="button" onClick={() => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: (Number(x.qty) || 0) + 1} : x))} className="w-10 h-10 rounded-xl bg-[var(--d-card-2)] text-lg font-bold text-[var(--d-text)]" aria-label="Más">+</button>
                     <span className="text-[13px] text-[var(--d-muted)]">{m.unit}</span>
+                  </div>
+                  {/* 20-Oct-2026 (Daisy): desde el teléfono no se podía poner el monto; precio por pieza, opcional */}
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="relative flex-1"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--d-muted)]">$</span>
+                      <input type="number" inputMode="decimal" min={0} step="0.01" className="w-full h-10 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] pl-7 pr-3 text-sm text-[var(--d-text)] outline-none" placeholder={`Precio por ${m.unit.toLowerCase()} (si lo sabes)`} value={m.price ?? ""} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, price: e.target.value === "" ? undefined : Number(e.target.value)} : x))} aria-label="Precio unitario" /></div>
+                    {(m.price ?? 0) > 0 && <span className="shrink-0 text-[13px] font-bold text-[var(--d-text)]">= ${(((m.price ?? 0) * m.qty) || 0).toLocaleString("es-MX", {minimumFractionDigits: 2})}</span>}
                   </div>
                   <input type="text" className="mt-2 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm text-[var(--d-text)] outline-none" placeholder="Nota (medida, marca, color…) opcional" value={m.observations} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, observations: e.target.value} : x))} />
                 </div>

@@ -4,6 +4,7 @@
 // los mismos conceptos. Este endpoint los registra en `products` para que
 // aparezcan en futuras busquedas.
 
+import { motivoNombreInvalido } from "@/lib/producto-nombre";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 
@@ -14,6 +15,9 @@ export async function POST(req: NextRequest) {
   try {
     const { name, unit, category } = await req.json();
     const cleanName = String(name || "").trim();
+    // 20-Oct-2026: no dejar crear productos como "4" o "1" (REQ-00863)
+    const motivo = motivoNombreInvalido(cleanName);
+    if (motivo) return NextResponse.json({ ok: false, error: motivo }, { status: 400 });
     if (!cleanName) {
       return NextResponse.json({ ok: false, error: "name_required" }, { status: 400 });
     }
