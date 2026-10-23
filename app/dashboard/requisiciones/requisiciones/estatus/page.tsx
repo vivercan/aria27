@@ -104,6 +104,7 @@ export default function RequisicionesStatusPage() {
   const [loading, setLoading] = useState(true);
   const [nMovil, setNMovil] = useState(40); // celular: tarjetas por tandas
   const [tabMovil, setTabMovil] = useState<"" | "toca" | "mias" | "todas">("");
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const [qMovil, setQMovil] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState("");
@@ -231,7 +232,10 @@ export default function RequisicionesStatusPage() {
       query = query.or(`user_email.eq.${email},responsable_email.eq.${email}`);
     }
 
-    const { data } = await query;
+    const { data, error } = await query;
+    // 23-Oct-2026: antes un error de red se mostraba como "No hay requisiciones". Ahora se dice qué pasó y se reintenta.
+    if (error) { setErrorCarga(`No se pudieron cargar las requisiciones: ${error.message}. Reintentando…`); setLoading(false); setTimeout(() => loadData(email), 4000); return; }
+    setErrorCarga(null);
     setRequisiciones((data || []) as Requisition[]);
 
     // 04-Jun-2026 — batch lookup nombres completos por email
@@ -508,6 +512,7 @@ export default function RequisicionesStatusPage() {
         /><FolioCruzado q={lf.search} /><YaLlegoAviso className="mt-3 max-w-xl" /></div>
       )}
 
+      {errorCarga && <div role="alert" className="mb-3 rounded-xl border border-red-500/50 bg-red-500/15 px-4 py-3 text-sm text-red-200">{errorCarga}</div>}
       {loading ? (
         <><div className="md:hidden"><Esqueleto filas={5} alto={92} /></div><div className="hidden md:block text-center py-10">
           <Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" />

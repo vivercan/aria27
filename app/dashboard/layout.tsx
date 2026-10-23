@@ -1,4 +1,5 @@
 "use client";
+import AvisoConexion from "@/components/AvisoConexion";
 import { clientLogger } from "@/lib/client-logger";
 import AlertasGlobales from "@/components/AlertasGlobales";
 import { useState, useEffect, useRef } from "react";
@@ -870,8 +871,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider>
+    <><AvisoConexion /><ThemeProvider>
       <DashboardContent>{children}</DashboardContent>
-    </ThemeProvider>
+    </ThemeProvider></>
   );
 }
