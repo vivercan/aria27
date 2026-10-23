@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { alCambiarModo, enModoRespaldo } from "@/lib/supabase-respaldo";
 
 export default function AvisoConexion() {
-  const [respaldo, setRespaldo] = useState(false);
-  useEffect(() => { setRespaldo(enModoRespaldo()); return alCambiarModo(setRespaldo); }, []);
+  const [respaldo, setRespaldo] = useState(() => (typeof window !== "undefined" ? enModoRespaldo() : false));
+  useEffect(() => alCambiarModo(setRespaldo), []);
   if (!respaldo) return null;
   return (
     <div role="status" className="fixed left-1/2 -translate-x-1/2 top-2 z-[9999] max-w-[92vw] rounded-xl bg-[#b45309] px-4 py-2 text-[13px] font-semibold text-white shadow-lg">
