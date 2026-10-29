@@ -33,6 +33,15 @@ export async function POST(req: NextRequest) {
   const lista = (obras || []) as { id: string; nombre: string }[];
   if (!lista.length) return NextResponse.json({ error: "No encontré esas obras" }, { status: 404 });
 
+  // 29-Oct-2026 (Deya: "Fracc. Villas" → "Parque Villas"): el nombre de la obra está copiado en 47 tablas (requisiciones, tareas,
+  // entregas, gastos…). Renombrar solo el catálogo rompía saldos, filtros y "¿Ya llegó?". La función renombrar_obra lo cambia en todas.
+  if (b.accion === "renombrar") {
+    const nuevo = String((b.cambios as { nombre?: string } | undefined)?.nombre || "").trim().slice(0, 200);
+    if (!nuevo || lista.length !== 1) return NextResponse.json({ error: "Elige una sola obra y escribe el nombre nuevo" }, { status: 400 });
+    const { data, error } = await db.rpc("renombrar_obra", { p_id: lista[0].id, p_nuevo: nuevo });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true, resultado: data });
+  }
   if (b.accion === "editar") {
     const c = b.cambios || {};
     const up: Record<string, unknown> = {};

@@ -61,3 +61,6 @@ create table if not exists fiel_accesos_log (id uuid primary key default gen_ran
 alter table fiel_registros enable row level security; alter table fiel_archivos enable row level security; alter table fiel_accesos_log enable row level security;
 revoke all on fiel_registros, fiel_archivos, fiel_accesos_log from anon, authenticated;
 -- funciones fiel_set_password(uuid,text,text) y fiel_get_password(uuid,text): pgp_sym_encrypt/decrypt, security definer, sin acceso para anon/authenticated
+
+-- 29-Oct-2026 · renombrar obra en todas las tablas donde está copiado el nombre
+-- function renombrar_obra(p_id uuid, p_nuevo text) returns jsonb (security definer; sin acceso anon/authenticated). Actualiza centros_trabajo.nombre y toda columna cost_center_name/obra/obra_nombre en public; registra OBRA_RENOMBRADA en event_log.
