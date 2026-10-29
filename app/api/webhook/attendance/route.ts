@@ -605,7 +605,8 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   const { data: workCenters } = await db
     .from("centros_trabajo")
     .select("id, nombre, latitud, longitud, radio_metros")
-    .eq("activo", true);
+    .eq("activo", true)
+    .not("latitud", "is", null).not("longitud", "is", null); // 29-Oct-2026: obras sin coordenadas (recién dadas de alta) no entran a la geocerca
 
   if (!workCenters || workCenters.length === 0) {
     await sendWhatsApp(from, "No hay centros de trabajo configurados.");

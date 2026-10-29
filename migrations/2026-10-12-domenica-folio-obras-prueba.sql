@@ -61,3 +61,6 @@ create table if not exists fiel_accesos_log (id uuid primary key default gen_ran
 alter table fiel_registros enable row level security; alter table fiel_archivos enable row level security; alter table fiel_accesos_log enable row level security;
 revoke all on fiel_registros, fiel_archivos, fiel_accesos_log from anon, authenticated;
 -- funciones fiel_set_password(uuid,text,text) y fiel_get_password(uuid,text): pgp_sym_encrypt/decrypt, security definer, sin acceso para anon/authenticated
+
+-- 29-Oct-2026 · obras sin coordenadas permitidas (el formulario ya las trataba como opcionales); la geocerca de asistencia las ignora
+alter table centros_trabajo alter column latitud drop not null, alter column longitud drop not null;
