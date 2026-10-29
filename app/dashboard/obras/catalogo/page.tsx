@@ -198,16 +198,6 @@ function CatalogoObrasPageWeb() {
     else payload.codigo = String(payload.codigo).trim().toUpperCase();
 
     if (editId) {
-      // 29-Oct-2026: si cambió el nombre, se renombra en TODAS las tablas donde está copiado (servidor), no solo en el catálogo
-      const original = obras.find(o => o.id === editId);
-      if (original && typeof payload.nombre === "string" && payload.nombre.trim() && payload.nombre.trim() !== original.nombre) {
-        const r = await fetch("/api/obras/lote", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accion: "renombrar", ids: [editId], cambios: { nombre: payload.nombre.trim() } }) });
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok) { flash("err", "No se pudo renombrar: " + (j.error || r.status)); setSaving(false); return; }
-        const t = (j.resultado?.tablas || {}) as Record<string, number>; const n = Object.values(t).reduce((a, b) => a + b, 0);
-        if (n) flash("ok", `Nombre actualizado también en ${n} registro${n === 1 ? "" : "s"} (requisiciones, tareas, entregas…)`);
-      }
-      delete payload.nombre;
       const { error } = await supabase.from("centros_trabajo").update(payload).eq("id", editId);
       if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Obra actualizada");
