@@ -153,9 +153,8 @@ function CatalogoObrasPageWeb() {
       const v = parseInt(form.radio_metros);
       if (isNaN(v) || v < 1 || v > 5000) errors.radio_metros = "Radio entre 1 y 5000 m";
     }
-    if (!form.latitud || !form.longitud) {
-      errors.latitud = errors.latitud || "La obra necesita ubicación (latitud y longitud) para la geocerca de asistencia. Usa \"Mi ubicación\" desde la obra o pega las coordenadas de Google Maps.";
-    }
+    // 29-Oct-2026 (JJ): la ubicación ya no bloquea el alta. Sin coordenadas la obra existe para requisiciones y tareas;
+    // la asistencia por geocerca se activa cuando alguien pegue las coordenadas o toque "Mi ubicación" desde la obra.
     if ((form.latitud && !form.longitud) || (!form.latitud && form.longitud)) {
       errors.latitud = errors.latitud || "Captura latitud y longitud juntas";
     }
@@ -393,8 +392,8 @@ function CatalogoObrasPageWeb() {
             <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-12 gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-lg">
               <div className="md:col-span-12 flex flex-wrap items-center gap-2">
                 <MapPin className="w-4 h-4 text-aria-accent" />
-                <span className="text-sm font-medium text-white">Ubicación de la obra *</span>
-                <span className="text-xs text-[#7f93b0]">(geocerca de asistencia)</span>
+                <span className="text-sm font-medium text-white">Ubicación de la obra</span>
+                <span className="text-xs text-[#7f93b0]">(opcional · sin ella no hay asistencia por geocerca; se puede agregar después)</span>
                 <div className="ml-auto flex items-center gap-2">
                   <button type="button" onClick={usarMiUbicacion} disabled={geoBusy} className="px-3 py-2 rounded-lg bg-aria-accent/90 hover:bg-aria-accent text-slate-900 text-xs font-semibold disabled:opacity-60">{geoBusy ? "Buscando GPS…" : "📍 Mi ubicación"}</button>
                   <a href={`https://www.google.com/maps/search/${encodeURIComponent(form.nombre || form.direccion || "Aguascalientes")}`} target="_blank" rel="noreferrer" className="text-xs text-aria-accent underline">Buscar en Google Maps</a>
