@@ -93,7 +93,7 @@ interface User {
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
 async function getUserByRole(role: string): Promise<User | null> {
-  const { data } = await getDb().from("Users").select("*").eq("role", role).is("usuario_prueba", null).single();
+  const { data } = await getDb().from("Users").select("*").eq("role", role).is("usuario_prueba", null).or("active.is.null,active.eq.true").order("id", { ascending: true }).limit(1).maybeSingle(); // 6-Nov-2026: .single() tronaba con 2 usuarios del rol
   return (data as User) || null;
 }
 async function getUserByEmail(email: string): Promise<User | null> {

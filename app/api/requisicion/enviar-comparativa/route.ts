@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { data: director, error: dirError } = await supabase
-      .from("Users").select("*").eq("role", "direccion").is("usuario_prueba", null).single() as { data: Director | null; error: unknown };
+      .from("Users").select("*").eq("role", "direccion").is("usuario_prueba", null).or("active.is.null,active.eq.true").order("id", { ascending: true }).limit(1).maybeSingle() as { data: Director | null; error: unknown };
 
     if (!director) return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
 

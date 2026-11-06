@@ -18,7 +18,7 @@ interface User {
 }
 
 async function getUserByRole(role: string): Promise<User | null> {
-  const { data } = await supabase.from("Users").select("*").eq("role", role).is("usuario_prueba", null).single();
+  const { data } = await supabase.from("Users").select("*").eq("role", role).is("usuario_prueba", null).or("active.is.null,active.eq.true").order("id", { ascending: true }).limit(1).maybeSingle();
   return (data as User) || null;
 }
 

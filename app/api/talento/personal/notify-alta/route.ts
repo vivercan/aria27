@@ -1,10 +1,12 @@
 import { NextResponse, NextRequest } from "next/server";
 import { notifyOps } from "@/lib/notify-ops";
 import { logger } from "@/lib/logger";
+import { requireUser } from "@/lib/auth-api";
 
 const log = logger("EMPLEADO-NOTIFY-ALTA");
 
 export async function POST(req: NextRequest) {
+  const auth = await requireUser(req); if (!auth.ok) return auth.res; // 6-Nov-2026: antes cualquiera podía disparar avisos a Dirección y RH
   try {
     const body = await req.json().catch(() => ({}));
     const full_name = String(body.full_name || "").trim();

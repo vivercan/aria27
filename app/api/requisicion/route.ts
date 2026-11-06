@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
+import { ROLES_SIN_REQUISICIONES } from "@/lib/usuario-por-rol";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendWhatsAppLogged, sendWhatsAppTemplateOrFallback } from "@/lib/whatsapp";
@@ -195,8 +196,10 @@ export async function POST(request: NextRequest) {
     const creadorRol = (creatorUser?.role || "").toLowerCase();
     // 10-Oct: validador (superintendencia) esta por encima del residente -> no espera su autorizacion
     const autoAprueba = !responsableEmail || responsableEmail === creadorEs || creadorRol === "direccion" || creadorRol === "admin" || creadorRol === "validador";
-    const esperaResponsable = nivel1On && !!responsableEmail && !autoAprueba;
-    const responsableUser = esperaResponsable ? await getUserByEmail(responsableEmail!) : null;
+    let responsableUser = nivel1On && !!responsableEmail && !autoAprueba ? await getUserByEmail(responsableEmail!) : null;
+    // 6-Nov-2026 (JJ): los residentes NO reciben ni autorizan requisiciones aunque la obra los tenga como responsable
+    if (responsableUser && ROLES_SIN_REQUISICIONES.includes(String(responsableUser.role || "").toLowerCase())) { logs.push(`Nivel 1: responsable ${responsableEmail} es ${responsableUser.role}; se omite`); responsableUser = null; }
+    const esperaResponsable = nivel1On && !!responsableEmail && !autoAprueba && !!responsableUser;
     logs.push(esperaResponsable ? `Nivel 1: espera a responsable ${responsableEmail}` : `Nivel 1: ${responsableEmail ? "auto-aprobado (" + (responsableEmail === creadorEs ? "creador es responsable" : creadorRol) + ")" : "obra sin responsable"}`);
 
     const initialStatus = esperaResponsable ? "PENDIENTE_RESPONSABLE" : (flujo === "direccion" ? "EN_AUTORIZACION" : "PENDIENTE");

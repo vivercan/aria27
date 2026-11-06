@@ -60,8 +60,6 @@ export async function POST(req: NextRequest) {
       obra_nombre,
       materiales,
       requisition_id,
-      solicitante_email,
-      solicitante_phone,
       user_email,
       recibido_por_nombre,  // B3 fix: UI lo envía pero API lo ignoraba — hardcodeaba "Pendiente confirmar"
     } = body;
@@ -88,6 +86,13 @@ export async function POST(req: NextRequest) {
     const folioEntrega = `ENT-${String((count || 0) + 1).padStart(5, "0")}`;
 
     // Crear registro de entrega
+    // 6-Nov-2026: el teléfono y correo del solicitante se resuelven en el servidor desde la requisición (antes venían del navegador)
+    let solicitante_phone: string | null = null; let solicitante_email: string | null = null;
+    if (requisition_id) {
+      const { data: rq } = await supabase.from("requisitions").select("user_email").eq("id", requisition_id).maybeSingle();
+      const em = String((rq as { user_email?: string } | null)?.user_email || "").toLowerCase();
+      if (em) { const { data: u } = await supabase.from("Users").select("email, phone").ilike("email", em).maybeSingle(); solicitante_email = em; solicitante_phone = (u as { phone?: string } | null)?.phone || null; }
+    }
     const { data: entrega, error } = await supabase.from("entregas").insert({
       folio: folioEntrega,
       fecha_entrega: new Date().toISOString().split("T")[0],

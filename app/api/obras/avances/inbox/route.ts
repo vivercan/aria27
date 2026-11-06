@@ -8,6 +8,7 @@
  *
  * 03-Jun-2026 feature avances WA -> BD
  */
+import { usuarioPorRol } from "@/lib/usuario-por-rol";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
@@ -178,12 +179,8 @@ export async function POST(req: NextRequest) {
 
     // Notificar a Daisy (responsable de validar avances) - fire and forget
     try {
-      const { data: daisy } = await db
-        .from("Users")
-        .select("email, phone, name")
-        .or("name.ilike.%daisy%,email.ilike.%daisy%")
-        .limit(1)
-        .maybeSingle();
+      // 6-Nov-2026: por ROL (validador = superintendencia), no por nombre; si Daisy cambia, sigue funcionando
+      const daisy = await usuarioPorRol(db, "validador");
 
       if (daisy) {
         const obraText = parsed.obra_nombre || "obra sin identificar";
@@ -192,9 +189,10 @@ export async function POST(req: NextRequest) {
 
         if (daisy.phone) {
           // Intenta template aprobado primero (funciona siempre, fuera de ventana 24h)
+          // 6-Nov-2026: aria_avance_pendiente nunca existió en Meta (siempre fallaba); se usa aria_tarea_status, que sí llega fuera de 24 h
           sendWhatsAppLogged(
-            "aria_avance_pendiente",
-            [arq.full_name, obraText, `${parsed.realizadas.length} actividades`, `${parsed.programadas.length} actividades`],
+            "aria_tarea_status",
+            [String(daisy.name || "Daisy").split(" ")[0], "0", `📐 Avance de obra por validar: ${arq.full_name} en ${obraText}. ${detallesText}. Revísalo en ARIA27 › Obras › Avances.`.slice(0, 700)],
             daisy.phone,
             { origen: "avance-inbox", enviadoPor: "system" }
           ).then((r) => {
