@@ -229,7 +229,10 @@ export default function RequisicionesStatusPage() {
     const { data: uData } = await supabase.from("Users").select("role").eq("email", email).single();
     const uRole = uData?.role || "user";
     if (!["admin", "compras", "rh", "direccion", "validador"].includes(uRole)) {
-      query = query.or(`user_email.eq.${email},responsable_email.eq.${email}`);
+      // 12-Nov-2026 (Valeria): tesorería (rol "usuario") paga los gastos en efectivo; recibía el aviso "N gastos por pagar"
+      // y al entrar veía 0 porque solo se mostraban las suyas. Ahora también ve lo que le toca mover por su rol.
+      const mio = `user_email.eq.${email},responsable_email.eq.${email}`;
+      query = uRole === "usuario" ? query.or(`${mio},purchase_status.eq.GASTO_EFECTIVO_PENDIENTE`) : query.or(mio);
     }
 
     const { data, error } = await query;
