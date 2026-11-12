@@ -176,7 +176,7 @@ export default function RequisicionesStatusPage() {
   });
   const visibles = lf.filtered;
   // Celular: Me toca / Las mías / Todas (sin chips ni filtros técnicos)
-  const puedeVerTodas = ["admin", "rh", "direccion", "validador", "compras"].includes(userRole);
+  const puedeVerTodas = ["admin", "rh", "direccion", "validador", "compras", "usuario"].includes(userRole);
   const cuentaMovil = useMemo(() => ({
     toca: requisiciones.filter(r => meToca(r, userRole, userEmail)).length,
     mias: requisiciones.filter(r => (r.user_email || "").toLowerCase() === userEmail.toLowerCase()).length,
@@ -228,11 +228,11 @@ export default function RequisicionesStatusPage() {
     // (11-Oct-2026: antes Dirección/Superintendencia/responsables no veían lo que les toca autorizar)
     const { data: uData } = await supabase.from("Users").select("role").eq("email", email).single();
     const uRole = uData?.role || "user";
-    if (!["admin", "compras", "rh", "direccion", "validador"].includes(uRole)) {
-      // 12-Nov-2026 (Valeria): tesorería (rol "usuario") paga los gastos en efectivo; recibía el aviso "N gastos por pagar"
-      // y al entrar veía 0 porque solo se mostraban las suyas. Ahora también ve lo que le toca mover por su rol.
-      const mio = `user_email.eq.${email},responsable_email.eq.${email}`;
-      query = uRole === "usuario" ? query.or(`${mio},purchase_status.eq.GASTO_EFECTIVO_PENDIENTE`) : query.or(mio);
+    // 12-Nov-2026 (JJ): Administración/tesorería (rol "usuario") ve todas, igual que Compras y RH: paga los gastos en efectivo
+    // y lleva las cuentas por pagar de lo que se compra a crédito. Borrar sigue siendo solo de admin y RH, y autorizar/pagar
+    // lo sigue mandando el rol (accionPara). Los residentes siguen viendo solo lo suyo.
+    if (!["admin", "compras", "rh", "direccion", "validador", "usuario"].includes(uRole)) {
+      query = query.or(`user_email.eq.${email},responsable_email.eq.${email}`);
     }
 
     const { data, error } = await query;
