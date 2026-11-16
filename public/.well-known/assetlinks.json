@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.jjcrm27.domenica27",
+      "sha256_cert_fingerprints": [
+        "C7:B1:84:D2:43:EF:D6:8D:07:BC:D6:70:A9:62:8A:6C:2D:F6:28:2C:5E:E0:59:86:94:15:13:9F:7C:32:5A:3C"
+      ]
+    }
+  }
+]
