@@ -12,6 +12,7 @@ import { fmtMoney } from "@/lib/formatters";
 import { getEntityColor } from "@/lib/entity-colors";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
 import KpiCard from "@/components/ui/KpiCard";
+import { FORMAS_PAGO_CAJA, etiquetaFormaPago, resolverFormaPago } from "@/lib/formas-pago";
 
 interface CuentaPorPagar {
   id: string;
@@ -99,7 +100,7 @@ export default function PorPagarPage() {
     const matchFilter = filter === "TODOS" || (filter === "VENCIDAS" && c.vencida) || (filter === "VIGENTES" && !c.vencida);
     // 21-Abr-2026: filtro por metodo del ultimo pago registrado
     const metodoOC = (c as unknown as { ultimo_pago_metodo?: string }).ultimo_pago_metodo || "";
-    const matchMetodo = filterMetodo === "TODOS" || metodoOC.toUpperCase() === filterMetodo;
+    const matchMetodo = filterMetodo === "TODOS" || (resolverFormaPago(metodoOC)?.valor || metodoOC.toUpperCase()) === filterMetodo;
     return matchSearch && matchFilter && matchMetodo;
   });
 
@@ -188,10 +189,10 @@ export default function PorPagarPage() {
         {/* 21-Abr-2026: filtro por metodo de pago */}
         <div className="flex gap-2 flex-wrap">
           <span className="px-2 py-2 text-xs text-[#4a6080] uppercase tracking-wider">Método:</span>
-          {["TODOS", "EFECTIVO", "TRANSFERENCIA", "CHEQUE"].map(m => (
+          {["TODOS", ...FORMAS_PAGO_CAJA.map(f => f.valor)].map(m => (
             <button key={m} onClick={() => setFilterMetodo(m)}
               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filterMetodo === m ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
-              {m}
+              {m === "TODOS" ? "TODOS" : etiquetaFormaPago(m)}
             </button>
           ))}
         </div>

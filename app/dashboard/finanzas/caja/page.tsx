@@ -51,6 +51,7 @@ const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "
 
 import { fmtMoney, fmtDate as fmtDateCanon } from "@/lib/formatters";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import { FORMAS_PAGO_CAJA } from "@/lib/formas-pago";
 const fmt = fmtMoney;
 const fmtDate = fmtDateCanon;
 
@@ -516,9 +517,7 @@ export default function CajaChicaPage() {
                       <div>
                         <label className="text-xs text-[#7f93b0] mb-1 block">Método de pago</label>
                         <select value={movForm.metodo_pago} onChange={e => setMovForm({ ...movForm, metodo_pago: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
-                          <option value="EFECTIVO">Efectivo</option>
-                          <option value="TRANSFERENCIA">Transferencia</option>
-                          <option value="CHEQUE">Cheque</option>
+                          {FORMAS_PAGO_CAJA.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
                         </select>
                       </div>
                       <div className="md:col-span-2">

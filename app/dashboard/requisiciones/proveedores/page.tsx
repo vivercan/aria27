@@ -22,6 +22,7 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import { traerTodo } from "@/lib/traer-todo";
+import { FORMAS_PAGO } from "@/lib/formas-pago";
 
 interface Supplier {
   id: string; name: string; rfc: string | null; phone: string | null;
@@ -452,7 +453,7 @@ function ProveedoresPageWeb() {
                   <div>
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Forma pago</label>
                     <select value={form.payment_method} onChange={e=>updateField("payment_method",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-aria-primary/50 outline-none">
-                      <option value="TRANSFERENCIA">Transferencia</option><option value="EFECTIVO">Efectivo</option><option value="CHEQUE">Cheque</option><option value="CREDITO">Crédito</option><option value="TARJETA">Tarjeta</option>
+                      {FORMAS_PAGO.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
                     </select>
                   </div>
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Días crédito</label><input type="number"  value={form.credit_days} onChange={e=>updateField("credit_days",parseInt(e.target.value)||0)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-aria-primary/50 outline-none" min={0}/></div>

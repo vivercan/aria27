@@ -13,6 +13,7 @@ import { useFlashMessage } from "@/hooks/useFlashMessage";
 import EmptyState from "@/components/ui/EmptyState";
 import AriaBackButton from "@/components/AriaBackButton";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import { etiquetaCortaFormaPago } from "@/lib/formas-pago";
 
 type Req = {
   id: number; folio: string; cost_center_name: string;
@@ -205,7 +206,7 @@ export default function ComprasPickingPage() {
   // Helpers
   const urgencyColor = (u: string) => u === "critico" ? "text-red-400 bg-red-500/20" : u === "urgente" ? "text-amber-400 bg-amber-500/20" : "text-[#7f93b0] bg-white/[0.06]";
   const urgencyLabel = (u: string) => u === "critico" ? "CRÍTICO" : u === "urgente" ? "URGENTE" : "Normal";
-  const pagoShort = (fp: string) => fp === "TRANSFERENCIA" ? "Transf." : fp === "EFECTIVO" ? "Efectivo" : "Cheque";
+  const pagoShort = (fp: string) => etiquetaCortaFormaPago(fp);
   const creditoShort = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : dc + "d crédito";
 
   // Supplier total for quick select — String() comparison cubre UUID y entero

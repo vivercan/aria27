@@ -5,6 +5,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import { FORMAS_PAGO } from "@/lib/formas-pago";
 
 type Datos = { proveedor: string; folio: string; obra: string | null; para: string | null; vence: string; enviadas: number; partidas: { product_name: string; unit: string | null; quantity: number | null; comments: string | null }[] };
 const fecha = (d?: string | null) => d ? new Date(d.length === 10 ? d + "T12:00:00" : d).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" }) : "—";
@@ -78,7 +79,7 @@ export default function CotizarPublico() {
             <label className="mt-4 block"><span className="text-[13px] font-semibold text-slate-700">Total con IVA (MXN)</span><input inputMode="decimal" value={total} onChange={e => setTotal(e.target.value)} placeholder="$ 0.00" className={campo} /></label>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <label className="block"><span className="text-[13px] font-semibold text-slate-700">Días de entrega</span><input inputMode="numeric" value={dias} onChange={e => setDias(e.target.value)} placeholder="Ej. 3" className={campo} /></label>
-              <label className="block"><span className="text-[13px] font-semibold text-slate-700">Forma de pago</span><select value={forma} onChange={e => setForma(e.target.value)} className={campo}><option value="TRANSFERENCIA">Transferencia</option><option value="EFECTIVO">Efectivo</option><option value="CREDITO">Crédito</option></select></label>
+              <label className="block"><span className="text-[13px] font-semibold text-slate-700">Forma de pago</span><select value={forma} onChange={e => setForma(e.target.value)} className={campo}>{FORMAS_PAGO.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}</select></label>
             </div>
             <div className="mt-3"><span className="text-[13px] font-semibold text-slate-700">¿Emites factura?</span>
               <div className="mt-1 grid grid-cols-2 gap-2">{[["si", "Sí"], ["no", "No"]].map(([v, l]) => <button key={v} type="button" onClick={() => setFactura(v)} className={`rounded-xl py-2.5 font-semibold ${factura === v ? "bg-[#0073ea] text-white" : "bg-slate-100 text-slate-700"}`}>{l}</button>)}</div></div>

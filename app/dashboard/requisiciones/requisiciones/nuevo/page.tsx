@@ -9,6 +9,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import { motivoNombreInvalido, separarCantidad } from "@/lib/producto-nombre";
 import PagosDestajistaSheet from "@/components/PagosDestajista";
 import { resumenDestajo, type PagoDestajo } from "@/lib/destajo";
+import { FORMAS_PAGO, FORMAS_PAGO_CAJA, colorFormaPago, etiquetaFormaPago, requiereDatosBancarios } from "@/lib/formas-pago";
 
 type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
@@ -218,8 +219,7 @@ export default function NewRequisitionPage() {
     setSelectedProveedor(p);
     setProveedorSearch("");
     if (p.payment_method) setFormaPago(p.payment_method);
-    const m = (p.payment_method || "").toUpperCase();
-    if ((m.includes("TRANSFER") || m.includes("CHEQUE")) && !p.bank_clabe) {
+    if (requiereDatosBancarios(p.payment_method) && !p.bank_clabe) {
       setClabeForm({ bank_name: p.bank_name || "", bank_clabe: "", bank_account_number: p.bank_account_number || "", nombre_cuenta: p.razon_social || "" });
       setClabeError(null);
       setShowClabeModal(true);
@@ -266,7 +266,7 @@ export default function NewRequisitionPage() {
   // FIX 544 gap: si la forma de pago es TRANSFERENCIA y el proveedor elegido no tiene CLABE, pedirla
   useEffect(() => {
     if (!selectedProveedor || showClabeModal) return;
-    if (/TRANSFER/i.test(formaPago) && !selectedProveedor.bank_clabe) {
+    if (requiereDatosBancarios(formaPago) && !selectedProveedor.bank_clabe) {
       setClabeForm({ bank_name: selectedProveedor.bank_name || "", bank_clabe: "", bank_account_number: selectedProveedor.bank_account_number || "", nombre_cuenta: selectedProveedor.razon_social || "" });
       setClabeError(null); setShowClabeModal(true);
     }
@@ -738,9 +738,8 @@ export default function NewRequisitionPage() {
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]">Forma de pago</label>
               <select aria-label="Forma de pago" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={formaPago} onChange={e => setFormaPago(e.target.value)}>
-                <option value="EFECTIVO">Efectivo</option>
-                <option value="TRANSFERENCIA">Transferencia</option>
-                <option value="CHEQUE">Cheque</option>
+                {/* 25-Nov-2026 Valeria: catalogo unico, incluye tarjeta de credito */}
+                {FORMAS_PAGO_CAJA.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
               </select>
             </div>
             <div className="space-y-1">
@@ -805,14 +804,10 @@ export default function NewRequisitionPage() {
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-sm font-semibold text-[var(--d-text)]">{selectedProveedor.name}</span>
                   {(() => {
-                    const m = (selectedProveedor.payment_method || formaPago || "").toUpperCase();
-                    let bg = "#b85507"; // EFECTIVO ambar
-                    let label: string = "EFECTIVO";
-                    if (m.includes("TRANSFER")) { bg = "#0060c7"; label = "TRANSFERENCIA"; }
-                    else if (m.includes("CHEQUE")) { bg = "#007f48"; label = "CHEQUE"; }
-                    else if (m.includes("CREDITO") || m.includes("CRÉDITO")) { bg = "#7e3bdd"; label = "CREDITO"; }
-                    else if (m === "" || m === "EFECTIVO") { /* defaults */ }
-                    else { bg = "#475569"; label = m; }
+                    // 25-Nov-2026: un solo catalogo decide etiqueta y color
+                    const m = selectedProveedor.payment_method || formaPago || "EFECTIVO";
+                    const bg = colorFormaPago(m);
+                    const label = etiquetaFormaPago(m).toUpperCase();
                     return (
                       <span
                         className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide text-[var(--d-text)] shadow-[inset_0_1px_0_rgba(220,235,255,0.15),0_2px_4px_rgba(0,0,0,0.30)] border border-[rgba(140,178,228,0.25)]"
@@ -1242,11 +1237,7 @@ export default function NewRequisitionPage() {
                 <select value={altaProv.payment_method}
                   onChange={e => setAltaProv(f => ({ ...f, payment_method: e.target.value }))}
                   className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent">
-                  <option value="EFECTIVO">Efectivo</option>
-                  <option value="TRANSFERENCIA">Transferencia</option>
-                  <option value="CHEQUE">Cheque</option>
-                  <option value="CREDITO">Crédito</option>
-                  <option value="TARJETA">Tarjeta</option>
+                  {FORMAS_PAGO.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
                 </select>
               </div>
               <div>
@@ -1256,9 +1247,9 @@ export default function NewRequisitionPage() {
                   placeholder="449 123 4567"
                   className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" />
               </div>
-              {(altaProv.payment_method === "TRANSFERENCIA" || altaProv.payment_method === "CHEQUE") && (
+              {requiereDatosBancarios(altaProv.payment_method) && (
                 <div className="space-y-3 rounded-xl border border-[#0073ea]/40 bg-[#0073ea]/5 p-3">
-                  <p className="text-[11px] text-[var(--d-muted)]">Para pagarle por {altaProv.payment_method === "CHEQUE" ? "cheque" : "transferencia"} se necesita la CLABE.</p>
+                  <p className="text-[11px] text-[var(--d-muted)]">Para pagarle por {etiquetaFormaPago(altaProv.payment_method).toLowerCase()} se necesita la CLABE.</p>
                   <div>
                     <label className="text-xs font-medium text-[var(--d-text-2)]">Titular de la cuenta</label>
                     <input type="text" value={altaProv.razon_social}

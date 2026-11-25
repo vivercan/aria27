@@ -24,6 +24,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { FORMAS_PAGO, requiereDatosBancarios } from "@/lib/formas-pago";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -32,7 +33,8 @@ const log = logger("PROVEEDORES-CREAR");
 
 const ROLES_BANCARIOS = new Set(["admin", "compras", "caja", "finanzas", "director", "owner"]);
 
-const FORMAS = ["EFECTIVO", "TRANSFERENCIA", "CHEQUE", "CREDITO", "TARJETA"];
+// 25-Nov-2026: una sola fuente de verdad para las formas de pago.
+const FORMAS = FORMAS_PAGO.map(f => f.valor);
 
 function limpiar(v: unknown): string | null {
   const s = String(v ?? "").trim();
@@ -63,7 +65,7 @@ export async function POST(req: NextRequest) {
     if (clabe && clabe.length !== 18) {
       return NextResponse.json({ ok: false, error: "La CLABE debe tener exactamente 18 dígitos." }, { status: 400 });
     }
-    if ((formaPago === "TRANSFERENCIA" || formaPago === "CHEQUE") && !clabe) {
+    if (requiereDatosBancarios(formaPago) && !clabe) {
       return NextResponse.json({ ok: false, error: "Para pago por transferencia o cheque necesitas la CLABE de 18 dígitos." }, { status: 400 });
     }
 

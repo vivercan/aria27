@@ -12,6 +12,7 @@ import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
 import { getEntityColor } from "@/lib/entity-colors";
+import { FORMAS_PAGO_CAJA, resolverFormaPago } from "@/lib/formas-pago";
 
 interface Gasto {
   id: string;
@@ -155,7 +156,7 @@ export default function GastosObraPage() {
     // 21-Abr-2026: filtro por metodo de pago (registros sin metodo defaultean EFECTIVO)
     if (filterMetodo !== "TODOS") {
       const met = (g.metodo_pago || "EFECTIVO").toUpperCase();
-      if (met !== filterMetodo) return false;
+      if ((resolverFormaPago(met)?.valor || met) !== filterMetodo) return false;
     }
     return true;
   });
@@ -433,9 +434,7 @@ export default function GastosObraPage() {
           {/* 21-Abr-2026: filtro por metodo de pago */}
           <select value={filterMetodo} onChange={e => setFilterMetodo(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-aria-primary/50 focus:outline-none">
             <option value="TODOS">💳 Todos los métodos</option>
-            <option value="EFECTIVO">💵 Efectivo</option>
-            <option value="TRANSFERENCIA">🏦 Transferencia</option>
-            <option value="CHEQUE">📄 Cheque</option>
+            {FORMAS_PAGO_CAJA.map(f => <option key={f.valor} value={f.valor}>{f.emoji} {f.etiqueta}</option>)}
           </select>
           <div className="flex items-center gap-2">
             <input type="date" value={filtros.fechaInicio} onChange={e => setFiltros({ ...filtros, fechaInicio: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-aria-primary/50 focus:outline-none" />
@@ -632,9 +631,7 @@ export default function GastosObraPage() {
                   disabled={drawerMode === "view"}
                   className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none"
                 >
-                  <option value="EFECTIVO">Efectivo</option>
-                  <option value="TRANSFERENCIA">Transferencia</option>
-                  <option value="CHEQUE">Cheque</option>
+                  {FORMAS_PAGO_CAJA.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
                 </select>
                 {formData.metodo_pago === "TRANSFERENCIA" && (
                   <p className="text-xs text-amber-400 mt-1">Comprobante requerido para Transferencia.</p>

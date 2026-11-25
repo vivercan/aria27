@@ -17,6 +17,7 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import { traerTodo } from "@/lib/traer-todo";
+import { FORMAS_PAGO_CAJA, etiquetaFormaPago, etiquetaCortaFormaPago } from "@/lib/formas-pago";
 
 type ReqItem = {
   id: number;
@@ -290,7 +291,7 @@ function CapturarContent() {
 
   const bestPrice = quotes.length > 0 ? Math.min(...quotes.map(q => q.total)) : 0;
 
-  const pagoLabel = (fp: string) => fp === "TRANSFERENCIA" ? "Transf." : fp === "EFECTIVO" ? "Efectivo" : "Cheque";
+  const pagoLabel = (fp: string) => etiquetaCortaFormaPago(fp);
   const creditoLabel = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : `${dc}d crédito`;
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
@@ -440,9 +441,7 @@ function CapturarContent() {
               <label className="text-[#7f93b0] text-xs block mb-1">Forma de pago</label>
               <select value={formaPago} onChange={(e) => setFormaPago(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none">
-                <option value="TRANSFERENCIA">Transferencia</option>
-                <option value="EFECTIVO">Efectivo</option>
-                <option value="CHEQUE">Cheque</option>
+                {FORMAS_PAGO_CAJA.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
               </select>
             </div>
 
@@ -575,7 +574,7 @@ function CapturarContent() {
           {/* Resumen */}
           <div className="p-3 rounded-lg bg-black/30 border border-white/[0.08] space-y-2">
             <div className="flex flex-wrap gap-3 text-xs text-[#7f93b0]">
-              <span className="flex items-center gap-1"><Banknote className="w-3 h-3" /> {formaPago === "TRANSFERENCIA" ? "Transferencia" : formaPago === "EFECTIVO" ? "Efectivo" : "Cheque"}</span>
+              <span className="flex items-center gap-1"><Banknote className="w-3 h-3" /> {etiquetaFormaPago(formaPago)}</span>
               <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> {tipoCredito === "CONTADO" ? "Contado" : `${diasCredito}d crédito`}</span>
               <span className="flex items-center gap-1"><Truck className="w-3 h-3" /> {diasEntrega}d entrega</span>
               <span className={`flex items-center gap-1 ${emiteFactura ? "text-aria-accent" : "text-amber-400"}`}>
