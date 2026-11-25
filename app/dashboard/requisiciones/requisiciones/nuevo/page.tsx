@@ -9,7 +9,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import { motivoNombreInvalido, separarCantidad } from "@/lib/producto-nombre";
 import PagosDestajistaSheet from "@/components/PagosDestajista";
 import { resumenDestajo, type PagoDestajo } from "@/lib/destajo";
-import { FORMAS_PAGO, FORMAS_PAGO_CAJA, colorFormaPago, etiquetaFormaPago, requiereDatosBancarios } from "@/lib/formas-pago";
+import { FORMAS_PAGO, FORMAS_PAGO_CAJA, colorFormaPago, etiquetaFormaPago, requiereDatosBancarios, esTarjeta, limpiarTarjetaRef } from "@/lib/formas-pago";
 
 type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
@@ -84,6 +84,8 @@ export default function NewRequisitionPage() {
   // ── Datos de pago e IVA (para PDF) ───────────────────────────────────────
   const [formaPago, setFormaPago] = useState<string>("EFECTIVO");
   const [fechaPago, setFechaPago] = useState<string>("");
+  // 25-Nov-2026: con que tarjeta se paga (banco + ultimos 4). Nunca el numero completo.
+  const [tarjetaRef, setTarjetaRef] = useState<string>("");
   const [ivaPorcentaje, setIvaPorcentaje] = useState<number>(0);
   const [descripcionCompra, setDescripcionCompra] = useState<string>("");
   const [motivoSolicitud, setMotivoSolicitud] = useState<string>("");
@@ -552,6 +554,7 @@ export default function NewRequisitionPage() {
           canal_origen: searchParams.get("mats") ? "WHATSAPP" : "WEB",
           // Datos de pago e IVA
           forma_pago: formaPago,
+          tarjeta_ref: esTarjeta(formaPago) ? limpiarTarjetaRef(tarjetaRef) : null,
           fecha_pago: fechaPago || null,
           iva_porcentaje: ivaPorcentaje,
           descripcion_compra: descripcionCompra || null,
@@ -741,6 +744,12 @@ export default function NewRequisitionPage() {
                 {/* 25-Nov-2026 Valeria: catalogo unico, incluye tarjeta de credito */}
                 {FORMAS_PAGO_CAJA.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
               </select>
+              {esTarjeta(formaPago) && (
+                <input aria-label="Con qué tarjeta" type="text" maxLength={60} value={tarjetaRef}
+                  onChange={e => setTarjetaRef(e.target.value)}
+                  placeholder="¿Con qué tarjeta? Banco y últimos 4 (ej. BBVA 1234)"
+                  className="mt-2 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent w-full" />
+              )}
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]">Fecha de pago</label>

@@ -12,7 +12,7 @@ import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
 import { getEntityColor } from "@/lib/entity-colors";
-import { FORMAS_PAGO_CAJA, resolverFormaPago } from "@/lib/formas-pago";
+import { FORMAS_PAGO_CAJA, resolverFormaPago, esTarjeta, limpiarTarjetaRef } from "@/lib/formas-pago";
 
 interface Gasto {
   id: string;
@@ -59,6 +59,7 @@ export default function GastosObraPage() {
     monto: "0.00",
     estatus: "Pendiente",
     metodo_pago: "EFECTIVO", // 21-Abr-2026: default EFECTIVO
+    tarjeta_ref: "", // 25-Nov-2026: banco + ultimos 4 cuando se paga con tarjeta
     comprobante: null as File | null
   });
 
@@ -175,7 +176,7 @@ export default function GastosObraPage() {
   const openNewGasto = () => {
     setDrawerMode("create");
     setSelectedGasto(null);
-    setFormData({ fecha: "", obra: "", solicitante: "", proveedor: "", descripcion: "", monto: "0.00", estatus: "Pendiente", metodo_pago: "EFECTIVO", comprobante: null });
+    setFormData({ fecha: "", obra: "", solicitante: "", proveedor: "", descripcion: "", monto: "0.00", estatus: "Pendiente", metodo_pago: "EFECTIVO", tarjeta_ref: "", comprobante: null });
     setFormErrors({});
     setDrawerOpen(true);
   };
@@ -183,7 +184,7 @@ export default function GastosObraPage() {
   const openViewGasto = (gasto: Gasto) => {
     setDrawerMode("view");
     setSelectedGasto(gasto);
-    setFormData({ fecha: gasto.fecha, obra: gasto.obra, solicitante: gasto.solicitante, proveedor: gasto.proveedor, descripcion: gasto.descripcion, monto: gasto.monto.toString(), estatus: gasto.estatus, metodo_pago: (gasto as { metodo_pago?: string }).metodo_pago || "EFECTIVO", comprobante: null });
+    setFormData({ fecha: gasto.fecha, obra: gasto.obra, solicitante: gasto.solicitante, proveedor: gasto.proveedor, descripcion: gasto.descripcion, monto: gasto.monto.toString(), estatus: gasto.estatus, metodo_pago: (gasto as { metodo_pago?: string }).metodo_pago || "EFECTIVO", tarjeta_ref: (gasto as { tarjeta_ref?: string }).tarjeta_ref || "", comprobante: null });
     setFormErrors({});
     setDrawerOpen(true);
   };
@@ -234,6 +235,7 @@ export default function GastosObraPage() {
         monto,
         estatus: formData.estatus || "Pendiente",
         metodo_pago: formData.metodo_pago || "EFECTIVO",
+        tarjeta_ref: esTarjeta(formData.metodo_pago) ? limpiarTarjetaRef(formData.tarjeta_ref) : null, // 25-Nov-2026
         semana: calculateSemana(formData.fecha)
       };
 
@@ -633,6 +635,12 @@ export default function GastosObraPage() {
                 >
                   {FORMAS_PAGO_CAJA.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
                 </select>
+                {esTarjeta(formData.metodo_pago) && (
+                  <input value={formData.tarjeta_ref} onChange={e => setFormData({ ...formData, tarjeta_ref: e.target.value })} maxLength={60}
+                    disabled={drawerMode === "view"}
+                    placeholder="¿Con qué tarjeta? Banco y últimos 4 (ej. BBVA 1234)"
+                    className="mt-2 w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 focus:border-aria-primary/50 focus:outline-none" />
+                )}
                 {formData.metodo_pago === "TRANSFERENCIA" && (
                   <p className="text-xs text-amber-400 mt-1">Comprobante requerido para Transferencia.</p>
                 )}

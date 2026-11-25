@@ -10,6 +10,7 @@ import { sendEmailLogged } from "@/lib/email-log";
 import { notifyOps } from "@/lib/notify-ops";
 import { emailAllowed } from "@/lib/notif-policy";
 import { hydrateSupplierBanking } from "@/lib/hydrate-supplier-banking";
+import { limpiarTarjetaRef } from "@/lib/formas-pago";
 
 const log = logger("REQUISICION");
 
@@ -235,6 +236,8 @@ export async function POST(request: NextRequest) {
       // (cost_center_id es INTEGER legacy; el uuid de centros_trabajo NO se guarda aqui — hotfix 10-Oct)
       // Datos de pago e IVA para PDF
       ...(body.forma_pago ? { forma_pago: body.forma_pago } : {}),
+      // 25-Nov-2026: con que tarjeta se paga (banco + ultimos 4; el server tambien recorta)
+      ...(body.tarjeta_ref ? { tarjeta_ref: limpiarTarjetaRef(String(body.tarjeta_ref)) } : {}),
       ...(body.fecha_pago ? { fecha_pago: body.fecha_pago } : {}),
       ...(body.iva_porcentaje != null ? { iva_porcentaje: body.iva_porcentaje } : {}),
       // Descripcion + motivo (PR #108 28-Abr-2026)

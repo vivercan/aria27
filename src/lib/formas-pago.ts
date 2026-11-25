@@ -94,3 +94,24 @@ export function requiereDatosBancarios(texto?: string | null): boolean {
   const f = resolverFormaPago(texto);
   return f?.valor === "TRANSFERENCIA" || f?.valor === "CHEQUE";
 }
+
+/** ¿Es pago con tarjeta (crédito o débito)? */
+export function esTarjeta(texto?: string | null): boolean {
+  const v = resolverFormaPago(texto)?.valor;
+  return v === "TARJETA_CREDITO" || v === "TARJETA_DEBITO";
+}
+
+/**
+ * Limpia la referencia de la tarjeta usada ("BBVA 1234").
+ * SEGURIDAD: si alguien pega el numero completo de la tarjeta, aqui se
+ * recorta a los ultimos 4 digitos. Nunca se guarda un numero completo.
+ */
+export function limpiarTarjetaRef(texto?: string | null): string | null {
+  let t = String(texto || "").replace(/\s+/g, " ").trim();
+  if (!t) return null;
+  t = t.replace(/\d[\d -]{5,}\d/g, (run) => {
+    const digitos = run.replace(/\D/g, "");
+    return digitos.length > 4 ? "•" + digitos.slice(-4) : digitos;
+  });
+  return t.slice(0, 60) || null;
+}

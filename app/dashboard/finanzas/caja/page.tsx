@@ -46,12 +46,12 @@ const CATEGORIAS = [
 ];
 
 const FONDO_INIT = { nombre: "", obra_id: "", responsable_id: "", monto_autorizado: "", notas: "" };
-const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "", fecha: new Date().toISOString().slice(0,10), comprobante: "", responsable: "", categoria: "GENERAL", notas: "", metodo_pago: "EFECTIVO" };
+const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "", fecha: new Date().toISOString().slice(0,10), comprobante: "", responsable: "", categoria: "GENERAL", notas: "", metodo_pago: "EFECTIVO", tarjeta_ref: "" };
   const log = clientLogger("CAJA");
 
 import { fmtMoney, fmtDate as fmtDateCanon } from "@/lib/formatters";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
-import { FORMAS_PAGO_CAJA } from "@/lib/formas-pago";
+import { FORMAS_PAGO_CAJA, esTarjeta, limpiarTarjetaRef } from "@/lib/formas-pago";
 const fmt = fmtMoney;
 const fmtDate = fmtDateCanon;
 
@@ -195,6 +195,7 @@ export default function CajaChicaPage() {
       categoria: movForm.categoria,
       notas: movForm.notas || null,
       metodo_pago: movForm.metodo_pago || (movForm.tipo === "GASTO" ? "EFECTIVO" : "TRANSFERENCIA"), // 21-Abr-2026
+      tarjeta_ref: esTarjeta(movForm.metodo_pago) ? limpiarTarjetaRef(movForm.tarjeta_ref) : null, // 25-Nov-2026
     };
     const { error } = await supabase.from("caja_chica_movimientos").insert(payload);
     if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
@@ -519,6 +520,11 @@ export default function CajaChicaPage() {
                         <select value={movForm.metodo_pago} onChange={e => setMovForm({ ...movForm, metodo_pago: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                           {FORMAS_PAGO_CAJA.map(f => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
                         </select>
+                        {esTarjeta(movForm.metodo_pago) && (
+                          <input value={movForm.tarjeta_ref} onChange={e => setMovForm({ ...movForm, tarjeta_ref: e.target.value })} maxLength={60}
+                            placeholder="¿Con qué tarjeta? Banco y últimos 4 (ej. BBVA 1234)"
+                            className="mt-2 w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
+                        )}
                       </div>
                       <div className="md:col-span-2">
                         <label className="text-xs text-[#7f93b0] mb-1 block">Notas</label>

@@ -46,3 +46,24 @@ describe("formas de pago", () => {
     expect(requiereDatosBancarios("EFECTIVO")).toBe(false);
   });
 });
+
+import { esTarjeta, limpiarTarjetaRef } from "@/lib/formas-pago";
+
+describe("tarjeta usada (banco + ultimos 4)", () => {
+  it("detecta tarjeta", () => {
+    expect(esTarjeta("TARJETA_CREDITO")).toBe(true);
+    expect(esTarjeta("TARJETA_DEBITO")).toBe(true);
+    expect(esTarjeta("EFECTIVO")).toBe(false);
+  });
+  it("guarda banco y ultimos 4 tal cual", () => {
+    expect(limpiarTarjetaRef("BBVA 1234")).toBe("BBVA 1234");
+    expect(limpiarTarjetaRef("  Banorte  5678 ")).toBe("Banorte 5678");
+    expect(limpiarTarjetaRef("")).toBeNull();
+    expect(limpiarTarjetaRef(null)).toBeNull();
+  });
+  it("NUNCA guarda un numero de tarjeta completo", () => {
+    expect(limpiarTarjetaRef("BBVA 4152 3137 0000 1234")).toBe("BBVA •1234");
+    expect(limpiarTarjetaRef("4152313700001234")).toBe("•1234");
+    expect(limpiarTarjetaRef("Santander 4152-3137-0000-9876")).toBe("Santander •9876");
+  });
+});
