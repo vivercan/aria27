@@ -9,6 +9,7 @@ import { ClipboardList, Search, Plus, Eye, Printer, Loader2, Package, CheckCircl
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { traerTodo } from "@/lib/traer-todo";
 
 interface OrdenFormato {
   id: string;
@@ -57,7 +58,8 @@ export default function OrdenesPage() {
   };
 
   const cargarProveedores = async () => {
-    const { data } = await supabase.from("suppliers").select("name").order("name");
+    // 24-Nov-2026: paginado — PostgREST corta en 1000 y hay 1,236 proveedores.
+    const data = await traerTodo<{name:string}>(desde => supabase.from("suppliers").select("name").order("name").range(desde, desde + 999)).catch(()=>[]);
     setProveedores((data || []).map(s => s.name));
   };
 

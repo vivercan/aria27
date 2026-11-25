@@ -116,8 +116,16 @@ export default function NewRequisitionPage() {
   const esGastoTipo = TIPOS_GASTO_REQ.includes(descripcionCompra);
 
   // ── Proveedor pre-seleccionado ───────────────────────────────────────────
-  const [proveedores, setProveedores] = useState<ProveedorOption[]>([]);
+  // 24-Nov-2026: se quito el estado `proveedores` (cargaba la lista completa en
+  // cada focus y PostgREST la cortaba en 1000 de 1236). El buscador real es
+  // /api/proveedores/search, server-side, que si ve a todos.
   const [proveedoresResults, setProveedoresResults] = useState<ProveedorOption[]>([]);
+  const [buscandoProv, setBuscandoProv] = useState(false);
+  // 24-Nov-2026 Jessica: dar de alta proveedor sin salir de la requisicion
+  const [showAltaProv, setShowAltaProv] = useState(false);
+  const [altaProv, setAltaProv] = useState({ name: "", payment_method: "EFECTIVO", phone: "", bank_name: "", bank_clabe: "", bank_account_number: "", razon_social: "" });
+  const [altaProvSaving, setAltaProvSaving] = useState(false);
+  const [altaProvError, setAltaProvError] = useState<string | null>(null);
   const [proveedorSearch, setProveedorSearch] = useState<string>("");
   const [selectedProveedor, setSelectedProveedor] = useState<ProveedorOption | null>(null);
   // FIX 544: modal captura CLABE al vuelo
@@ -205,6 +213,56 @@ export default function NewRequisitionPage() {
     return () => { alive = false; };
   }, [tipoSolicitud, selectedProveedor, selectedCostCenterId, costCenters]);
 
+  // ── 24-Nov-2026 Jessica: dar de alta proveedor sin salir de la requisicion ──
+  const elegirProveedor = (p: ProveedorOption) => {
+    setSelectedProveedor(p);
+    setProveedorSearch("");
+    if (p.payment_method) setFormaPago(p.payment_method);
+    const m = (p.payment_method || "").toUpperCase();
+    if ((m.includes("TRANSFER") || m.includes("CHEQUE")) && !p.bank_clabe) {
+      setClabeForm({ bank_name: p.bank_name || "", bank_clabe: "", bank_account_number: p.bank_account_number || "", nombre_cuenta: p.razon_social || "" });
+      setClabeError(null);
+      setShowClabeModal(true);
+    }
+  };
+
+  const abrirAltaProveedor = () => {
+    setAltaProv({ name: proveedorSearch.trim(), payment_method: "EFECTIVO", phone: "", bank_name: "", bank_clabe: "", bank_account_number: "", razon_social: "" });
+    setAltaProvError(null);
+    setShowAltaProv(true);
+  };
+
+  const guardarAltaProveedor = async () => {
+    setAltaProvSaving(true);
+    setAltaProvError(null);
+    try {
+      const res = await fetch("/api/proveedores/crear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        cache: "no-store",
+        body: JSON.stringify(altaProv),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok || !d?.ok) {
+        setAltaProvError(d?.error || "No se pudo guardar el proveedor.");
+        return;
+      }
+      const nuevo = d.proveedor as ProveedorOption;
+      setShowAltaProv(false);
+      // Queda seleccionado al instante: sin recargar, sin F5.
+      setSelectedProveedor(nuevo);
+      setProveedorSearch("");
+      setProveedoresResults([]);
+      if (nuevo.payment_method) setFormaPago(nuevo.payment_method);
+      setMessage(d.yaExistia && d.aviso ? String(d.aviso) : `Proveedor "${nuevo.name}" dado de alta y seleccionado.`);
+    } catch {
+      setAltaProvError("Se cortó la conexión. Vuelve a intentar.");
+    } finally {
+      setAltaProvSaving(false);
+    }
+  };
+
   // FIX 544 gap: si la forma de pago es TRANSFERENCIA y el proveedor elegido no tiene CLABE, pedirla
   useEffect(() => {
     if (!selectedProveedor || showClabeModal) return;
@@ -223,7 +281,6 @@ export default function NewRequisitionPage() {
         const tc = data.filter(d => d.tipo === "TIPO_COMPRA").map(d => d.valor); if (tc.length) setTiposCompra(tc);
       }
     });
-    supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").range(0, 1999).then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
@@ -235,8 +292,10 @@ export default function NewRequisitionPage() {
   useEffect(() => {
     if (proveedorSearch.length < 2) {
       setProveedoresResults([]);
+      setBuscandoProv(false);
       return;
     }
+    setBuscandoProv(true);
     const handle = setTimeout(() => {
       fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, {
         cache: "no-store",
@@ -246,7 +305,8 @@ export default function NewRequisitionPage() {
         .then((d) => {
           if (d?.proveedores) setProveedoresResults(d.proveedores as ProveedorOption[]);
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => setBuscandoProv(false));
     }, 200);
     return () => clearTimeout(handle);
   }, [proveedorSearch]);
@@ -711,10 +771,6 @@ export default function NewRequisitionPage() {
                 placeholder="Buscar proveedor..."
                 value={selectedProveedor ? selectedProveedor.name : proveedorSearch}
                 onChange={e => { setProveedorSearch(e.target.value); setSelectedProveedor(null); }}
-                onFocus={() => {
-                  // 03-Jun-2026 Daisy bug3: refresh on focus para detectar proveedores recien dados de alta
-                  supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").range(0, 1999).then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
-                }}
               />
               {selectedProveedor && (
                 <button onClick={() => { setSelectedProveedor(null); setProveedorSearch(""); }} className="absolute right-2 top-2 text-[var(--d-faint)] hover:text-[var(--d-text-2)]">
@@ -725,26 +781,23 @@ export default function NewRequisitionPage() {
             {!selectedProveedor && proveedorSearch.length >= 2 && (
               <div className="max-h-40 overflow-y-auto rounded-xl border border-[var(--d-border)] bg-[var(--d-surface)]">
                 {proveedoresResults.slice(0, 20).map(p => (
-                  <div key={p.id} onClick={() => {
-                    setSelectedProveedor(p);
-                    setProveedorSearch("");
-                    if (p.payment_method) setFormaPago(p.payment_method);
-                    // FIX 544: si es TRANSFERENCIA/CHEQUE sin CLABE → abrir modal captura
-                    const m = (p.payment_method || "").toUpperCase();
-                    const necesitaClabe = (m.includes("TRANSFER") || m.includes("CHEQUE")) && !p.bank_clabe;
-                    if (necesitaClabe) {
-                      setClabeForm({ bank_name: p.bank_name || "", bank_clabe: "", bank_account_number: p.bank_account_number || "", nombre_cuenta: p.razon_social || "" });
-                      setClabeError(null);
-                      setShowClabeModal(true);
-                    }
-                  }} className="cursor-pointer px-3 py-2 text-sm hover:bg-[var(--d-hover)] transition-colors">
+                  <div key={p.id} onClick={() => elegirProveedor(p)} className="cursor-pointer px-3 py-2 text-sm hover:bg-[var(--d-hover)] transition-colors">
                     <div className="text-[var(--d-text)]">{p.name}</div>
                     {(p.bank_name || p.bank_clabe) && <div className="text-xs text-[var(--d-faint)]">{p.bank_name}{p.bank_clabe ? ` · CLABE: ${p.bank_clabe.slice(0,6)}…` : ""}</div>}
                   </div>
                 ))}
-                {proveedoresResults.length === 0 && (
-                  <div className="px-3 py-2 text-xs text-[var(--d-faint)]">Sin resultados</div>
+                {buscandoProv && proveedoresResults.length === 0 && (
+                  <div className="px-3 py-2 text-xs text-[var(--d-faint)]">Buscando…</div>
                 )}
+                {!buscandoProv && proveedoresResults.length === 0 && (
+                  <div className="px-3 py-2 text-xs text-[var(--d-faint)]">No existe ningún proveedor con ese nombre.</div>
+                )}
+                {/* 24-Nov-2026 Jessica: alta desde aqui, sin salir de la requisicion */}
+                <button type="button" onClick={abrirAltaProveedor}
+                  className="w-full border-t border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2.5 text-left text-sm font-semibold text-[#0073ea] hover:bg-[var(--d-hover)] transition-colors">
+                  + Dar de alta &ldquo;{proveedorSearch.trim()}&rdquo;
+                  <span className="block text-[11px] font-normal text-[var(--d-muted)]">Se guarda y se queda seleccionado. No pierdes lo que ya capturaste.</span>
+                </button>
               </div>
             )}
             {selectedProveedor && (
@@ -1168,6 +1221,84 @@ export default function NewRequisitionPage() {
       </section>)}
 
       {/* FIX 544 · Modal captura CLABE al vuelo */}
+      {/* ── 24-Nov-2026 Jessica: alta de proveedor sin salir de la requisicion ── */}
+      {showAltaProv && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-[var(--d-border)] bg-[var(--d-surface)] p-6 shadow-2xl">
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-[var(--d-text)]">Dar de alta proveedor</h3>
+              <p className="mt-1 text-xs text-[var(--d-muted)]">Con el nombre y la forma de pago basta. Al guardar queda seleccionado en esta requisición.</p>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Nombre del proveedor *</label>
+                <input type="text" autoFocus value={altaProv.name}
+                  onChange={e => setAltaProv(f => ({ ...f, name: e.target.value }))}
+                  placeholder="Ferretería La Central"
+                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">¿Cómo se le paga? *</label>
+                <select value={altaProv.payment_method}
+                  onChange={e => setAltaProv(f => ({ ...f, payment_method: e.target.value }))}
+                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent">
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="TRANSFERENCIA">Transferencia</option>
+                  <option value="CHEQUE">Cheque</option>
+                  <option value="CREDITO">Crédito</option>
+                  <option value="TARJETA">Tarjeta</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-[var(--d-text-2)]">Teléfono (opcional)</label>
+                <input type="tel" inputMode="tel" value={altaProv.phone}
+                  onChange={e => setAltaProv(f => ({ ...f, phone: e.target.value }))}
+                  placeholder="449 123 4567"
+                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" />
+              </div>
+              {(altaProv.payment_method === "TRANSFERENCIA" || altaProv.payment_method === "CHEQUE") && (
+                <div className="space-y-3 rounded-xl border border-[#0073ea]/40 bg-[#0073ea]/5 p-3">
+                  <p className="text-[11px] text-[var(--d-muted)]">Para pagarle por {altaProv.payment_method === "CHEQUE" ? "cheque" : "transferencia"} se necesita la CLABE.</p>
+                  <div>
+                    <label className="text-xs font-medium text-[var(--d-text-2)]">Titular de la cuenta</label>
+                    <input type="text" value={altaProv.razon_social}
+                      onChange={e => setAltaProv(f => ({ ...f, razon_social: e.target.value }))}
+                      placeholder="A nombre de quién sale el pago"
+                      className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-[var(--d-text-2)]">Banco</label>
+                    <input type="text" value={altaProv.bank_name}
+                      onChange={e => setAltaProv(f => ({ ...f, bank_name: e.target.value.toUpperCase() }))}
+                      placeholder="BBVA / BANORTE / BANAMEX ..."
+                      className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-[var(--d-text-2)]">CLABE (18 dígitos) *</label>
+                    <input type="text" inputMode="numeric" maxLength={18} value={altaProv.bank_clabe}
+                      onChange={e => setAltaProv(f => ({ ...f, bank_clabe: e.target.value.replace(/\D/g, "").slice(0, 18) }))}
+                      placeholder="012914001234567890"
+                      className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm font-mono outline-none focus:border-aria-accent" />
+                    <p className="mt-1 text-[11px] text-[var(--d-faint)]">{altaProv.bank_clabe.length}/18</p>
+                  </div>
+                </div>
+              )}
+              {altaProvError && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">{altaProvError}</p>}
+            </div>
+            <div className="mt-5 flex gap-2">
+              <button type="button" onClick={() => setShowAltaProv(false)} disabled={altaProvSaving}
+                className="flex-1 rounded-xl border border-[var(--d-border)] px-4 py-2.5 text-sm text-[var(--d-text-2)] hover:bg-[var(--d-hover)] disabled:opacity-50">
+                Cancelar
+              </button>
+              <button type="button" onClick={guardarAltaProveedor} disabled={altaProvSaving || altaProv.name.trim().length < 3}
+                className="flex-1 rounded-xl bg-[#0073ea] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0060c7] disabled:opacity-50">
+                {altaProvSaving ? "Guardando…" : "Guardar y usar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showClabeModal && selectedProveedor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl border border-[var(--d-border)] bg-[var(--d-surface)] p-6 shadow-2xl">

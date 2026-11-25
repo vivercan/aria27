@@ -21,6 +21,7 @@ import { EntityFolderDrawer } from "@/components/EntityFolder";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import { traerTodo } from "@/lib/traer-todo";
 
 interface Supplier {
   id: string; name: string; rfc: string | null; phone: string | null;
@@ -71,11 +72,15 @@ function ProveedoresPageWeb() {
 
   const loadSuppliers = useCallback(async()=>{
     // Hotfix 24-Abr-2026: la VIEW Proveedores no expone "active" (solo status). Leemos tabla base suppliers directamente (consistente con insert/update/delete del mismo modulo).
-    const{data,error}=await supabase.from("suppliers")
-      .select("id,name,rfc,phone,email,address,categories,contact_name,credit_days,active,website,whatsapp,bank_name,bank_clabe,bank_account_number,payment_method,razon_social,zona_cobertura,notas_comerciales")
-      .order("name");
-    if(error) log.error("Error cargando suppliers", { err: error.message });
-    if(data)setSuppliers(data);
+    // 24-Nov-2026 Deya: "doy de alta el proveedor y no me aparece despues".
+    // Causa: PostgREST corta en 1000 filas y hay 1,236 proveedores. Los 236
+    // ultimos por nombre eran invisibles para siempre, con F5 o sin F5.
+    try{
+      const todos = await traerTodo<Supplier>(desde => supabase.from("suppliers")
+        .select("id,name,rfc,phone,email,address,categories,contact_name,credit_days,active,website,whatsapp,bank_name,bank_clabe,bank_account_number,payment_method,razon_social,zona_cobertura,notas_comerciales")
+        .order("name").range(desde, desde + 999));
+      setSuppliers(todos);
+    }catch(e){ log.error("Error cargando suppliers", { err: (e as Error).message }); }
     setLoading(false);
   },[]);
 
@@ -197,13 +202,25 @@ function ProveedoresPageWeb() {
           return;
         }
       } else {
-        const { error } = await supabase.from("suppliers").insert({...payload,active:true});
+        const { data: creado, error } = await supabase.from("suppliers").insert({...payload,active:true}).select("id,name,bank_clabe").single();
         if (error) {
           log.error("INSERT suppliers fallo", { err: error.message, code: error.code, details: error.details, hint: error.hint });
           const fullMsg = `Error al crear proveedor: ${error.message}${error.hint ? " | hint: " + error.hint : ""}`;
           flash("err", fullMsg);
           alert(fullMsg);
           return;
+        }
+        // 24-Nov-2026 Deya: "doy de alta el proveedor y no me aparece despues".
+        // Despues de guardar lo dejamos a la vista: pestaña Todos + buscador
+        // con su nombre. Ya no hay que adivinar en que pestaña cayo ni dar F5.
+        if (creado) {
+          setTabFilter("TODOS");
+          setFilterCat("");
+          setSearch(creado.name);
+          const conClabe = !!(creado.bank_clabe && /^\d{18}$/.test(String(creado.bank_clabe).trim()));
+          flash("ok", conClabe
+            ? `"${creado.name}" quedó dado de alta. Aquí lo tienes.`
+            : `"${creado.name}" quedó dado de alta. Sin CLABE de 18 dígitos se queda en Catálogo; agrégala para que pase a Activos.`);
         }
       }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
@@ -244,6 +261,12 @@ function ProveedoresPageWeb() {
           <AriaBackButton href="/dashboard/requisiciones" />
           <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-aria-accent"/>Proveedores</h1>
           <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
+          {/* 24-Nov-2026 Deya: "aparte de F5 de que otra manera se actualiza" — este boton */}
+          <button type="button" onClick={() => { setLoading(true); loadSuppliers(); }} disabled={loading}
+            title="Volver a leer la lista de proveedores"
+            className="ml-auto rounded-md border border-white/15 px-2.5 py-1 text-[11px] font-semibold text-[#b4c8e4] hover:bg-white/5 disabled:opacity-50">
+            {loading ? "Actualizando…" : "↻ Actualizar"}
+          </button>
         </div>
         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
           <div className="flex flex-wrap items-center gap-1.5 mr-3">

@@ -7,6 +7,7 @@ import { Hoja, useAviso } from "@/components/domenica/ui";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { supabase } from "@/lib/supabase";
 import { Encabezado, Buscador, Pestanas, Contacto, ModoCompleto, Pagina } from "./base";
+import { traerTodo } from "@/lib/traer-todo";
 
 type S = { id: number; name: string; contact_name: string | null; phone: string | null; celular: string | null; whatsapp: string | null; email: string | null; categories: string | string[] | null; active: boolean | null; rfc: string | null; bank_name: string | null; banco: string | null; bank_clabe: string | null; clabe: string | null; bank_account: string | null; numero_cuenta: string | null; nombre_cuenta: string | null; credit_days: number | null; ciudad: string | null };
 const cats = (c: S["categories"]) => (Array.isArray(c) ? c : String(c || "").split(",")).map(x => String(x).trim()).filter(Boolean);
@@ -14,7 +15,8 @@ const cats = (c: S["categories"]) => (Array.isArray(c) ? c : String(c || "").spl
 export default function ProveedoresMovil() {
   const { flash, nodo } = useAviso();
   const [lista, setLista] = useState<S[] | null>(null); const [q, setQ] = useState(""); const [tab, setTab] = useState<"activos" | "todos">("activos"); const [ver, setVer] = useState<S | null>(null);
-  useEffect(() => { supabase.from("suppliers").select("id, name, contact_name, phone, celular, whatsapp, email, categories, active, rfc, bank_name, banco, bank_clabe, clabe, bank_account, numero_cuenta, nombre_cuenta, credit_days, ciudad").order("name").limit(2000).then(({ data }) => setLista((data || []) as S[])); }, []);
+  // 24-Nov-2026: .limit(2000) NO servia — PostgREST corta en 1000 y hay 1,236.
+  useEffect(() => { traerTodo<S>(desde => supabase.from("suppliers").select("id, name, contact_name, phone, celular, whatsapp, email, categories, active, rfc, bank_name, banco, bank_clabe, clabe, bank_account, numero_cuenta, nombre_cuenta, credit_days, ciudad").order("name").range(desde, desde + 999)).then(setLista).catch(() => {}); }, []);
   const vis = useMemo(() => { const t = q.trim().toLowerCase(); return (lista || []).filter(s => (tab === "todos" || s.active) && (!t || `${s.name} ${s.contact_name || ""} ${s.rfc || ""} ${cats(s.categories).join(" ")}`.toLowerCase().includes(t))).slice(0, 150); }, [lista, q, tab]);
   const tel = (s: S) => s.whatsapp || s.celular || s.phone;
   const copiar = (t: string) => { try { navigator.clipboard.writeText(t); flash("ok", "Copiado"); } catch { /* */ } };

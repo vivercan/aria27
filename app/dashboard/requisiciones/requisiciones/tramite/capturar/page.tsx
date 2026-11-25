@@ -16,6 +16,7 @@ import {
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import { traerTodo } from "@/lib/traer-todo";
 
 type ReqItem = {
   id: number;
@@ -93,7 +94,7 @@ function CapturarContent() {
   // 27-Abr-2026: auto-recarga suppliers al volver el foco a la pestana
   useEffect(() => {
     const reloadSuppliers = async () => {
-      const { data: sups } = await supabase.from("suppliers").select("id, name").eq("active", true).order("name");
+      const sups = await traerTodo<{id:string;name:string}>(desde => supabase.from("suppliers").select("id, name").eq("active", true).order("name").range(desde, desde + 999)).catch(()=>[]);
       setSuppliers(sups || []);
     };
     const onVisibility = () => { if (document.visibilityState === "visible") reloadSuppliers(); };
@@ -117,7 +118,7 @@ function CapturarContent() {
     setQuotes((qs || []) as QuoteRow[]);
 
     // 27-Abr-2026: leer tabla base suppliers + filtro active=true (consistente con alta)
-    const { data: sups } = await supabase.from("suppliers").select("id, name").eq("active", true).order("name");
+    const sups = await traerTodo<{id:string;name:string}>(desde => supabase.from("suppliers").select("id, name").eq("active", true).order("name").range(desde, desde + 999)).catch(()=>[]);
     setSuppliers(sups || []);
 
     setLoading(false);

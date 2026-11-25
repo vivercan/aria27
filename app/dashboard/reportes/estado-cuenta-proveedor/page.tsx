@@ -7,6 +7,7 @@ import Link from "next/link";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney as fmt } from "@/lib/formatters";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import { traerTodo } from "@/lib/traer-todo";
 
 interface OC {
   folio: string;
@@ -30,9 +31,11 @@ function Content() {
   useEffect(() => { if (proveedor) cargar(); else setLoading(false); }, [proveedor]);
 
   async function cargarProveedores() {
-    const { data, error } = await supabase.from("suppliers").select("name").order("name", { ascending: true });
-    if (error) console.error("Error proveedores:", error);
-    setProveedores((data || []).map((p: { name: string }) => p.name).filter(Boolean));
+    // 24-Nov-2026: paginado — PostgREST corta en 1000 y hay 1,236 proveedores.
+    try {
+      const data = await traerTodo<{ name: string }>(desde => supabase.from("suppliers").select("name").order("name", { ascending: true }).range(desde, desde + 999));
+      setProveedores(data.map(p => p.name).filter(Boolean));
+    } catch (e) { console.error("Error proveedores:", e); }
   }
 
   async function cargar() {

@@ -15,6 +15,7 @@ import * as XLSX from "xlsx";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import { traerTodo } from "@/lib/traer-todo";
 
 interface Product { id:number; sku:string; name:string; description:string|null; unit:string; category:string|null; }
 interface SupplierInfo { id:number; name:string; }
@@ -79,7 +80,9 @@ function ProductosPageWeb() {
     };
     load();
     // Load suppliers for dropdowns
-    supabase.from("suppliers").select("id,name").order("name").then(({data})=>{if(data)setAllSuppliers(data);});
+    // 24-Nov-2026: paginado — PostgREST corta en 1000 y hay 1,236 proveedores.
+    traerTodo<SupplierOption>(desde => supabase.from("suppliers").select("id,name").order("name").range(desde, desde + 999))
+      .then(setAllSuppliers).catch(()=>{});
   },[]);
 
   const loadProducts=useCallback(async(page:number)=>{
